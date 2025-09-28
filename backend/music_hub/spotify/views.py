@@ -3,6 +3,7 @@ import requests
 from django.http import JsonResponse, HttpResponseRedirect
 from django.conf import settings
 from urllib.parse import urlencode
+from django.shortcuts import redirect
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework_simplejwt.tokens import UntypedToken
@@ -73,7 +74,7 @@ def spotify_callback(request):
                   'expires_at': expires_at}
     )
 
-    return JsonResponse({'message': 'Authentication successful'})
+    return redirect('http://localhost:3000/dashboard')
 
 
 def refresh_spotify_token(user):
