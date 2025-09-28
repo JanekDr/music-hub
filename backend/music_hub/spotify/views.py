@@ -125,3 +125,13 @@ def get_user_spotify_connection_status(request):
         'connected': connected,
         'expires_at': expires_at,
     })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def spotify_disconnect(request):
+    try:
+        token_obj = SpotifyToken.objects.get(user=request.user)
+        token_obj.delete()
+        return JsonResponse({'message': 'Spotify account disconnected'})
+    except SpotifyToken.DoesNotExist:
+        return JsonResponse({'error': 'Spotify account not connected'}, status=400)

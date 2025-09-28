@@ -5,6 +5,12 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import SpotifyLoginButton from "./components/SpotifyLoginButton.jsx";
+import './styles/reset.css';
+import './styles/layout.css';
+import './styles/forms.css';
+import './styles/dashboard.css';
+import './styles/spotify.css';
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
