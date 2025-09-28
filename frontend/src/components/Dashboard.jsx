@@ -1,6 +1,7 @@
 import { authAPI } from '../services/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import SpotifyLoginButton from "./SpotifyLoginButton.jsx";
  
 const Dashboard = () => {
   const {logout} = useAuth();
@@ -46,6 +47,7 @@ const Dashboard = () => {
           {user?.soundcloud_id && <p><strong>SoundCloud ID:</strong> {user.soundcloud_id}</p>}
         </div>
       </div>
+      <SpotifyLoginButton/>
     </div>
   );
 };

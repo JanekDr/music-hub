@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import SpotifyLoginButton from "./components/SpotifyLoginButton.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -47,6 +48,13 @@ function App() {
               path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/spotify" element={
+                <ProtectedRoute>
+                  <SpotifyLoginButton />
                 </ProtectedRoute>
               }
             />

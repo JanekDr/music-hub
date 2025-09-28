@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('accessToken'));
 
-  // Zmień isAuthenticated na bazujące na localStorage
   const isAuthenticated = !!token;
 
   useEffect(() => {

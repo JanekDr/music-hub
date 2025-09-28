@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
-    'users'
+    'users',
+    'spotify'
 ]
 
 MIDDLEWARE = [
@@ -152,12 +153,13 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 SOCIAL_AUTH_SPOTIFY_KEY = os.getenv('SOCIAL_AUTH_SPOTIFY_KEY')
 SOCIAL_AUTH_SPOTIFY_SECRET = os.getenv('SOCIAL_AUTH_SPOTIFY_SECRET')
-SOCIAL_AUTH_SPOTIFY_SCOPE = [
-    'user-read-email',
-    'user-read-private',
-    'user-read-playback-state',
-    'user-modify-playback-state',
-    'streaming',
-    'playlist-read-private',
-    'playlist-read-collaborative',
-]
+# SOCIAL_AUTH_SPOTIFY_SCOPE = [
+#     'user-read-email',
+#     'user-read-private',
+#     'user-read-playback-state',
+#     'user-modify-playback-state',
+#     'streaming',
+#     'playlist-read-private',
+#     'playlist-read-collaborative',
+# ]
+SPOTIFY_REDIRECT_URI = 'http://127.0.0.1:8000/api/spotify/callback'
