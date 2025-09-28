@@ -1,0 +1,33 @@
+/* Globalne style layoutu */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1DB954;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.logout-btn {
+  background: #121212;
+  color: #1DB954;
+  border: 2px solid #1DB954;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #1DB954;
+  color: #121212;
+}

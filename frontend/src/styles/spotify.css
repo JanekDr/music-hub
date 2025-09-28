@@ -1,0 +1,51 @@
+/* Specjalne style dla sekcji Spotify */
+.spotify-status {
+  padding: 1rem;
+  margin-top: 1.5rem;
+  border: 2px solid #1DB954;
+  border-radius: 8px;
+  background-color: #191414;
+  color: #1DB954;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  max-width: 400px;
+}
+
+.spotify-status p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.spotify-status.connected {
+  border-color: #1DB954;
+  color: #1DB954;
+}
+
+.spotify-status.not-connected {
+  border-color: #ccc;
+  color: #fff;
+  background-color: #333;
+}
+
+.spotify-status .expires {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.spotify-login-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #1DB954;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  margin-top: 0.5rem;
+}
+
+.spotify-login-btn:hover {
+  background-color: #169a3e;
+}
