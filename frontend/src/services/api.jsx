@@ -58,6 +58,7 @@ export const authAPI = {
   login: (credentials) => api.post('/token/', credentials),
   logout: (refreshToken) => api.post('/users/logout/', { refresh_token: refreshToken }),
   getProfile: () => api.get('/users/profile/'),
+  getSpotifyStatus: () => api.get('/spotify/user_status'),
 };
 
 export default api;

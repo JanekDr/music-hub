@@ -120,7 +120,7 @@ def get_user_spotify_connection_status(request):
     except SpotifyToken.DoesNotExist:
         connected = False
         expires_at = None
-
+    print("Connected", connected, request.user)
     return JsonResponse({
         'connected': connected,
         'expires_at': expires_at,
