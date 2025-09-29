@@ -60,6 +60,7 @@ export const authAPI = {
   getProfile: () => api.get('/users/profile/'),
   getSpotifyStatus: () => api.get('/spotify/user_status'),
   postSpotifyDisconnect: () => api.post('/spotify/disconnect'),
+  searchTracks: (query) => api.get('/spotify/search', {params: { q: query} }),
 };
 
 export default api;

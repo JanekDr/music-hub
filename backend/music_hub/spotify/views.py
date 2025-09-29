@@ -135,3 +135,25 @@ def spotify_disconnect(request):
         return JsonResponse({'message': 'Spotify account disconnected'})
     except SpotifyToken.DoesNotExist:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search(request):
+    query = request.GET.get('q')
+    if not query:
+        return JsonResponse({'error': 'No search term provided'}, status=400)
+
+    try:
+        spotify_token = SpotifyToken.objects.get(user=request.user)
+        url = "https://api.spotify.com/v1/search"
+        headers = {'Authorization': f'Bearer {spotify_token.access_token}'}
+        params = {
+            'q': query,
+            'type': 'track',
+            'limit': 5
+        }
+
+        response = requests.get(url, headers=headers, params=params)
+        return JsonResponse(response.json())
+    except SpotifyToken.DoesNotExist:
+        return JsonResponse({'error': 'Spotify account not connected'}, status=400)

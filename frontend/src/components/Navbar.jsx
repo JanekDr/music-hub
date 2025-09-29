@@ -3,14 +3,17 @@ import {useAuth} from "../context/AuthContext.jsx";
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/navbar.css'
 
-const Navbar = ({ onSearch }) => {
+const Navbar = () => {
   const [search, setSearch] = useState('');
   const {isAuthenticated, logout} = useAuth();
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (search.trim() !== "") onSearch(search);
+    if (search.trim()) {
+        navigate(`/player?q=${encodeURIComponent(search.trim())}`);
+        setSearch('');
+    }
   };
 
   const handleLogout = () => {

@@ -10,6 +10,7 @@ import './styles/forms.css';
 import './styles/dashboard.css';
 import './styles/spotify.css';
 import Navbar from "./components/Navbar.jsx";
+import Player from "./components/Player.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -33,15 +34,11 @@ const PublicRoute = ({ children }) => {
 }
 
 function App() {
-  const handleSearch = (query) => {
-    console.log('Szukam:', query);
-    // Tutaj możesz np. przekierować do strony z wynikami lub wywołać zapytanie
-  };
   return (
     <AuthProvider>
       <Router>
         <div className="App">
-          <Navbar onSearch={handleSearch} />
+          <Navbar />
           <Routes>
             <Route path="/login" element={
               <PublicRoute>
@@ -68,6 +65,13 @@ function App() {
                   <SpotifyLoginButton />
                 </ProtectedRoute>
               }
+            />
+            <Route
+              path="/player" element={
+              <ProtectedRoute>
+                <Player />
+              </ProtectedRoute>
+            }
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>

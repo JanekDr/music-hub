@@ -105,7 +105,6 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <h1 className="dashboard-text">Dashboard</h1>
-
       <div className="dashboard-content">
         <h2>Welcome, {user.username}!</h2>
         <UserProfile user={user} />
