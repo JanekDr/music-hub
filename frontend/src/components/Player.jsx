@@ -13,10 +13,8 @@ const Player = () => {
   useEffect(() => {
     const params = new URLSearchParams(search);
     const query = params.get('q');
-    console.log(query);
     if(query) {
       setLoading(true);
-      console.log("wysylam requesta",query);
       authAPI.searchTracks(query)
         .then(resp => setTracks(resp.data.tracks.items))
         .catch(() => setTracks([]))

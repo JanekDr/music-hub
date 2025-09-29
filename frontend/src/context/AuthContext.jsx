@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!token;
 
   useEffect(() => {
-    // Opcjonalnie: przy starcie aplikacji ponownie zweryfikuj token i pobierz profil
     const checkAuth = async () => {
       const token = localStorage.getItem('accessToken');
       if (token) {

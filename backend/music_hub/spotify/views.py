@@ -1,4 +1,3 @@
-# views.py
 import requests
 from django.http import JsonResponse, HttpResponseRedirect
 from django.conf import settings
@@ -23,7 +22,7 @@ def spotify_login(request):
         'redirect_uri': settings.SPOTIFY_REDIRECT_URI,
         'scope': scopes,
         'state': user_token,
-        'show_dialog': 'true',  # wymusza pokazanie okna autoryzacji
+        'show_dialog': 'true',
     }
     url = f'https://accounts.spotify.com/authorize?{urlencode(params)}'
     return HttpResponseRedirect(url)
@@ -35,9 +34,6 @@ def spotify_callback(request):
     state = request.GET.get('state')  # to jest token JWT
     if error:
         return JsonResponse({'error': error}, status=400)
-
-    # if not request.user.is_authenticated:
-    #     return JsonResponse({'error': 'User not authenticated'}, status=401)
 
     try:
         UntypedToken(state)
@@ -63,9 +59,6 @@ def spotify_callback(request):
     refresh_token = token_info.get('refresh_token')
     expires_in = token_info.get('expires_in')  # w sekundach
 
-    # Załóżmy, że użytkownik Django jest zalogowany i dostępny jako request.user
-
-    # Zapisz lub zaktualizuj tokeny w bazie
     expires_at = timezone.now() + timedelta(seconds=expires_in)
     obj, created = SpotifyToken.objects.update_or_create(
         user=user,
