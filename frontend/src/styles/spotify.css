@@ -1,7 +1,6 @@
 /* Specjalne style dla sekcji Spotify */
 .spotify-status {
   padding: 1rem;
-  margin-top: 1.5rem;
   border: 2px solid #1DB954;
   border-radius: 8px;
   background-color: #191414;
@@ -19,6 +18,7 @@
 .spotify-status.connected {
   border-color: #1DB954;
   color: #1DB954;
+  justify-content: center;
 }
 
 .spotify-status.not-connected {

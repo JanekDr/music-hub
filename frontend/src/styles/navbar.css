@@ -1,0 +1,105 @@
+.navbar {
+  position: fixed;      /* Przyczepienie navbaru do góry */
+  top: 0;
+  left: 0;
+  width: 100vw;        /* Cała szerokość widoku */
+  height: 60px;        /* Stała wysokość navbaru */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1DB954;
+  padding: 0 30px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+  z-index: 1000;       /* Navbar na wierzchu */
+  border-radius: 0 !important;
+}
+.page-content {
+  padding-top: 60px;   /* musi być tyle, ile wysokość navbaru */
+}
+.navbar-logo a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: bold;
+  letter-spacing: 1.1px;
+}
+
+.navbar-search-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5vw;
+  gap: 8px;
+}
+
+.navbar-search-form input[type="text"] {
+  padding: 10px 16px;
+  border-radius: 8px 0 0 8px;
+  border: none;
+  background: #222;
+  color: #fff;
+  font-size: 1.1rem;
+  width: 350px;
+  transition: box-shadow 0.2s;
+}
+
+.navbar-search-form input:focus {
+  outline: none;
+  box-shadow: 0 0 3px 2px #1DB95477;
+}
+
+.navbar-search-form button {
+  background: #191414;
+  color: #1DB954;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  border-left: 2px solid #1DB954;
+  transition: background 0.25s;
+  width:200px;
+}
+
+.navbar-search-form button:hover {
+  background: #169a3e;
+  color: #fff;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar-link {
+  text-decoration: none;
+  color: #1DB954;
+  font-weight: 700;
+  font-size: 1.04rem;
+  margin-right: 8px;
+  transition: color 0.2s;
+}
+
+.navbar-link:hover {
+  color: #fff;
+}
+
+.navbar-actions button {
+  background: #191414;
+  color: #1DB954;
+  border: 2px solid #1DB954;
+  padding: 9px 18px;
+  border-radius: 7px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.navbar-actions button:hover {
+  background: #1DB954;
+  color: #191414;
+}

@@ -104,7 +104,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <h1>Dashboard</h1>
+      <h1 className="dashboard-text">Dashboard</h1>
 
       <div className="dashboard-content">
         <h2>Welcome, {user.username}!</h2>

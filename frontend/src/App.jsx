@@ -1,4 +1,3 @@
-import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
@@ -10,6 +9,7 @@ import './styles/layout.css';
 import './styles/forms.css';
 import './styles/dashboard.css';
 import './styles/spotify.css';
+import Navbar from "./components/Navbar.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -33,10 +33,15 @@ const PublicRoute = ({ children }) => {
 }
 
 function App() {
+  const handleSearch = (query) => {
+    console.log('Szukam:', query);
+    // Tutaj możesz np. przekierować do strony z wynikami lub wywołać zapytanie
+  };
   return (
     <AuthProvider>
       <Router>
         <div className="App">
+          <Navbar onSearch={handleSearch} />
           <Routes>
             <Route path="/login" element={
               <PublicRoute>
