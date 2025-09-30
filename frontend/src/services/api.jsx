@@ -61,6 +61,7 @@ export const authAPI = {
   getSpotifyStatus: () => api.get('/spotify/user_status'),
   postSpotifyDisconnect: () => api.post('/spotify/disconnect'),
   searchTracks: (query) => api.get('/spotify/search', {params: { q: query} }),
+  getSpotifyToken: () => api.get('/spotify/token'),
 };
 
 export default api;

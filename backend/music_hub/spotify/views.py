@@ -138,6 +138,7 @@ def search(request):
 
     try:
         spotify_token = SpotifyToken.objects.get(user=request.user)
+        print("Spotify token", spotify_token.access_token)
         url = "https://api.spotify.com/v1/search"
         headers = {'Authorization': f'Bearer {spotify_token.access_token}'}
         params = {
@@ -150,3 +151,14 @@ def search(request):
         return JsonResponse(response.json())
     except SpotifyToken.DoesNotExist:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_spotify_token(request):
+    try:
+        token_obj = SpotifyToken.objects.get(user=request.user)
+        print("token od spotify: ",token_obj.access_token)
+        return JsonResponse({'access_token': token_obj.access_token}, status=200)
+    except SpotifyToken.DoesNotExist:
+        print("cos sie wyjebalo na ryj")
+        return JsonResponse({'error': 'Spotify token not found'}, status=404)
