@@ -45,5 +45,3 @@ class PlaylistSerializer(serializers.ModelSerializer):
             instance.followers.set(followers_data)
         instance.save()
         return instance
-
-    def delete(self, instance, validated_data):

@@ -1,9 +1,11 @@
 from django.db import models
-from users.models import CustomUser
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class SpotifyToken(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     access_token = models.CharField(max_length=255)
     refresh_token = models.CharField(max_length=255)
     expires_at = models.DateTimeField()

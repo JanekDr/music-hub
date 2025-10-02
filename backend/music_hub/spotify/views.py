@@ -27,7 +27,6 @@ def spotify_login(request):
     url = f'https://accounts.spotify.com/authorize?{urlencode(params)}'
     return HttpResponseRedirect(url)
 
-
 def spotify_callback(request):
     code = request.GET.get('code')
     error = request.GET.get('error')
@@ -67,8 +66,10 @@ def spotify_callback(request):
                   'expires_at': expires_at}
     )
 
-    return redirect('http://localhost:3000/dashboard')
+    user.spotify_token = obj
+    user.save()
 
+    return redirect('http://localhost:3000/dashboard')
 
 def refresh_spotify_token(user):
     token_obj = SpotifyToken.objects.get(user=user)
@@ -90,9 +91,6 @@ def refresh_spotify_token(user):
     token_obj.expires_at = timezone.now() + timedelta(seconds=expires_in)
     token_obj.save()
     return new_access_token
-
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
