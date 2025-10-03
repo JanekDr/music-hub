@@ -11,8 +11,8 @@ from .views import (
 urlpatterns = [
     path('login/', spotify_login, name='spotify_login'),
     path('callback/', spotify_callback, name='spotify_callback'),
-    path('user_status', get_user_spotify_connection_status, name='get_user_spotify_connection_status'),
-    path('disconnect', spotify_disconnect, name='spotify_disconnect'),
-    path('search', search, name='spotify_search'),
-    path('token', get_spotify_token, name='get_spotify_token'),
+    path('user_status/', get_user_spotify_connection_status, name='get_user_spotify_connection_status'),
+    path('disconnect/', spotify_disconnect, name='spotify_disconnect'),
+    path('search/', search, name='spotify_search'),
+    path('token/', get_spotify_token, name='get_spotify_token'),
 ]

@@ -54,14 +54,14 @@ api.interceptors.response.use(
 
 // Funkcje API
 export const authAPI = {
-  register: (userData) => api.post('/users/register', userData),
+  register: (userData) => api.post('/users/register/', userData),
   login: (credentials) => api.post('/token/', credentials),
   logout: (refreshToken) => api.post('/users/logout/', { refresh_token: refreshToken }),
   getProfile: () => api.get('/users/profile/'),
-  getSpotifyStatus: () => api.get('/spotify/user_status'),
-  postSpotifyDisconnect: () => api.post('/spotify/disconnect'),
-  searchTracks: (query) => api.get('/spotify/search', {params: { q: query} }),
-  getSpotifyToken: () => api.get('/spotify/token'),
+  getSpotifyStatus: () => api.get('/spotify/user_status/'),
+  postSpotifyDisconnect: () => api.post('/spotify/disconnect/'),
+  searchTracks: (query) => api.get('/spotify/search/', {params: { q: query} }),
+  getSpotifyToken: () => api.get('/spotify/token/'),
 };
 
 export default api;
