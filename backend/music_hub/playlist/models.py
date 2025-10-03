@@ -4,7 +4,7 @@ from users.models import CustomUser
 
 # Create your models here.
 class Track(models.Model):
-    url = models.URLField()
+    url = models.URLField(max_length=250)
     platform = models.CharField(max_length=50, blank=True)
 
     def save(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class Playlist(models.Model):
         return True if user in self.collaborators and self.is_public else False
 
     def __str__(self):
-        return f'{self.owner.name}`s playlist - {self.name}'
+        return f'{self.owner}`s playlist - {self.name}'
 
 
 class Queue(models.Model):
