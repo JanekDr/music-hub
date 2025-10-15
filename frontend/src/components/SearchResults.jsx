@@ -1,11 +1,11 @@
 import '../styles/searchResults.css';
 import { FaPlus, FaList } from 'react-icons/fa';
 
-const SearchResults = ({ tracks, onAddToPlaylist, onAddToQueue }) => {
+const SearchResults = ({ tracks, onAddToPlaylist, onAddToQueue, onPlayTrack }) => {
   return (
     <ul className="search-results">
       {tracks.map(track => (
-        <li key={track.id} className="track-item">
+        <li key={track.id} className="track-item" onDoubleClick={() => onPlayTrack(track)}>
           <img
             src={track.album.images?.[0]?.url}
             alt={track.title}

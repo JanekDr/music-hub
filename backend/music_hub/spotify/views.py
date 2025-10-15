@@ -14,7 +14,7 @@ from .models import SpotifyToken
 
 
 def spotify_login(request):
-    scopes = 'user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private'
+    scopes = 'user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private app-remote-control'
     user_token = request.GET.get('token')
     params = {
         'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,

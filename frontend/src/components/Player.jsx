@@ -9,6 +9,7 @@ const Player = () => {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [spotifyToken, setSpotifyToken] = useState(null);
+  const [playerControl, setPlayerControl] = useState(null);
 
   useEffect(() => {
     authAPI.getSpotifyToken()
@@ -17,7 +18,6 @@ const Player = () => {
         console.log("Error fetching Spotify token", err);
         setSpotifyToken(null);
       });
-    console.log("token do spotify: ",spotifyToken);
   }, []);
 
   const { search } = useLocation();
@@ -34,12 +34,25 @@ const Player = () => {
     }
   }, [search]);
 
+    function handlePlayTrack(track) {
+      if (playerControl) {
+        playerControl(track.uri);
+      } else {
+        console.warn("PlayerControl not initialized yet.");
+      }
+    }
+
   return (
     <div className="player">
       {loading && <p>Szukam...</p>}
-      <SearchResults tracks={tracks} />
+      <SearchResults tracks={tracks} onPlayTrack={handlePlayTrack}/>
       <br />
-      <SpotifyPlayer accessToken={spotifyToken} />
+        <SpotifyPlayer
+          accessToken={spotifyToken}
+          providePlayFunction={(fn) => {
+            setPlayerControl(() => fn);
+          }}
+        />
     </div>
   );
 }
