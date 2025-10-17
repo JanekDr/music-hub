@@ -4,8 +4,10 @@ from users.models import CustomUser
 
 # Create your models here.
 class Track(models.Model):
-    url = models.URLField(max_length=250)
+    url = models.CharField(max_length=128) #charfield bcs url="spotify:track:6RFhSlo0x0a5s3WnYj9xJa"
     platform = models.CharField(max_length=50, blank=True)
+    name = models.CharField(max_length=50, default='')
+    author = models.CharField(max_length=50, default='')
 
     def save(self, *args, **kwargs):
         if self.url:
@@ -17,6 +19,9 @@ class Track(models.Model):
                 self.platform = "unknown"
 
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.platform} - {self.name} - {self.author}'
 
 
 class Playlist(models.Model):

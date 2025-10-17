@@ -103,3 +103,38 @@
   background: #1DB954;
   color: #191414;
 }
+
+.navbar-center-buttons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 2vw;
+}
+
+.navbar-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #191414;
+  color: #1DB954;
+  border: 2px solid #1DB954;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1.01rem;
+  transition: background 0.24s, color 0.19s, border 0.18s;
+}
+
+.navbar-button:hover {
+  background: #1DB954;
+  color: #191414;
+  border: 2px solid #191414;
+  filter: brightness(1.08);
+}
+
+.navbar-button span {
+  font-weight: 500;
+  font-size: 1.05rem;
+  display: block;
+}

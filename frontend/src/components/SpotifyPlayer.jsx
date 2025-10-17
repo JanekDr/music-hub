@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import '../styles/spotifyPlayer.css';
-import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
+
 
 const SpotifyPlayer = ({ accessToken, providePlayFunction }) => {
   const [player, setPlayer] = useState(null);

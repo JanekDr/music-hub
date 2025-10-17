@@ -11,6 +11,7 @@ import './styles/dashboard.css';
 import './styles/spotify.css';
 import Navbar from "./components/Navbar.jsx";
 import Player from "./components/Player.jsx";
+import CreatePlaylist from "./components/CreatePlaylist.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -70,6 +71,13 @@ function App() {
               path="/player" element={
               <ProtectedRoute>
                 <Player />
+              </ProtectedRoute>
+            }
+            />
+            <Route
+              path="/create-playlist" element={
+              <ProtectedRoute>
+                <CreatePlaylist />
               </ProtectedRoute>
             }
             />
