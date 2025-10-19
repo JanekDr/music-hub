@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import '../styles/spotifyPlayer.css';
+import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
 
 
 const SpotifyPlayer = ({ accessToken, providePlayFunction }) => {
-  const [player, setPlayer] = useState(null);
+  const [, setPlayer] = useState(null);
   const [deviceId, setDeviceId] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [trackName, setTrackName] = useState("");
   const [artistName, setArtistName] = useState("");
@@ -63,7 +64,6 @@ const SpotifyPlayer = ({ accessToken, providePlayFunction }) => {
     }
   }, [accessToken]);
 
-  // Funkcja odtwarzania udostępniana rodzicowi (callback)
   useEffect(() => {
     if (providePlayFunction && deviceId) {
       console.log("Providing play function");
@@ -123,10 +123,6 @@ const SpotifyPlayer = ({ accessToken, providePlayFunction }) => {
         <div className="buttons-section">
           <button aria-label="Previous">
             <FaStepBackward />
-          </button>
-          <button onClick={() => playTrack("spotify:track:3piNWwmgQXO4YzamCZQcTh")}>
-            <FaPlay />
-            zagraj sentino
           </button>
           {playing ? (
             <button onClick={pause} aria-label="Pause">
