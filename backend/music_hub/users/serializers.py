@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
-            'spotify_token',
+            # 'spotify_token',
             'soundcloud_token',
         )
         read_only_fields = ('id',)
