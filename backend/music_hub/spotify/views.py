@@ -1,4 +1,5 @@
 import requests
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse, HttpResponseRedirect
 from django.conf import settings
 from urllib.parse import urlencode
@@ -11,6 +12,8 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import SpotifyToken
+
+User = get_user_model()
 
 
 def spotify_login(request):
@@ -36,12 +39,13 @@ def spotify_callback(request):
 
     try:
         UntypedToken(state)
+        jwt_auth = JWTAuthentication()
+        validated_token = jwt_auth.get_validated_token(state)
+        user = jwt_auth.get_user(validated_token)
     except (InvalidToken, TokenError):
         return JsonResponse({'error': 'Invalid token'}, status=401)
-
-    jwt_auth = JWTAuthentication()
-    validated_token = jwt_auth.get_validated_token(state)
-    user = jwt_auth.get_user(validated_token)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
 
     token_url = 'https://accounts.spotify.com/api/token'
     payload = {
@@ -70,6 +74,7 @@ def spotify_callback(request):
     user.save()
 
     return redirect('http://localhost:3000/dashboard')
+
 
 def refresh_spotify_token(user):
     token_obj = SpotifyToken.objects.get(user=user)
@@ -122,7 +127,9 @@ def get_user_spotify_connection_status(request):
 def spotify_disconnect(request):
     try:
         token_obj = SpotifyToken.objects.get(user=request.user)
+        print(token_obj)
         token_obj.delete()
+        print("disconnected", request.user)
         return JsonResponse({'message': 'Spotify account disconnected'})
     except SpotifyToken.DoesNotExist:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
@@ -159,5 +166,4 @@ def get_spotify_token(request):
         print("token od spotify: ",token_obj.access_token)
         return JsonResponse({'access_token': token_obj.access_token}, status=200)
     except SpotifyToken.DoesNotExist:
-        print("cos sie wyjebalo na ryj")
         return JsonResponse({'error': 'Spotify token not found'}, status=404)

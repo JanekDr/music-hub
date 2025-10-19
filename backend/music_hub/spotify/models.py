@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class SpotifyToken(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     access_token = models.CharField(max_length=255)
     refresh_token = models.CharField(max_length=255)
     expires_at = models.DateTimeField()

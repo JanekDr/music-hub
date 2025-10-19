@@ -4,9 +4,9 @@ from django.db import models
 # Create your models here.
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
-    spotify_token = models.ForeignKey(
+    spotify_token = models.OneToOneField(
         'spotify.SpotifyToken',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None
