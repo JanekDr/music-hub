@@ -6,6 +6,7 @@ from .views import (
     spotify_disconnect,
     search,
     get_spotify_token,
+    get_user_playlists
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('disconnect/', spotify_disconnect, name='spotify_disconnect'),
     path('search/', search, name='spotify_search'),
     path('token/', get_spotify_token, name='get_spotify_token'),
+    path('playlist/', get_user_playlists, name='spotify_callback'),
 ]

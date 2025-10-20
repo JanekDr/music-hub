@@ -4,6 +4,7 @@ import { authAPI } from '../services/api';
 import SpotifyLoginButton from './SpotifyLoginButton.jsx';
 import { FaSpotify } from 'react-icons/fa';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
+import '../styles/dashboard.css'
 
 
 const UserProfile = ({ user }) => (
