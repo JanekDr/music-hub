@@ -69,16 +69,17 @@ class PlaylistSerializer(serializers.ModelSerializer):
         return instance
 
 
-class QueueTrackSerializer(serializers.ModelSerializer):
+class QueueTrackSerializer(serializers.HyperlinkedModelSerializer, OrderedModelSerializer):
     track = TrackSerializer()
 
     class Meta:
         model = QueueTrack
-        fields = ['id', 'track', 'position']
+        fields = ['id', 'track', 'order']
 
 
-class QueueSerializer(serializers.HyperlinkedModelSerializer, OrderedModelSerializer):
+class QueueSerializer(serializers.ModelSerializer):
     queue_tracks = QueueTrackSerializer(many=True, read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Queue

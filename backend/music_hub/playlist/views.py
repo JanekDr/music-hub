@@ -1,9 +1,11 @@
 from django.http import JsonResponse
+from rest_framework.response import Response
+
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 
-from .models import Playlist, QueueTrack, Track
-from .serializers import PlaylistSerializer, QueueSerializer
+from .models import Playlist, QueueTrack, Track, Queue
+from .serializers import PlaylistSerializer, QueueSerializer, QueueTrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
 class PlaylistViewSet(viewsets.ModelViewSet):
@@ -17,8 +19,10 @@ class PlaylistViewSet(viewsets.ModelViewSet):
 
 class QueueViewSet(viewsets.ModelViewSet):
     serializer_class = QueueSerializer
-    queryset = QueueTrack.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrStaffOnly]
+
+    def get_queryset(self):
+        return Queue.objects.filter(user = self.request.user)
 
     @action(detail=True, methods=['post'])
     def add_to_queue(self, request, pk=None):
