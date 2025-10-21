@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Track, Playlist
+from .models import Track, Playlist, Queue, QueueTrack
+from ordered_model.serializers import OrderedModelSerializer
 
 
 class TrackSerializer(serializers.ModelSerializer):
@@ -66,3 +67,19 @@ class PlaylistSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class QueueTrackSerializer(serializers.ModelSerializer):
+    track = TrackSerializer()
+
+    class Meta:
+        model = QueueTrack
+        fields = ['id', 'track', 'position']
+
+
+class QueueSerializer(serializers.HyperlinkedModelSerializer, OrderedModelSerializer):
+    queue_tracks = QueueTrackSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Queue
+        fields = ['id', 'user', 'queue_tracks']

@@ -1,3 +1,4 @@
+from ordered_model.models import OrderedModel
 from django.db import models
 from django.shortcuts import get_object_or_404
 from users.models import CustomUser
@@ -42,4 +43,14 @@ class Playlist(models.Model):
 
 
 class Queue(models.Model):
-    tracks = models.ManyToManyField(Track)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='queue')
+
+
+class QueueTrack(OrderedModel):
+    queue = models.ForeignKey(Queue, on_delete=models.CASCADE, related_name='queue_tracks')
+    track = models.ForeignKey(Track, on_delete=models.CASCADE)
+
+    order_with_respect_to = 'queue'
+
+    class Meta(OrderedModel.Meta):
+        unique_together = ('queue', 'track')
