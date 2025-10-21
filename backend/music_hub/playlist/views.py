@@ -1,11 +1,11 @@
 from django.http import JsonResponse
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 
 from .models import Playlist, QueueTrack, Track, Queue
-from .serializers import PlaylistSerializer, QueueSerializer, QueueTrackSerializer
+from .serializers import PlaylistSerializer, QueueSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
 class PlaylistViewSet(viewsets.ModelViewSet):
@@ -24,17 +24,18 @@ class QueueViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Queue.objects.filter(user = self.request.user)
 
-    @action(detail=True, methods=['post'])
-    def add_to_queue(self, request, pk=None):
-        queue = self.get_object()
+    @action(detail=False, methods=['post'])
+    def add_to_queue(self, request):
+        queue = Queue.objects.get(user = self.request.user)
         track_id = request.data.get('track_id')
         if not track_id:
             return JsonResponse({'error': 'Track id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        track = Track.get_object_or_404(Track, pk=track_id)
+        track = get_object_or_404(Track, pk=track_id)
+
         qt = QueueTrack.objects.create(queue=queue, track=track)
         qt.bottom()
-        return JsonResponse({'track': track}, status=status.HTTP_201_CREATED)
+        return JsonResponse({'success':True},status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['delete'])
     def remove_from_queue(self, request):
@@ -44,7 +45,7 @@ class QueueViewSet(viewsets.ModelViewSet):
         if not queue_track_id:
             return JsonResponse({'error': 'Track id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        qt = QueueTrack.get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
+        qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
         qt.delete()
         return JsonResponse({'track': None}, status=status.HTTP_204_NO_CONTENT)
 
@@ -57,8 +58,8 @@ class QueueViewSet(viewsets.ModelViewSet):
         if not queue_track_id or not target_track_id:
             return JsonResponse({'error': 'Track id or target track id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        qt = QueueTrack.get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
-        target_qt = QueueTrack.get_object_or_404(QueueTrack, pk=target_track_id, queue=queue)
+        qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
+        target_qt = get_object_or_404(QueueTrack, pk=target_track_id, queue=queue)
         target_qt.above(qt)
 
         return JsonResponse({'success': True}, status=status.HTTP_200_OK)

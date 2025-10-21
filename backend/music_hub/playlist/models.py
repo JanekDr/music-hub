@@ -49,8 +49,4 @@ class Queue(models.Model):
 class QueueTrack(OrderedModel):
     queue = models.ForeignKey(Queue, on_delete=models.CASCADE, related_name='queue_tracks')
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
-
     order_with_respect_to = 'queue'
-
-    class Meta(OrderedModel.Meta):
-        unique_together = ('queue', 'track')
