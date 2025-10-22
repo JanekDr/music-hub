@@ -37,10 +37,10 @@ class QueueViewSet(viewsets.ModelViewSet):
         qt.bottom()
         return JsonResponse({'success':True},status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['delete'])
+    @action(detail=False, methods=['delete'])
     def remove_from_queue(self, request):
-        queue = self.get_object()
-        queue_track_id = request.data.get('track_id')
+        queue = Queue.objects.get(user = self.request.user)
+        queue_track_id = request.data.get('queue_track_id')
 
         if not queue_track_id:
             return JsonResponse({'error': 'Track id is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -49,9 +49,9 @@ class QueueViewSet(viewsets.ModelViewSet):
         qt.delete()
         return JsonResponse({'track': None}, status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=False, methods=['post'])
     def move_track_relative(self, request):
-        queue = self.get_object()
+        queue = Queue.objects.get(user = self.request.user)
         queue_track_id = request.data.get('track_id')
         target_track_id = request.data.get('target_track_id')
 
@@ -60,6 +60,6 @@ class QueueViewSet(viewsets.ModelViewSet):
 
         qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
         target_qt = get_object_or_404(QueueTrack, pk=target_track_id, queue=queue)
-        target_qt.above(qt)
+        qt.below(target_qt)
 
         return JsonResponse({'success': True}, status=status.HTTP_200_OK)
