@@ -65,7 +65,11 @@ export const authAPI = {
   getSpotifyPlaylists: () => api.get('/spotify/playlist/'),
   users: () => api.get('/users/'),
   createPlaylist: (data) => api.post('/playlist/', data),
-  getUserPlaylists: () => api.get('/playlist/')
+  getUserPlaylists: () => api.get('/playlist/'),
+  getQueue: () => api.get('/queue/'),
+  addToQueue: (trackId) => api.post('/queue/add_to_queue/', trackId),
+  removeFromQueue: (queueTrackId) => api.delete('/queue/remove_from_queue/', queueTrackId),
+  moveTrackQueue: (trackId, targetTrackId) => api.post('/queue/move_track_relative/', trackId, targetTrackId),
 };
 
 export default api;

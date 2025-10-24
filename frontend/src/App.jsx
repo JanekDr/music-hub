@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar.jsx";
 import Player from "./components/Player.jsx";
 import CreatePlaylist from "./components/CreatePlaylist.jsx";
 import Library from "./components/Library.jsx";
+import SpotifyPlayer from "./components/SpotifyPlayer.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -47,14 +48,14 @@ function App() {
                 <Login />
               </PublicRoute>
             }/>
-            <Route 
+            <Route
               path="/register" element={
                 <PublicRoute>
                   <Register />
                 </PublicRoute>
               }
             />
-            <Route 
+            <Route
               path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -91,6 +92,7 @@ function App() {
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
+          <SpotifyPlayer/>
         </div>
       </Router>
     </AuthProvider>

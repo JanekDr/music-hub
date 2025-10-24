@@ -49,6 +49,7 @@
     font-size: 1.12rem;
     margin-bottom: 10px;
     color: #fff;
+    align-content: space-between;
 }
 .library-card-owner {
     font-size: 0.95rem;

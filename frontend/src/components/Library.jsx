@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { authAPI } from "../services/api.jsx";
 import "../styles/Library.css";
-import {FaSoundcloud, FaSpotify} from "react-icons/fa";
+import {FaSoundcloud, FaSpotify, FaPlay} from "react-icons/fa";
 
 
 const HubLogo = () => (
@@ -16,8 +16,8 @@ const Library = () => {
 
     useEffect(() => {
         Promise.all([
-            authAPI.getUserPlaylists(),      // Międzyplatformowe (z Django)
-            authAPI.getSpotifyPlaylists(),   // Spotify (musisz mieć endpoint)
+            authAPI.getUserPlaylists(),
+            authAPI.getSpotifyPlaylists(),
             // authAPI.getSoundcloudPlaylists() // SoundCloud ( ---||--- )
         ]).then(([hubRes,spotifyRes]) => {
             setHubPlaylists(hubRes.data || []);
@@ -81,7 +81,10 @@ const PlaylistCards = ({ playlists, platform }) => (
     <div className="library-list">
         {playlists.length ? playlists.map(pl => (
             <div className="library-card" key={pl.id}>
-                <div className="library-card-title">{pl.name}</div>
+                <div className="library-card-title">
+                    {pl.name}
+                    <FaPlay color="#1DB954" size={28} />
+                </div>
                 {platform === "hub" && (
                     <div className="library-card-owner">Właściciel: {pl.owner?.email || '-'}</div>
                 )}
