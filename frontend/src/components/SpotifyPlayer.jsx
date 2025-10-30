@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setSpotifyToken, setDeviceId } from '../store/playerSlice';
+import { setSpotifyToken, setDeviceId, setQueue } from '../store/playerSlice';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
@@ -11,6 +11,7 @@ const SpotifyPlayer = () => {
   const { isAuthenticated } = useAuth();
   const spotifyToken = useSelector(state => state.player.spotifyToken);
   const deviceId = useSelector(state => state.player.deviceId);
+  const queue = useSelector(state => state.player.queue); // UWAGA: queue = array
 
   const [, setPlayer] = useState(null);
   const [, setReady] = useState(false);
@@ -27,6 +28,10 @@ const SpotifyPlayer = () => {
         .catch(() => dispatch(setSpotifyToken(null)));
     }
   }, [isAuthenticated, spotifyToken, dispatch]);
+
+  useEffect(() => {
+    authAPI.getQueue().then(res => dispatch(setQueue(res.data)));
+  }, [dispatch]);
 
   useEffect(() => {
     if (!spotifyToken) return;
@@ -71,6 +76,29 @@ const SpotifyPlayer = () => {
     }
   }, [spotifyToken, dispatch]);
 
+  const playQueue = () => {
+  const queueTracks = (queue[0]?.queue_tracks) || [];
+  if (
+    queueTracks.length > 0 &&
+    deviceId &&
+    spotifyToken
+  ) {
+    const trackUri = queueTracks[0].track.url;
+    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: "PUT",
+      body: JSON.stringify({ uris: [trackUri] }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${spotifyToken}`,
+      },
+    })
+    .then(res => res.text().then(text => console.log("playQueue response", res.status, text)));
+  } else {
+    console.warn("Brak danych do odtworzenia kolejki lub niegotowy player!", { queue, deviceId, spotifyToken });
+  }
+};
+
+
   const pause = () => {
     if (!deviceId) return;
     fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
@@ -81,10 +109,21 @@ const SpotifyPlayer = () => {
 
   const resume = () => {
     if (!deviceId) return;
-    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${spotifyToken}` },
-    });
+
+    if (playing) {
+      fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${spotifyToken}` }
+      });
+    } else {
+      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${spotifyToken}`,
+        },
+      });
+    }
   };
 
   if (!spotifyToken) return null;
@@ -108,6 +147,7 @@ const SpotifyPlayer = () => {
             <button onClick={resume} aria-label="Resume"><FaPlay /></button>
           )}
           <button aria-label="Next"><FaStepForward /></button>
+          <button onClick={playQueue} aria-label="Play queue">Play queue</button>
         </div>
         <div className="progress-bar">
           <div className="progress-filled" style={{ width: `${progress}%` }}></div>

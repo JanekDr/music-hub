@@ -31,7 +31,6 @@ const Player = () => {
       console.warn("Device ID or Spotify token not ready");
       return;
     }
-
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: "PUT",
       body: JSON.stringify({ uris: [track.uri] }),
