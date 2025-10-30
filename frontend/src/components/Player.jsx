@@ -1,17 +1,16 @@
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import {useEffect, useState} from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import SearchResults from './SearchResults';
-import { setQueue, setLoading } from '../store/playerSlice';
 import '../styles/player.css';
 
 const Player = () => {
-  const dispatch = useDispatch();
-  const tracks = useSelector(state => state.player.queue);
-  const loading = useSelector(state => state.player.loading);
   const deviceId = useSelector(state => state.player.deviceId);
   const spotifyToken = useSelector(state => state.player.spotifyToken);
+
+  const [tracks, setTracks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { search } = useLocation();
 
@@ -19,13 +18,13 @@ const Player = () => {
     const params = new URLSearchParams(search);
     const query = params.get('q');
     if (query) {
-      dispatch(setLoading(true));
+      setLoading(true);
       authAPI.searchTracks(query)
-        .then(resp => dispatch(setQueue(resp.data.tracks.items)))
-        .catch(() => dispatch(setQueue([])))
-        .finally(() => dispatch(setLoading(false)));
+        .then(resp => setTracks(resp.data.tracks.items))
+        .catch(() => setTracks([]))
+        .finally(() => setLoading(false));
     }
-  }, [search, dispatch]);
+  }, [search]);
 
   function handlePlayTrack(track) {
     if (!deviceId || !spotifyToken) {

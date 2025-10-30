@@ -7,14 +7,23 @@ const playerSlice = createSlice({
     loading: false,
     spotifyToken: null,
     deviceId: null,
+    currentTrackId: null,
   },
   reducers: {
     setQueue: (state, action) => { state.queue = action.payload; },
     setLoading: (state, action) => { state.loading = action.payload; },
     setSpotifyToken: (state, action) => { state.spotifyToken = action.payload; },
     setDeviceId: (state, action) => { state.deviceId = action.payload; },
+    setCurrentTrackId: (state, action) => { state.currentTrackId = action.payload; },
   }
 });
 
-export const { setQueue, setLoading, setSpotifyToken, setDeviceId } = playerSlice.actions;
+export const {
+  setQueue,
+  setLoading,
+  setSpotifyToken,
+  setDeviceId,
+  setCurrentTrackId
+} = playerSlice.actions;
+
 export default playerSlice.reducer;

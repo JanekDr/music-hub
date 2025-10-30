@@ -2,10 +2,11 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.response import Response
 
 from .models import Playlist, QueueTrack, Track, Queue
-from .serializers import PlaylistSerializer, QueueSerializer
+from .serializers import PlaylistSerializer, QueueSerializer, TrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
 class PlaylistViewSet(viewsets.ModelViewSet):
@@ -63,3 +64,14 @@ class QueueViewSet(viewsets.ModelViewSet):
         qt.below(target_qt)
 
         return JsonResponse({'success': True}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def add_track(request):
+    serializer = TrackSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -10,7 +10,7 @@ const SpotifyPlayer = () => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useAuth();
   const spotifyToken = useSelector(state => state.player.spotifyToken);
-  const deviceId = useSelector(state => state.player.deviceId); // ← czytamy z Reduxa
+  const deviceId = useSelector(state => state.player.deviceId);
 
   const [, setPlayer] = useState(null);
   const [, setReady] = useState(false);
