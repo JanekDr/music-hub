@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setSpotifyToken, setDeviceId, setQueue } from '../store/playerSlice';
+import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from '../store/playerSlice';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
@@ -11,7 +11,9 @@ const SpotifyPlayer = () => {
   const { isAuthenticated } = useAuth();
   const spotifyToken = useSelector(state => state.player.spotifyToken);
   const deviceId = useSelector(state => state.player.deviceId);
-  const queue = useSelector(state => state.player.queue); // UWAGA: queue = array
+  const queue = useSelector(state => state.player.queue);
+  const currentTrackIndex = useSelector(state => state.player.currentTrackIndex || 0);
+  const queueTracks = (queue[0]?.queue_tracks) || [];
 
   const [, setPlayer] = useState(null);
   const [, setReady] = useState(false);
@@ -77,26 +79,26 @@ const SpotifyPlayer = () => {
   }, [spotifyToken, dispatch]);
 
   const playQueue = () => {
-  const queueTracks = (queue[0]?.queue_tracks) || [];
-  if (
-    queueTracks.length > 0 &&
-    deviceId &&
-    spotifyToken
-  ) {
-    const trackUri = queueTracks[0].track.url;
-    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-      method: "PUT",
-      body: JSON.stringify({ uris: [trackUri] }),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${spotifyToken}`,
-      },
-    })
-    .then(res => res.text().then(text => console.log("playQueue response", res.status, text)));
-  } else {
-    console.warn("Brak danych do odtworzenia kolejki lub niegotowy player!", { queue, deviceId, spotifyToken });
-  }
-};
+    const queueTracks = (queue[0]?.queue_tracks) || [];
+    if (
+      queueTracks.length > 0 &&
+      deviceId &&
+      spotifyToken
+    ) {
+      const trackUri = queueTracks[0].track.url;
+      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        body: JSON.stringify({ uris: [trackUri] }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${spotifyToken}`,
+        },
+      })
+      .then(res => res.text().then(text => console.log("playQueue response", res.status, text)));
+    } else {
+      console.warn("Brak danych do odtworzenia kolejki lub niegotowy player!", { queue, deviceId, spotifyToken });
+    }
+  };
 
 
   const pause = () => {
@@ -126,6 +128,49 @@ const SpotifyPlayer = () => {
     }
   };
 
+  const next = () => {
+    if (
+      queueTracks.length > 0 &&
+      currentTrackIndex + 1 < queueTracks.length &&
+      deviceId &&
+      spotifyToken
+    ) {
+      const nextIndex = currentTrackIndex + 1;
+      dispatch(setCurrentTrackIndex(nextIndex));
+      const nextUri = queueTracks[nextIndex].track.url;
+      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        body: JSON.stringify({ uris: [nextUri] }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${spotifyToken}`,
+        },
+      });
+    }
+  };
+
+  const previous = () => {
+    if (
+      queueTracks.length > 0 &&
+      currentTrackIndex > 0 &&
+      deviceId &&
+      spotifyToken
+    ) {
+      const prevIndex = currentTrackIndex - 1;
+      dispatch(setCurrentTrackIndex(prevIndex));
+      const prevUri = queueTracks[prevIndex].track.url;
+      fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        body: JSON.stringify({ uris: [prevUri] }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${spotifyToken}`,
+        },
+      });
+    }
+  };
+
+
   if (!spotifyToken) return null;
 
   return (
@@ -140,13 +185,13 @@ const SpotifyPlayer = () => {
       </div>
       <div className="center-section">
         <div className="buttons-section">
-          <button aria-label="Previous"><FaStepBackward /></button>
+          <button onClick={previous} aria-label="Previous"><FaStepBackward /></button>
           {playing ? (
             <button onClick={pause} aria-label="Pause"><FaPause /></button>
           ) : (
             <button onClick={resume} aria-label="Resume"><FaPlay /></button>
           )}
-          <button aria-label="Next"><FaStepForward /></button>
+          <button onClick={next} aria-label="Next"><FaStepForward /></button>
           <button onClick={playQueue} aria-label="Play queue">Play queue</button>
         </div>
         <div className="progress-bar">

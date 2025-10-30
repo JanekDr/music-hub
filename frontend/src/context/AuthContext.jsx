@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) return;
     const interval = setInterval(() => {
       refreshToken();
-    }, 55 * 60 * 1000); // Odświeżanie co 55 minut
+    }, 55 * 60 * 1000);
     return () => clearInterval(interval);
   }, [token]);
 
