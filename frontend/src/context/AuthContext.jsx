@@ -4,7 +4,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -32,13 +31,34 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  const refreshToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) throw new Error('No refresh token');
+      const response = await authAPI.refreshToken({ refresh: refreshToken });
+      const { access } = response.data;
+      localStorage.setItem('accessToken', access);
+      setToken(access);
+      return access;
+    } catch (error) {
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      refreshToken();
+    }, 55 * 60 * 1000); // Odświeżanie co 55 minut
+    return () => clearInterval(interval);
+  }, [token]);
+
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
       const { access, refresh } = response.data;
       localStorage.setItem('accessToken', access);
       localStorage.setItem('refreshToken', refresh);
-
       setToken(access);
       return { success: true };
     } catch (error) {
@@ -53,22 +73,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const register = async (formData) => {
-    try {
-        const response = await authAPI.register(formData);
-        return {success:true};
-    } catch (error) {
-        console.error('An error occured:', error);
-        return {
-            success:false,
-            error: error.response?.data || 'Registeration failed.'
-        }
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, register, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, isAuthenticated, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
+
