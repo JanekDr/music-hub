@@ -45,14 +45,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (!token) return;
-    const interval = setInterval(() => {
-      refreshToken();
-    }, 55 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [token]);
-
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
