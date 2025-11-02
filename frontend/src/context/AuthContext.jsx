@@ -31,20 +31,6 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const refreshToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token');
-      const response = await authAPI.refreshToken({ refresh: refreshToken });
-      const { access } = response.data;
-      localStorage.setItem('accessToken', access);
-      setToken(access);
-      return access;
-    } catch (error) {
-      logout();
-    }
-  };
-
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
@@ -65,8 +51,21 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const register = async (formData) => {
+    try {
+        const response = await authAPI.register(formData);
+        return {success:true};
+    } catch (error) {
+        console.error('An error occured:', error);
+        return {
+            success:false,
+            error: error.response?.data || 'Registeration failed.'
+        }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, register, isAuthenticated, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

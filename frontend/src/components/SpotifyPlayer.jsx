@@ -28,12 +28,11 @@ const SpotifyPlayer = () => {
       authAPI.getSpotifyToken()
         .then(res => dispatch(setSpotifyToken(res.data.access_token)))
         .catch(() => dispatch(setSpotifyToken(null)));
+      authAPI.getQueue()
+        .then(res => dispatch(setQueue(res.data)))
+        .catch(() => dispatch(setQueue([])));
     }
   }, [isAuthenticated, spotifyToken, dispatch]);
-
-  useEffect(() => {
-    authAPI.getQueue().then(res => dispatch(setQueue(res.data)));
-  }, [dispatch]);
 
   useEffect(() => {
     if (!spotifyToken) return;
@@ -171,7 +170,7 @@ const SpotifyPlayer = () => {
   };
 
 
-  if (!spotifyToken) return null;
+  if (!spotifyToken && isAuthenticated) return null;
 
   return (
     <div className="spotify-player-bar">

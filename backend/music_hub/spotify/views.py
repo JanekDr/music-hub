@@ -113,7 +113,7 @@ def get_user_playlists(request):
         spotify_token = get_valid_spotify_token(request.user)
         if not spotify_token:
             return JsonResponse({'error': 'Spotify account not connected'}, status=400)
-        headers = {'Authorization': f'Bearer {spotify_token.access_token}'}
+        headers = {'Authorization': f'Bearer {spotify_token}'}
         response = requests.get('https://api.spotify.com/v1/me/playlists', headers=headers)
         return JsonResponse(response.json())
 
