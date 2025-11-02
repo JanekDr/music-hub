@@ -22,6 +22,7 @@ const SpotifyPlayer = () => {
   const [artistName, setArtistName] = useState("");
   const [albumName, setAlbumName] = useState("");
   const [progress, setProgress] = useState(0);
+  const [trackImg, setTrackImg] = useState("");
 
   useEffect(() => {
     if (isAuthenticated && !spotifyToken) {
@@ -70,6 +71,7 @@ const SpotifyPlayer = () => {
         setTrackName(state.track_window.current_track.name);
         setArtistName(state.track_window.current_track.artists.map(a => a.name).join(", "));
         setAlbumName(state.track_window.current_track.album.name);
+        setTrackImg(state.track_window.current_track.album.images?.[0]?.url)
         setProgress(state.duration ? state.position / state.duration * 100 : 0);
       });
 
@@ -175,7 +177,13 @@ const SpotifyPlayer = () => {
   return (
     <div className="spotify-player-bar">
       <div className="left-section">
-        <div className="track-cover-placeholder"></div>
+        <div className="track-cover-placeholder">
+          <img
+            src={trackImg}
+            alt={trackName}
+            className="track-image"
+          />
+        </div>
         <div className="track-meta">
           <div className="track-name">{trackName || "Brak utworu"}</div>
           <div className="artist-name">{artistName || "Brak wykonawcy"}</div>
