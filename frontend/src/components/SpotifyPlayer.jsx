@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from '../store/playerSlice';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
+import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaMinus, FaWindowMinimize } from 'react-icons/fa';
 import '../styles/spotifyPlayer.css';
 import {PiQueueBold} from "react-icons/pi";
 
@@ -173,6 +173,16 @@ const SpotifyPlayer = () => {
     }
   };
 
+  const handleRemove = async (id) => {
+    const updatedQueue = queueTracks.filter(track => track.id !== id);
+    try {
+      await authAPI.removeFromQueue({ data: { queue_track_id: id } })
+      dispatch(setQueue([{...queue[0], queue_tracks: updatedQueue}]));
+    } catch (e) {
+      console.log(e.details);
+    }
+  }
+
   if (!spotifyToken && isAuthenticated) return null;
 
   return (
@@ -215,7 +225,7 @@ const SpotifyPlayer = () => {
           <div className="queue-sidebar">
             <div className="queue-header">
               <span>Kolejka</span>
-              <button onClick={() => setShowQueue(false)}>Zamknij</button>
+              <button onClick={() => setShowQueue(false)}><FaWindowMinimize /></button>
             </div>
             <ul className="queue-list">
               {queueTracks.length === 0
@@ -227,6 +237,12 @@ const SpotifyPlayer = () => {
                         <div>{q.track.name}</div>
                         <div>{q.track.author}</div>
                       </div>
+                      <button
+                        onClick={() => handleRemove(q.id)}
+                        aria-label="Usuń utwór"
+                        className="remove-btn"
+                      >&minus;
+                      </button>
                     </li>
                 ))
               }
