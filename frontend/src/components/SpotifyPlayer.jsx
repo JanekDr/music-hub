@@ -5,6 +5,7 @@ import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FaStepBackward, FaStepForward, FaPlay, FaPause } from 'react-icons/fa';
 import '../styles/spotifyPlayer.css';
+import {PiQueueBold} from "react-icons/pi";
 
 const SpotifyPlayer = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ const SpotifyPlayer = () => {
   const [albumName, setAlbumName] = useState("");
   const [progress, setProgress] = useState(0);
   const [trackImg, setTrackImg] = useState("");
+  const [showQueue, setShowQueue] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !spotifyToken) {
@@ -171,43 +173,71 @@ const SpotifyPlayer = () => {
     }
   };
 
-
   if (!spotifyToken && isAuthenticated) return null;
 
   return (
-    <div className="spotify-player-bar">
-      <div className="left-section">
-        <div className="track-cover-placeholder">
-          <img
-            src={trackImg}
-            alt={trackName}
-            className="track-image"
-          />
+      <div style={{position: 'relative'}}>
+        <div className="spotify-player-bar">
+          <div className="left-section">
+            <div className="track-cover-placeholder">
+              <img
+                src={trackImg}
+                alt={trackName}
+                className="track-image"
+              />
+            </div>
+            <div className="track-meta">
+              <div className="track-name">{trackName || "Brak utworu"}</div>
+              <div className="artist-name">{artistName || "Brak wykonawcy"}</div>
+              <div className="album-name">{albumName || ""}</div>
+            </div>
+          </div>
+          <div className="center-section">
+            <div className="buttons-section">
+              <button onClick={previous} aria-label="Previous"><FaStepBackward /></button>
+              {playing ? (
+                <button onClick={pause} aria-label="Pause"><FaPause /></button>
+              ) : (
+                <button onClick={resume} aria-label="Resume"><FaPlay /></button>
+              )}
+              <button onClick={next} aria-label="Next"><FaStepForward /></button>
+              <button onClick={playQueue} aria-label="Play queue">Play queue</button>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-filled" style={{ width: `${progress}%` }}></div>
+            </div>
+          </div>
+          <div className="right-section">
+              <button onClick={()=>{setShowQueue(!showQueue)}} aria-label=""><PiQueueBold /></button>
+          </div>
         </div>
-        <div className="track-meta">
-          <div className="track-name">{trackName || "Brak utworu"}</div>
-          <div className="artist-name">{artistName || "Brak wykonawcy"}</div>
-          <div className="album-name">{albumName || ""}</div>
-        </div>
+        {showQueue && (
+          <div className="queue-sidebar">
+            <div className="queue-header">
+              <span>Kolejka</span>
+              <button onClick={() => setShowQueue(false)}>Zamknij</button>
+            </div>
+            <ul className="queue-list">
+              {queueTracks.length === 0
+                ? <li>Brak utworów w kolejce</li>
+                : queueTracks.map((q, idx) => (
+                    <li key={q.id} className={idx === currentTrackIndex ? "active-track" : ""}>
+                      {/*<img src={q.track.image} alt={q.track.name} style={{ width: 40, height: 40 }} />*/}
+                      <div>
+                        <div>{q.track.name}</div>
+                        <div>{q.track.author}</div>
+                      </div>
+                    </li>
+                ))
+              }
+            </ul>
+          </div>
+        )}
       </div>
-      <div className="center-section">
-        <div className="buttons-section">
-          <button onClick={previous} aria-label="Previous"><FaStepBackward /></button>
-          {playing ? (
-            <button onClick={pause} aria-label="Pause"><FaPause /></button>
-          ) : (
-            <button onClick={resume} aria-label="Resume"><FaPlay /></button>
-          )}
-          <button onClick={next} aria-label="Next"><FaStepForward /></button>
-          <button onClick={playQueue} aria-label="Play queue">Play queue</button>
-        </div>
-        <div className="progress-bar">
-          <div className="progress-filled" style={{ width: `${progress}%` }}></div>
-        </div>
-      </div>
-      <div className="right-section"></div>
-    </div>
   );
 };
 
 export default SpotifyPlayer;
+
+//problem jest taki ze jak sie dodaje na biezaco do kolejki nowe utwory to kolejka sie nie aktualizuje od razu i trzeba odswiezac przegladarke
+//propozycja rozwiazania: przechowywac kolejke lokalnie-na froncie i pozniej przesylac ją do backendu

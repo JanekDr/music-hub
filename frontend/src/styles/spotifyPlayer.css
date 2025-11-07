@@ -114,6 +114,53 @@
 }
 
 .right-section {
+  display: flex;
   min-width: 150px;
   /* can add flex layout and buttons if needed */
+}
+.right-section svg {
+  height: 26px;
+  width: 26px;
+}
+
+.queue-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 340px;
+  height: 100vh;
+  background: #191a1d;
+  color: #fff;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+  z-index: 1001;
+  padding: 24px 16px;
+  transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.queue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+.queue-list li {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 10px 0;
+  gap: 14px;
+}
+.queue-list li.active-track {
+  background: #218c39;
+  border-radius: 4px;
 }
