@@ -92,7 +92,9 @@ function App() {
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
-          <SpotifyPlayer/>
+          <ProtectedRoute>
+            <SpotifyPlayer/>
+          </ProtectedRoute>
         </div>
       </Router>
     </AuthProvider>

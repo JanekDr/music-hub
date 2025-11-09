@@ -6,6 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaMinus, FaWindowMinimize } from 'react-icons/fa';
 import '../styles/spotifyPlayer.css';
 import {PiQueueBold} from "react-icons/pi";
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { useSortable, SortableContext, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const SpotifyPlayer = () => {
   const dispatch = useDispatch();
@@ -183,6 +186,46 @@ const SpotifyPlayer = () => {
     }
   }
 
+const handleDragEnd = (event) => {
+  const { active, over } = event;
+  if (!over || active.id === over.id) return;
+
+  const oldIndex = queueTracks.findIndex(track => track.id === active.id);
+  const newIndex = queueTracks.findIndex(track => track.id === over.id);
+
+  const newTracks = arrayMove(queueTracks, oldIndex, newIndex);
+  dispatch(setQueue([{ ...queue[0], queue_tracks: newTracks }]));
+};
+
+// Item render/binding
+const DraggableQueueItem = ({ track, idx }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: track.id });
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}
+      {...attributes}
+      {...listeners}
+      className={idx === currentTrackIndex ? "active-track" : ""}
+    >
+      <div>
+        <div>{track.track.name}</div>
+        <div>{track.track.author}</div>
+      </div>
+      <button
+        className="remove-btn"
+        onClick={() => handleRemove(track.id)}
+      >&minus;</button>
+    </li>
+  );
+};
   if (!spotifyToken && isAuthenticated) return null;
 
   return (
@@ -227,26 +270,19 @@ const SpotifyPlayer = () => {
               <span>Kolejka</span>
               <button onClick={() => setShowQueue(false)}><FaWindowMinimize /></button>
             </div>
-            <ul className="queue-list">
-              {queueTracks.length === 0
-                ? <li>Brak utworów w kolejce</li>
-                : queueTracks.map((q, idx) => (
-                    <li key={q.id} className={idx === currentTrackIndex ? "active-track" : ""}>
-                      {/*<img src={q.track.image} alt={q.track.name} style={{ width: 40, height: 40 }} />*/}
-                      <div>
-                        <div>{q.track.name}</div>
-                        <div>{q.track.author}</div>
-                      </div>
-                      <button
-                        onClick={() => handleRemove(q.id)}
-                        aria-label="Usuń utwór"
-                        className="remove-btn"
-                      >&minus;
-                      </button>
-                    </li>
-                ))
-              }
-            </ul>
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={queueTracks.map(q => q.id)}>
+                <ul className="queue-list">
+                  {queueTracks.length === 0
+                    ? <li>Brak utworów w kolejce</li>
+                    : queueTracks.map((track, idx) =>
+                        <DraggableQueueItem key={track.id} track={track} idx={idx} />
+                      )
+                  }
+                </ul>
+              </SortableContext>
+            </DndContext>
+
           </div>
         )}
       </div>
