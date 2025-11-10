@@ -1,12 +1,12 @@
 .player-controls {
-  margin-top: 20px;
   display: flex;
   gap: 16px;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
 }
 
-.player-controls button {
+.player-controls-button {
   background-color: #1DB954; /* zielony Spotify */
   border: none;
   border-radius: 50%;
@@ -116,6 +116,8 @@
 .right-section {
   display: flex;
   min-width: 150px;
+  align-items: center;
+  justify-content: space-around;
   /* can add flex layout and buttons if needed */
 }
 .right-section svg {
@@ -137,6 +139,7 @@
   transition: transform 0.3s;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 .queue-header {
   display: flex;
@@ -145,6 +148,7 @@
   margin-bottom: 18px;
   font-size: 1.2em;
   font-weight: bold;
+  width:100%;
 }
 
 .queue-list li.active-track {
@@ -155,7 +159,10 @@
 .queue-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right:16px;
 }
 
 .queue-list li {
@@ -183,4 +190,21 @@
 
 .queue-list .remove-btn:hover {
   color: #dd2222;
+}
+
+.queue-list::-webkit-scrollbar {
+  width: 8px;
+}
+.queue-list::-webkit-scrollbar-thumb {
+  background: #1DB954;
+  border-radius: 4px;
+}
+.queue-list::-webkit-scrollbar-track {
+  background: #222;
+}
+
+.submit-button {
+  display: flex;
+  margin-top: 4rem;
+  width:50%;
 }

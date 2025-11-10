@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from '../store/playerSlice';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaMinus, FaWindowMinimize } from 'react-icons/fa';
+import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaWindowMinimize, FaVolumeUp } from 'react-icons/fa';
 import '../styles/spotifyPlayer.css';
 import {PiQueueBold} from "react-icons/pi";
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -197,6 +197,10 @@ const handleDragEnd = (event) => {
   dispatch(setQueue([{ ...queue[0], queue_tracks: newTracks }]));
 };
 
+const handleSubmitQueue = () => {
+
+}
+
 // Item render/binding
 const DraggableQueueItem = ({ track, idx }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: track.id });
@@ -246,29 +250,30 @@ const DraggableQueueItem = ({ track, idx }) => {
             </div>
           </div>
           <div className="center-section">
-            <div className="buttons-section">
-              <button onClick={previous} aria-label="Previous"><FaStepBackward /></button>
+            <div className="player-controls">
+              <button className="player-controls-button" onClick={previous} aria-label="Previous"><FaStepBackward /></button>
               {playing ? (
-                <button onClick={pause} aria-label="Pause"><FaPause /></button>
+                <button className="player-controls-button" onClick={pause} aria-label="Pause"><FaPause /></button>
               ) : (
-                <button onClick={resume} aria-label="Resume"><FaPlay /></button>
+                <button className="player-controls-button" onClick={resume} aria-label="Resume"><FaPlay /></button>
               )}
-              <button onClick={next} aria-label="Next"><FaStepForward /></button>
-              <button onClick={playQueue} aria-label="Play queue">Play queue</button>
+              <button className="player-controls-button" onClick={next} aria-label="Next"><FaStepForward /></button>
+              {/*<button onClick={playQueue} aria-label="Play queue">Play queue</button>*/}
             </div>
             <div className="progress-bar">
               <div className="progress-filled" style={{ width: `${progress}%` }}></div>
             </div>
           </div>
           <div className="right-section">
-              <button onClick={()=>{setShowQueue(!showQueue)}} aria-label=""><PiQueueBold /></button>
+            <button className="player-controls-button" onClick={()=>{setShowQueue(!showQueue)}} aria-label=""><PiQueueBold /></button>
+            <button className="player-controls-button" onClick={()=>{}} aria-label="Change volume"><FaVolumeUp/></button>
           </div>
         </div>
         {showQueue && (
           <div className="queue-sidebar">
             <div className="queue-header">
               <span>Kolejka</span>
-              <button onClick={() => setShowQueue(false)}><FaWindowMinimize /></button>
+              <button className="player-controls-button" onClick={() => setShowQueue(false)}><FaWindowMinimize /></button>
             </div>
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={queueTracks.map(q => q.id)}>
@@ -282,7 +287,9 @@ const DraggableQueueItem = ({ track, idx }) => {
                 </ul>
               </SortableContext>
             </DndContext>
-
+            <div className="submit-button">
+              <button type="submit" className="player-controls-button" onClick={()=>handleSubmitQueue()}>Zapisz</button>
+            </div>
           </div>
         )}
       </div>
