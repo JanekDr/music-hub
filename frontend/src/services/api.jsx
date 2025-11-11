@@ -70,6 +70,7 @@ export const authAPI = {
   addToQueue: (trackId) => api.post('/queue/add_to_queue/', trackId),
   removeFromQueue: (queueTrackId) => api.delete('/queue/remove_from_queue/', queueTrackId),
   moveTrackQueue: (trackId, targetTrackId) => api.post('/queue/move_track_relative/', trackId, targetTrackId),
+  reorderQueue: (queueTrackId) => api.post('/queue/reorder_queue/', queueTrackId),
   addTrack: (data) => api.post('/tracks/add_track/', data),
 };
 

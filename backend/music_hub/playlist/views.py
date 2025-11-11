@@ -26,6 +26,20 @@ class QueueViewSet(viewsets.ModelViewSet):
         return Queue.objects.filter(user = self.request.user)
 
     @action(detail=False, methods=['post'])
+    def reorder_queue(self, request):
+        queue = Queue.objects.get(user=request.user)
+        new_order = request.data.get('queue_track_ids', [])
+        print(new_order)
+        if not isinstance(new_order, list):
+            return Response({'error': 'queue_track_ids must be a list'}, status=status.HTTP_400_BAD_REQUEST)
+
+        for position, qt_id in enumerate(new_order):
+            qt = QueueTrack.objects.get(pk=qt_id, queue=queue)
+            qt.to(position)
+
+        return Response({'detail': 'Queue reordered successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
     def add_to_queue(self, request):
         queue = Queue.objects.get(user = self.request.user)
         track_id = request.data.get('track_id')

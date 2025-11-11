@@ -197,8 +197,13 @@ const handleDragEnd = (event) => {
   dispatch(setQueue([{ ...queue[0], queue_tracks: newTracks }]));
 };
 
-const handleSubmitQueue = () => {
-
+const handleSubmitQueue = async () => {
+  const queueTrackIds = queueTracks.map(track => track.id);
+  try {
+    await authAPI.reorderQueue({'queue_track_ids': queueTrackIds});
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // Item render/binding
