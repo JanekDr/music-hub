@@ -29,7 +29,6 @@ class QueueViewSet(viewsets.ModelViewSet):
     def reorder_queue(self, request):
         queue = Queue.objects.get(user=request.user)
         new_order = request.data.get('queue_track_ids', [])
-        print(new_order)
         if not isinstance(new_order, list):
             return Response({'error': 'queue_track_ids must be a list'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -6,6 +6,7 @@ import {setQueue} from "../store/playerSlice.js";
 
 const SearchResults = ({ tracks, onAddToPlaylist, onPlayTrack }) => {
   const queue = useSelector(state => state.player.queue);
+  const queueTracks = (queue[0]?.queue_tracks) || [];
   const dispatch = useDispatch();
 
   const mapTrackForApi = (track) => ({
@@ -15,13 +16,13 @@ const SearchResults = ({ tracks, onAddToPlaylist, onPlayTrack }) => {
   });
 
   const handleAddToQueue = async (track) => {
-    // dispatch(setQueue([{...queue[0], queue_tracks: queue, track}]));
     try {
       const newTrackData = mapTrackForApi(track);
-      const response = await authAPI.addTrack(newTrackData);
-      const trackId = response.data.id;
-      const updatedQueue = await authAPI.addToQueue({'track_id': trackId});
-      dispatch(setQueue(updatedQueue.data));
+      const newTrack = await authAPI.addTrack(newTrackData);
+      await authAPI.addToQueue({'track_id': newTrack.data.id});
+      const queueResponse = await authAPI.getQueue();
+      dispatch(setQueue(queueResponse.data));
+      //it can be optimalized by adding track directly to redux
     } catch (e) {
       console.error("Error while adding queue", e);
     }
