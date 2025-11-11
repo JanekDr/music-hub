@@ -214,6 +214,7 @@ const DraggableQueueItem = ({ track, idx }) => {
   return (
     <li
       ref={setNodeRef}
+      className={idx === currentTrackIndex ? "active-track" : ""}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
@@ -221,7 +222,6 @@ const DraggableQueueItem = ({ track, idx }) => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}
-      className={idx === track.index ? "active-track" : ""}
     >
       <span
         {...attributes}
