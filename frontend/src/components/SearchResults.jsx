@@ -1,10 +1,11 @@
 import '../styles/searchResults.css';
 import { FaPlus, FaList } from 'react-icons/fa';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {authAPI} from "../services/api.jsx";
 import {setQueue} from "../store/playerSlice.js";
 
 const SearchResults = ({ tracks, onAddToPlaylist, onPlayTrack }) => {
+  const queue = useSelector(state => state.player.queue);
   const dispatch = useDispatch();
 
   const mapTrackForApi = (track) => ({
@@ -14,14 +15,13 @@ const SearchResults = ({ tracks, onAddToPlaylist, onPlayTrack }) => {
   });
 
   const handleAddToQueue = async (track) => {
+    // dispatch(setQueue([{...queue[0], queue_tracks: queue, track}]));
     try {
       const newTrackData = mapTrackForApi(track);
       const response = await authAPI.addTrack(newTrackData);
       const trackId = response.data.id;
-      console.log('addToQueue', trackId);
       const updatedQueue = await authAPI.addToQueue({'track_id': trackId});
       dispatch(setQueue(updatedQueue.data));
-      console.log(response.data);
     } catch (e) {
       console.error("Error while adding queue", e);
     }

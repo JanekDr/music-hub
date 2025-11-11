@@ -68,8 +68,11 @@
 }
 
 .track-name {
-  font-size: 16px;
-  font-weight: bold;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
 }
 
 .artist-name {
@@ -166,16 +169,22 @@
 }
 
 .queue-list li {
+  height: 80px; /* lub inna stała wartość */
+  min-height: 70px;  /* stała wysokość */
+  width:240px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid #222;
+  overflow: hidden;
 }
 
 .queue-list .track-info {
   display: flex;
   flex-direction: column;
+  margin-left:8px;
 }
 
 .queue-list .remove-btn {
@@ -207,4 +216,10 @@
   display: flex;
   margin-top: 4rem;
   width:50%;
+}
+.queue-list .drag-handle {
+  margin-right: 12px;
+  font-size: 22px;
+  cursor: grab;
+  user-select: none;
 }

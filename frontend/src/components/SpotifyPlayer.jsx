@@ -176,7 +176,8 @@ const SpotifyPlayer = () => {
     }
   };
 
-  const handleRemove = async (id) => {
+   const handleRemove = async (id) => {
+    console.log("usuwanie")
     const updatedQueue = queueTracks.filter(track => track.id !== id);
     try {
       await authAPI.removeFromQueue({ data: { queue_track_id: id } })
@@ -220,11 +221,21 @@ const DraggableQueueItem = ({ track, idx }) => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}
-      {...attributes}
-      {...listeners}
-      className={idx === currentTrackIndex ? "active-track" : ""}
+      className={idx === track.index ? "active-track" : ""}
     >
-      <div>
+      <span
+        {...attributes}
+        {...listeners}
+        style={{
+          cursor: "grab",
+          marginRight: 12,
+          userSelect: "none"
+        }}
+        aria-label="Przeciągnij"
+      >
+        ☰
+      </span>
+      <div className="track-info">
         <div>{track.track.name}</div>
         <div>{track.track.author}</div>
       </div>
@@ -283,12 +294,14 @@ const DraggableQueueItem = ({ track, idx }) => {
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={queueTracks.map(q => q.id)}>
                 <ul className="queue-list">
-                  {queueTracks.length === 0
-                    ? <li>Brak utworów w kolejce</li>
-                    : queueTracks.map((track, idx) =>
-                        <DraggableQueueItem key={track.id} track={track} idx={idx} />
-                      )
-                  }
+                  {queueTracks.map((track, idx) =>
+                    <DraggableQueueItem
+                      key={track.id}
+                      track={track}
+                      idx={idx}
+                      handleRemove={handleRemove}
+                    />
+                  )}
                 </ul>
               </SortableContext>
             </DndContext>
