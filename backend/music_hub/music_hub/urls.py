@@ -29,5 +29,6 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/users/', include('users.urls')),
     path('api/spotify/', include('spotify.urls')),
+    path('api/soundcloud/', include('soundcloud.urls')),
     path('api/', include('playlist.urls'))
 ]

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'ordered_model',
     'users',
     'spotify',
+    'soundcloud',
     'playlist'
 ]
 
