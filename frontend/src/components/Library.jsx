@@ -86,7 +86,7 @@ const PlaylistCards = ({ playlists, platform }) => (
                     <FaPlay color="#1DB954" size={28} />
                 </div>
                 {platform === "hub" && (
-                    <div className="library-card-owner">Właściciel: {pl.owner?.email || '-'}</div>
+                    <div className="library-card-owner">Właściciel: {pl.owner.username || '-'}</div>
                 )}
                 <div className="library-card-tracks">
                     {platform === "hub"

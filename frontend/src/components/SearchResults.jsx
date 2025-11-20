@@ -6,7 +6,6 @@ import {setQueue} from "../store/playerSlice.js";
 
 const SearchResults = ({ tracks, onAddToPlaylist, onPlayTrack }) => {
   const queue = useSelector(state => state.player.queue);
-  const queueTracks = (queue[0]?.queue_tracks) || [];
   const dispatch = useDispatch();
 
   const mapTrackForApi = (track) => ({

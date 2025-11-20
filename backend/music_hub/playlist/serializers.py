@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Track, Playlist, Queue, QueueTrack
 from ordered_model.serializers import OrderedModelSerializer
+from users.serializers import UserSerializer
 
 
 class TrackSerializer(serializers.ModelSerializer):
@@ -17,7 +18,7 @@ class TrackSerializer(serializers.ModelSerializer):
 
 class PlaylistSerializer(serializers.ModelSerializer):
     tracks = TrackSerializer(many=True)
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    owner = UserSerializer(read_only=True)
 
     class Meta:
         model = Playlist
