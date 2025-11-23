@@ -85,7 +85,7 @@ def spotify_callback(request):
 
     return redirect('http://localhost:3000/dashboard')
 
-
+@permission_classes([IsAuthenticated])
 def refresh_spotify_token(user):
     token_obj = SpotifyToken.objects.get(user=user)
     if token_obj.expires_at > timezone.now():

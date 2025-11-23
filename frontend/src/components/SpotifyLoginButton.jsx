@@ -1,4 +1,3 @@
-// SpotifyLoginButton.jsx
 import React from 'react';
 
 const SpotifyLoginButton = () => {
@@ -12,7 +11,7 @@ const SpotifyLoginButton = () => {
       return;
     }
 
-    window.location.href = `http://127.0.0.1:8000/api/spotify/login/?token=${token}`;
+    window.location.href = `http://127.0.0.1:8000/api/spotify/login/?token=${token}`; //do zmiany music byc axios
   };
 
   return (

@@ -3,6 +3,7 @@ from django.conf import settings
 from urllib.parse import urlencode
 from django.shortcuts import redirect
 import requests
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -12,9 +13,9 @@ from .models import SoundcloudToken
 
 
 def soundcloud_login(request):
-    user_token = request.GET.get('token')  # JWT z frontu
-    code_challenge = request.GET.get('code_challenge')  # generowane przez frontend
-    state = user_token  # (możesz dodać nonce jeśli chcesz pełną ochronę CSRF)
+    user_token = request.GET.get('token')
+    code_challenge = request.GET.get('code_challenge')
+    state = user_token
 
     params = {
         'client_id': settings.SOUNDCLOUD_CLIENT_ID,
@@ -42,6 +43,8 @@ class SoundcloudTokenExchange(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        user = request.user
+
         code = request.data.get("code")
         code_verifier = request.data.get("code_verifier")
 
@@ -63,27 +66,27 @@ class SoundcloudTokenExchange(APIView):
 
         response = requests.post(token_url, headers=headers, data=payload)
         token_info = response.json()
-        print(token_info)
+
+        if 'error' in token_info:
+            return JsonResponse({'error': token_info['error']}, status=400)
+
         access_token = token_info.get('access_token')
         refresh_token = token_info.get('refresh_token')
         expires_in = token_info.get('expires_in', 3600)
         expires_at = timezone.now() + timedelta(seconds=int(expires_in))
 
-        user = request.user
-        print("##########################")
-        print(user)
-        obj, created = SoundcloudToken.objects.update_or_create(
-            user=user,
-            defaults={'access_token': access_token,
-                      'refresh_token': refresh_token,
-                      'expires_at': expires_at}
+        SoundcloudToken.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'expires_at': expires_at
+            }
         )
-
-        user.soundcloud_token = obj
-        user.save()
 
         return Response({'access_token': access_token, 'expires_at': expires_at, 'refresh_token': refresh_token})
 
+@permission_classes([IsAuthenticated])
 def refresh_soundcloud_token(user):
     token_obj = SoundcloudToken.objects.get(user=user)
     if token_obj.expires_at > timezone.now():
@@ -100,7 +103,25 @@ def refresh_soundcloud_token(user):
     token_info = response.json()
     new_access_token = token_info.get('access_token')
     expires_in = token_info.get('expires_in', 3600)
+
     token_obj.access_token = new_access_token
     token_obj.expires_at = timezone.now() + timedelta(seconds=int(expires_in))
     token_obj.save()
+
     return new_access_token
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_soundcloud_connection_status(request):
+    try:
+        user_soundcloud_token = SoundcloudToken.objects.get(user=request.user)
+        connected = True
+        expires_at = user_soundcloud_token.expires_at
+    except SoundcloudToken.DoesNotExist:
+        connected = False
+        expires_at = None
+    print("Connected", connected, request.user)
+    return JsonResponse({
+        'connected': connected,
+        'expires_at': expires_at,
+    })

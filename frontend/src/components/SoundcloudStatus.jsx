@@ -50,9 +50,9 @@ const SoundcloudStatus = () => {
           <p className="expires" style={{fontSize: '0.9em', color: '#ccc'}}>
             Token ważny do: {new Date(expiresAt).toLocaleString()}
           </p>
-          <button onClick={disconnectSoundcloud} disabled={loading}>
-            {loading ? 'Rozłączanie...' : 'Odłącz konto SoundCloud'}
-          </button>
+          {/*<button onClick={disconnectSoundcloud} disabled={loading}>*/}
+          {/*  {loading ? 'Rozłączanie...' : 'Odłącz konto SoundCloud'}*/}
+          {/*</button>*/}
         </div>
       </div>
     );
