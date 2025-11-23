@@ -28,7 +28,7 @@ def get_valid_spotify_token(user):
 
 def spotify_login(request):
     scopes = 'user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private app-remote-control'
-    user_token = request.GET.get('token')
+    user_token = request.GET.get('token')#is that safe?
     params = {
         'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,
         'response_type': 'code',
@@ -48,7 +48,7 @@ def spotify_callback(request):
         return JsonResponse({'error': error}, status=400)
 
     try:
-        UntypedToken(state)
+        UntypedToken(state)#??????????? po co walidacja uzytkownika skoro i tak interceptor doda jwt w requescie
         jwt_auth = JWTAuthentication()
         validated_token = jwt_auth.get_validated_token(state)
         user = jwt_auth.get_user(validated_token)

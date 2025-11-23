@@ -72,6 +72,7 @@ export const authAPI = {
   moveTrackQueue: (trackId, targetTrackId) => api.post('/queue/move_track_relative/', trackId, targetTrackId),
   reorderQueue: (queueTrackId) => api.post('/queue/reorder_queue/', queueTrackId),
   addTrack: (data) => api.post('/tracks/add_track/', data),
+  exchangeSoundcloudToken: (code, code_verifier) => api.post('/soundcloud/token-exchange/', { code, code_verifier }),
 };
 
 export default api;

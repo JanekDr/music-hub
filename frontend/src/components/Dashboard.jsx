@@ -5,6 +5,7 @@ import SpotifyLoginButton from './SpotifyLoginButton.jsx';
 import { FaSpotify } from 'react-icons/fa';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import '../styles/dashboard.css'
+import SoundcloudStatus from "./SoundcloudStatus.jsx";
 
 
 const UserProfile = ({ user }) => (
@@ -110,6 +111,7 @@ const Dashboard = () => {
         <h2>Welcome, {user.username}!</h2>
         <UserProfile user={user} />
         <SpotifyStatus />
+        <SoundcloudStatus />
         <button onClick={handleLogout} className="logout-btn" style={{marginTop: '20px'}}>Logout</button>
       </div>
     </div>

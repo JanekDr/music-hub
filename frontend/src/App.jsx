@@ -14,6 +14,7 @@ import Player from "./components/Player.jsx";
 import CreatePlaylist from "./components/CreatePlaylist.jsx";
 import Library from "./components/Library.jsx";
 import SpotifyPlayer from "./components/SpotifyPlayer.jsx";
+import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -87,6 +88,13 @@ function App() {
               path="/library" element={
               <ProtectedRoute>
                 <Library />
+              </ProtectedRoute>
+            }
+            />
+            <Route
+              path="/soundcloud/callback" element={
+              <ProtectedRoute>
+                <SoundcloudCallback />
               </ProtectedRoute>
             }
             />
