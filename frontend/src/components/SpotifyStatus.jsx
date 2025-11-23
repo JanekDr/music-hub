@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
-import SoundcloudLoginButton from './SoundcloudLoginButton.jsx';
-import { FaSoundcloud } from 'react-icons/fa';
+import SpotifyLoginButton from './SpotifyLoginButton.jsx';
+import { FaSpotify } from 'react-icons/fa';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import '../styles/playersConnectionStatus.css';
 
-const SoundcloudStatus = () => {
+const SpotifyStatus = () => {
   const [connected, setConnected] = useState(false);
   const [expiresAt, setExpiresAt] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ const SoundcloudStatus = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await authAPI.getSoundcloudStatus();
+        const response = await authAPI.getSpotifyStatus();
         setConnected(response.data.connected);
         setExpiresAt(response.data.expires_at);
       } catch (error) {
@@ -23,10 +23,10 @@ const SoundcloudStatus = () => {
     fetchStatus();
   }, []);
 
-  const disconnectSoundcloud = async () => {
+  const disconnectSpotify = async () => {
     setLoading(true);
     try {
-      const response = await authAPI.postSoundcloudDisconnect();
+      const response = await authAPI.postSpotifyDisconnect();
       if (response.data.message) {
         setConnected(false);
         setExpiresAt(null);
@@ -38,26 +38,26 @@ const SoundcloudStatus = () => {
   };
 
   return (
-    <div className={`player-connection-status soundcloud-status${connected ? ' connected' : ' not-connected'}`}>
+    <div className={`player-connection-status spotify-status${connected ? ' connected' : ' not-connected'}`}>
       <div className="status-title-row">
-        <span>Połączono z kontem SoundCloud</span>
-        <IoCheckmarkCircleOutline color="#FF5500" size={20} style={{marginLeft: '7px'}} />
+        <span>Połączono z kontem Spotify</span>
+        <IoCheckmarkCircleOutline color="#1DB954" size={20} style={{marginLeft: '7px'}} />
       </div>
       <div className="info-row">
-        <FaSoundcloud color="#FF5500" size={28} />
+        <FaSpotify color="#1DB954" size={28} />
         <span className="expires">
           Token ważny do: {expiresAt ? new Date(expiresAt).toLocaleString() : "brak"}
         </span>
       </div>
       {connected ? (
-        <button className="auth-btn connected" onClick={disconnectSoundcloud} disabled={loading}>
-          {loading ? 'Rozłączanie...' : 'Odłącz konto SoundCloud'}
+        <button className="auth-btn connected" onClick={disconnectSpotify} disabled={loading}>
+          {loading ? 'Rozłączanie...' : 'Odłącz konto Spotify'}
         </button>
       ) : (
-        <SoundcloudLoginButton />
+        <SpotifyLoginButton />
       )}
     </div>
   );
 };
 
-export default SoundcloudStatus;
+export default SpotifyStatus;
