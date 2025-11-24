@@ -125,3 +125,17 @@ def get_user_soundcloud_connection_status(request):
         'connected': connected,
         'expires_at': expires_at,
     })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def disconnect(request):
+    soundcloud_token = SoundcloudToken.objects.get(user=request.user)
+    response = requests.post(
+        "https://secure.soundcloud.com/sign-out",
+        data={
+            "access_token": soundcloud_token.refresh_token,
+        }
+    )
+    if error in response.json():
+        return JsonResponse({'error': error}, status=400)
+    return JsonResponse(status)

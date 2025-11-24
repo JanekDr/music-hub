@@ -34,14 +34,13 @@ const PublicRoute = ({ children }) => {
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 }
 
-function App() {
+function AppLayout() {
+  const { isAuthenticated } = useAuth();
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={
+    <div className="App">
+      <Navbar />
+      <Routes>
+        <Route path="/login" element={
               <PublicRoute>
                 <Login />
               </PublicRoute>
@@ -96,14 +95,20 @@ function App() {
             }
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
-          <ProtectedRoute>
-            <SpotifyPlayer/>
-          </ProtectedRoute>
-        </div>
+      </Routes>
+      {isAuthenticated && <SpotifyPlayer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppLayout />
       </Router>
     </AuthProvider>
-  )
+  );
 }
 
 export default App;

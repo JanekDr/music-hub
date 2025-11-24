@@ -118,9 +118,9 @@
 
 .right-section {
   display: flex;
-  min-width: 150px;
+  min-width: 300px;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
   /* can add flex layout and buttons if needed */
 }
 .right-section svg {
