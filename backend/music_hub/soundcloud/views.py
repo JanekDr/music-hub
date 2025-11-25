@@ -12,6 +12,16 @@ from datetime import timedelta
 from .models import SoundcloudToken
 
 
+def get_valid_soundcloud_token(user):
+    try:
+        token_obj = SoundcloudToken.objects.get(user=user)
+    except SoundcloudToken.DoesNotExist:
+        return None
+    if token_obj.expires_at <= timezone.now():
+        refresh_soundcloud_token(user)
+        token_obj.refresh_from_db()
+    return token_obj.access_token
+
 def soundcloud_login(request):
     user_token = request.GET.get('token')
     code_challenge = request.GET.get('code_challenge')
@@ -129,8 +139,7 @@ def get_user_soundcloud_connection_status(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def soundcloud_disconnect(request):
-    soundcloud_token = SoundcloudToken.objects.get(user=request.user)
-    print(soundcloud_token.access_token)
+    soundcloud_token = get_valid_soundcloud_token(request.user)
     response = requests.post(
         "https://secure.soundcloud.com/sign-out",
         json={
@@ -139,31 +148,28 @@ def soundcloud_disconnect(request):
     )
 
     if response.status_code >= 400:
-        print(response.json())
         return JsonResponse({'error': f'SoundCloud API error {response.status_code}'}, status=400)
 
     try:
         token_obj = SoundcloudToken.objects.get(user=request.user)
         token_obj.delete()
-        print("disconnected", request.user)
         return JsonResponse({'message': 'Spotify account disconnected'})
     except SoundcloudToken.DoesNotExist:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
 
-
-from rest_framework.response import Response
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_soundcloud_user(request):
-    s = get_object_or_404(SoundcloudToken, user=request.user)
+    soundcloud_token = get_valid_soundcloud_token(request.user)
+
     url = "https://api.soundcloud.com/me"
     headers = {
         "accept": "application/json; charset=utf-8",
-        "Authorization": f"OAuth {s.access_token}"
+        "Authorization": f"OAuth {soundcloud_token}"
     }
 
     response = requests.get(url, headers=headers, timeout=10)
+
     try:
         user_data = response.json()
     except ValueError:
@@ -173,6 +179,29 @@ def get_soundcloud_user(request):
     if response.status_code == 200:
         return Response(user_data)
     else:
-        print("SoundCloud error:", response.status_code, user_data)
         return Response(user_data, status=response.status_code)
 
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def search(request):
+#     query = request.GET.get('q')
+#     if not query:
+#         return JsonResponse({'error': 'No search term provided'}, status=400)
+#
+#     soundcloud_token = get_valid_soundcloud_token(request.user)
+#     if not soundcloud_token:
+#         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+#
+#     url = "https://api.soundcloud.com/tracks"
+#     headers = {
+#         'accept': 'application/json; charset=utf-8',
+#         'Authorization': f'OAuth {soundcloud_token}'
+#     }
+#     params = {
+#         'q': query,
+#         'access': 'playable',
+#         'limit': 5
+#     }
+#     response = requests.get(url, headers=headers, params=params)
+#     return JsonResponse(response.json())

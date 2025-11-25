@@ -13,8 +13,6 @@ const SoundcloudStatus = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const info = await authAPI.getSoundcloudUserInfo();
-        console.log(info.data)
         const response = await authAPI.getSoundcloudStatus();
         setConnected(response.data.connected);
         setExpiresAt(response.data.expires_at);
