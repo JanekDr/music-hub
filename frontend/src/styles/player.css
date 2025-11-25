@@ -1,6 +1,23 @@
 .player {
     margin-top: 100px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: space-evenly;
+}
+.results-section {
+  min-width:440px;
+  border-radius: 15px;
+  background: #232228;
+  box-shadow: 0 6px 32px rgba(60, 60, 80, 0.15);
+  overflow: hidden;
+  padding: 20px 0 8px 0;
+}
+.results-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1.19rem;
+  font-weight: 600;
+  margin: 0 0 12px 20px;
+  color: #eee;
+  letter-spacing: 0.03em;
 }
