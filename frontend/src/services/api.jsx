@@ -74,6 +74,8 @@ export const authAPI = {
   addTrack: (data) => api.post('/tracks/add_track/', data),
   exchangeSoundcloudToken: (code, code_verifier, token) => api.post('/soundcloud/token-exchange/', { code, code_verifier, token }),
   getSoundcloudStatus: () => api.get('/soundcloud/user_status/'),
+  soundcloudDisconnect: () => api.post('/soundcloud/disconnect/'),
+  getSoundcloudUserInfo: () => api.get('/soundcloud/user/'),
 };
 
 export default api;

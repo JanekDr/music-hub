@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from urllib.parse import urlencode
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 import requests
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.views import APIView
@@ -128,14 +128,51 @@ def get_user_soundcloud_connection_status(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def disconnect(request):
+def soundcloud_disconnect(request):
     soundcloud_token = SoundcloudToken.objects.get(user=request.user)
+    print(soundcloud_token.access_token)
     response = requests.post(
         "https://secure.soundcloud.com/sign-out",
-        data={
-            "access_token": soundcloud_token.refresh_token,
+        json={
+            "access_token": soundcloud_token.access_token,
         }
     )
-    if error in response.json():
-        return JsonResponse({'error': error}, status=400)
-    return JsonResponse(status)
+
+    if response.status_code >= 400:
+        print(response.json())
+        return JsonResponse({'error': f'SoundCloud API error {response.status_code}'}, status=400)
+
+    try:
+        token_obj = SoundcloudToken.objects.get(user=request.user)
+        token_obj.delete()
+        print("disconnected", request.user)
+        return JsonResponse({'message': 'Spotify account disconnected'})
+    except SoundcloudToken.DoesNotExist:
+        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+
+
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_soundcloud_user(request):
+    s = get_object_or_404(SoundcloudToken, user=request.user)
+    url = "https://api.soundcloud.com/me"
+    headers = {
+        "accept": "application/json; charset=utf-8",
+        "Authorization": f"OAuth {s.access_token}"
+    }
+
+    response = requests.get(url, headers=headers, timeout=10)
+    try:
+        user_data = response.json()
+    except ValueError:
+        user_data = {"error": response.text}
+        return Response(user_data, status=500)
+
+    if response.status_code == 200:
+        return Response(user_data)
+    else:
+        print("SoundCloud error:", response.status_code, user_data)
+        return Response(user_data, status=response.status_code)
+
