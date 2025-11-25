@@ -76,6 +76,7 @@ class SoundcloudTokenExchange(APIView):
 
         response = requests.post(token_url, headers=headers, data=payload)
         token_info = response.json()
+        print(token_info)
 
         if 'error' in token_info:
             return JsonResponse({'error': token_info['error']}, status=400)
@@ -182,26 +183,26 @@ def get_soundcloud_user(request):
         return Response(user_data, status=response.status_code)
 
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def search(request):
-#     query = request.GET.get('q')
-#     if not query:
-#         return JsonResponse({'error': 'No search term provided'}, status=400)
-#
-#     soundcloud_token = get_valid_soundcloud_token(request.user)
-#     if not soundcloud_token:
-#         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
-#
-#     url = "https://api.soundcloud.com/tracks"
-#     headers = {
-#         'accept': 'application/json; charset=utf-8',
-#         'Authorization': f'OAuth {soundcloud_token}'
-#     }
-#     params = {
-#         'q': query,
-#         'access': 'playable',
-#         'limit': 5
-#     }
-#     response = requests.get(url, headers=headers, params=params)
-#     return JsonResponse(response.json())
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search(request):
+    query = request.GET.get('q')
+    if not query:
+        return JsonResponse({'error': 'No search term provided'}, status=400)
+
+    soundcloud_token = get_valid_soundcloud_token(request.user)
+    if not soundcloud_token:
+        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+
+    url = "https://api.soundcloud.com/tracks"
+    headers = {
+        'accept': 'application/json; charset=utf-8',
+        'Authorization': f'OAuth {soundcloud_token}'
+    }
+    params = {
+        'q': query,
+        'access': 'playable',
+        'limit': 5
+    }
+    response = requests.get(url, headers=headers, params=params)
+    return Response(response.json())

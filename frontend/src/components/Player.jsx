@@ -19,11 +19,16 @@ const Player = () => {
     const query = params.get('q');
     if (query) {
       setLoading(true);
-      authAPI.searchTracks(query)
+      authAPI.searchSpotifyTracks(query)
         .then(resp => setTracks(resp.data.tracks.items))
         .catch(() => setTracks([]))
         .finally(() => setLoading(false));
     }
+    const sctracks = async () => {
+        const response = await authAPI.searchSoundcloudTracks(query);
+        console.log(response.data[0].title);
+      };
+    sctracks();
   }, [search]);
 
   function handlePlayTrack(track) {

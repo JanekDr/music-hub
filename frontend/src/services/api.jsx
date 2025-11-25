@@ -60,7 +60,7 @@ export const authAPI = {
   getProfile: () => api.get('/users/profile/'),
   getSpotifyStatus: () => api.get('/spotify/user_status/'),
   postSpotifyDisconnect: () => api.post('/spotify/disconnect/'),
-  searchTracks: (query) => api.get('/spotify/search/', {params: { q: query} }),
+  searchSpotifyTracks: (query) => api.get('/spotify/search/', {params: { q: query} }),
   getSpotifyToken: () => api.get('/spotify/token/'),
   getSpotifyPlaylists: () => api.get('/spotify/playlist/'),
   users: () => api.get('/users/'),
@@ -76,6 +76,7 @@ export const authAPI = {
   getSoundcloudStatus: () => api.get('/soundcloud/user_status/'),
   soundcloudDisconnect: () => api.post('/soundcloud/disconnect/'),
   getSoundcloudUserInfo: () => api.get('/soundcloud/user/'),
+  searchSoundcloudTracks: (query) => api.get('/soundcloud/search/', {params: { q: query} }),
 };
 
 export default api;

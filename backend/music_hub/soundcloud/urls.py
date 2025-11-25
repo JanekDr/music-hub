@@ -6,6 +6,7 @@ from .views import (
     get_user_soundcloud_connection_status,
     soundcloud_disconnect,
     get_soundcloud_user,
+    search,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('user_status/', get_user_soundcloud_connection_status, name='get_user_soundcloud_connection_status'),
     path('disconnect/', soundcloud_disconnect, name='soundcloud_disconnect'),
     path('user/', get_soundcloud_user, name='get_soundcloud_user'),
+    path('search/', search, name='soundcloud_search'),
 ]
