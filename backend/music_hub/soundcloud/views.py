@@ -1,10 +1,9 @@
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from urllib.parse import urlencode
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 import requests
 from rest_framework.decorators import permission_classes, api_view
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
@@ -15,10 +14,13 @@ from .models import SoundcloudToken
 def get_valid_soundcloud_token(user):
     try:
         token_obj = SoundcloudToken.objects.get(user=user)
+        print("token do sprawdzenia: ", token_obj.access_token)
     except SoundcloudToken.DoesNotExist:
         return None
     if token_obj.expires_at <= timezone.now():
+        print("proba odswiezenia tokenu")
         refresh_soundcloud_token(user)
+        print("odswiezono token")
         token_obj.refresh_from_db()
     return token_obj.access_token
 
@@ -48,54 +50,52 @@ def soundcloud_callback(request):
 
     return redirect(f'http://localhost:3000/soundcloud/callback?code={code}&state={state}')
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def soundcloud_token_exchange(request):
+    code = request.data.get("code")
+    code_verifier = request.data.get("code_verifier")
 
-class SoundcloudTokenExchange(APIView):
-    permission_classes = [IsAuthenticated]
+    if not code or not code_verifier:
+        return JsonResponse({'error': 'code verification required'}, status=400)
 
-    def post(self, request):
-        user = request.user
+    token_url = 'https://secure.soundcloud.com/oauth/token'
 
-        code = request.data.get("code")
-        code_verifier = request.data.get("code_verifier")
+    headers = {
+        'accept': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
 
-        token_url = 'https://secure.soundcloud.com/oauth/token'
+    payload = {
+        'grant_type': 'authorization_code',
+        'client_id': settings.SOUNDCLOUD_CLIENT_ID,
+        'client_secret': settings.SOUNDCLOUD_CLIENT_SECRET,
+        'redirect_uri': settings.SOUNDCLOUD_REDIRECT_URI,
+        'code_verifier': code_verifier,
+        'code': code,
+    }
 
-        headers = {
-            'accept': 'application/json; charset=utf-8',
-            'Content-Type': 'application/x-www-form-urlencoded',
+    response = requests.post(token_url, headers=headers, data=payload)
+    token_info = response.json()
+
+    if 'error' in token_info:
+        return JsonResponse({'error': token_info['error']}, status=400)
+
+    access_token = token_info.get('access_token')
+    refresh_token = token_info.get('refresh_token')
+    expires_in = token_info.get('expires_in', 3600)
+    expires_at = timezone.now() + timedelta(seconds=int(expires_in))
+
+    SoundcloudToken.objects.update_or_create(
+        user=request.user,
+        defaults={
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'expires_at': expires_at
         }
+    )
 
-        payload = {
-            'grant_type': 'authorization_code',
-            'client_id': settings.SOUNDCLOUD_CLIENT_ID,
-            'client_secret': settings.SOUNDCLOUD_CLIENT_SECRET,
-            'redirect_uri': settings.SOUNDCLOUD_REDIRECT_URI,
-            'code_verifier': code_verifier,
-            'code': code,
-        }
-
-        response = requests.post(token_url, headers=headers, data=payload)
-        token_info = response.json()
-        print(token_info)
-
-        if 'error' in token_info:
-            return JsonResponse({'error': token_info['error']}, status=400)
-
-        access_token = token_info.get('access_token')
-        refresh_token = token_info.get('refresh_token')
-        expires_in = token_info.get('expires_in', 3600)
-        expires_at = timezone.now() + timedelta(seconds=int(expires_in))
-
-        SoundcloudToken.objects.update_or_create(
-            user=request.user,
-            defaults={
-                'access_token': access_token,
-                'refresh_token': refresh_token,
-                'expires_at': expires_at
-            }
-        )
-
-        return Response({'access_token': access_token, 'expires_at': expires_at, 'refresh_token': refresh_token})
+    return Response({'access_token': access_token, 'expires_at': expires_at, 'refresh_token': refresh_token})
 
 @permission_classes([IsAuthenticated])
 def refresh_soundcloud_token(user):
@@ -104,13 +104,22 @@ def refresh_soundcloud_token(user):
         return token_obj.access_token
 
     refresh_url = 'https://secure.soundcloud.com/oauth/token'
+    headers = {
+        'accept': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+
     payload = {
         'grant_type': 'refresh_token',
-        'refresh_token': token_obj.refresh_token,
         'client_id': settings.SOUNDCLOUD_CLIENT_ID,
         'client_secret': settings.SOUNDCLOUD_CLIENT_SECRET,
+        'refresh_token': token_obj.refresh_token,
     }
-    response = requests.post(refresh_url, data=payload)
+    response = requests.post(refresh_url, data=payload, headers=headers)
+
+    if response.status_code >= 400:
+        return JsonResponse({'error': response}, status=400)
+
     token_info = response.json()
     new_access_token = token_info.get('access_token')
     expires_in = token_info.get('expires_in', 3600)
@@ -144,10 +153,9 @@ def soundcloud_disconnect(request):
     response = requests.post(
         "https://secure.soundcloud.com/sign-out",
         json={
-            "access_token": soundcloud_token.access_token,
+            "access_token": soundcloud_token,
         }
     )
-
     if response.status_code >= 400:
         return JsonResponse({'error': f'SoundCloud API error {response.status_code}'}, status=400)
 
@@ -191,6 +199,8 @@ def search(request):
         return JsonResponse({'error': 'No search term provided'}, status=400)
 
     soundcloud_token = get_valid_soundcloud_token(request.user)
+    print(soundcloud_token)
+    print("gowno")
     if not soundcloud_token:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
 
