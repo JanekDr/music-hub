@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from "../store/playerSlice";
 import { authAPI } from "../services/api";
@@ -30,6 +30,8 @@ const UniversalPlayer = () => {
   const [trackImg, setTrackImg] = useState("");
   const [showQueue, setShowQueue] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+
+  const adapterRef = useRef(null);
 
   // 1. Token + kolejka
   useEffect(() => {
@@ -67,6 +69,7 @@ const UniversalPlayer = () => {
     );
 
     newAdapter.init();
+    adapterRef.current = newAdapter;
     setAdapter(newAdapter);
   }, [spotifyToken, adapter, dispatch]);
 
@@ -93,14 +96,22 @@ const UniversalPlayer = () => {
   };
 
   const next = () => {
-    if (!adapter) return;
-    if (queueTracks.length === 0) return;
-    if (currentTrackIndex + 1 >= queueTracks.length) return;
+    const a = adapterRef.current;
 
-    const nextIndex = currentTrackIndex + 1;
+    const state = store.getState();
+    const queueState = state.player.queue;
+    const currentIndex = state.player.currentTrackIndex || 0;
+    const tracks = (queueState[0]?.queue_tracks) || [];
+
+    if (tracks.length === 0) return;
+    if (currentIndex + 1 >= tracks.length) return;
+
+    const nextIndex = currentIndex + 1;
+    const nextTrack = tracks[nextIndex];
+    const nextUri = nextTrack.track.url;
+
     dispatch(setCurrentTrackIndex(nextIndex));
-    const nextUri = queueTracks[nextIndex].track.url;
-    adapter.playUris([nextUri]);
+    a.playUris([nextUri]);
     setIsStarted(true);
   };
 

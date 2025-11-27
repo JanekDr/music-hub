@@ -4,6 +4,7 @@ export class SpotifyAdapter {
     this.getDeviceId = getDeviceId;
     this.setDeviceIdCb = setDeviceIdCb;
     this.onStateChangeCb = onStateChangeCb;
+    this.onTrackEndCb = onTrackEndCb;
     this.player = null;
     this._lastState = null;
   }
@@ -47,33 +48,24 @@ export class SpotifyAdapter {
       this.setDeviceIdCb(device_id);
     });
 
-
-
     player.addListener("player_state_changed", (state) => {
-      if (this.onStateChangeCb && state) {
-        this.onStateChangeCb(state);
+      if (!state) return;
+      if (this.onStateChangeCb) this.onStateChangeCb(state);
+
+      if (
+        this._lastState &&
+        !this._lastState.paused &&
+        state.paused &&
+        state.position === 0 &&
+        state.track_window.previous_tracks
+          .some(t => t.id === this._lastState.track_window.current_track.id)
+      ) {
+        if (this.onTrackEndCb) this.onTrackEndCb();
       }
 
-      if (this._lastState && state) {
-        const wasPlaying = !this._lastState.paused;
-        const isPaused = state.paused;
-        const positionNow = state.position;
-        const duration = state.duration;
-
-        if (
-          wasPlaying &&
-          isPaused &&
-          positionNow === 0 &&
-          duration === this._lastState.duration
-        ) {
-          console.log("[Adapter] track ended");
-          if (this.onTrackEndCb){
-            this.onTrackEndCb();
-          }
-        }
-      }
       this._lastState = state;
     });
+
     player.connect();
   };
 
