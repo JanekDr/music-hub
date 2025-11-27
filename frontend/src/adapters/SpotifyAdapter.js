@@ -43,10 +43,10 @@ export class SpotifyAdapter {
 
     this.player = player;
 
-    player.addListener("ready", ({ device_id }) => {
+    player.addListener('ready', async ({ device_id }) => {
       this.setDeviceIdCb(device_id);
-      this.transferPlayback(device_id);
     });
+
 
 
     player.addListener("player_state_changed", (state) => {

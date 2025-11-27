@@ -45,45 +45,48 @@ const UniversalPlayer = () => {
   }, [isAuthenticated, spotifyToken, dispatch]);
 
   useEffect(() => {
-  if (!spotifyToken) return;
+    if (!spotifyToken || adapter) return;
 
-  const newAdapter = new SpotifyAdapter(
-    () => store.getState().player.spotifyToken,
-    () => store.getState().player.deviceId,
-    (devId) => {
-      dispatch(setDeviceId(devId));
-    },
-    (state) => {
-      if (!state) return;
+    const newAdapter = new SpotifyAdapter(
+      () => store.getState().player.spotifyToken,
+      () => store.getState().player.deviceId,
+      devId => dispatch(setDeviceId(devId)),
+      state => {
+        if (!state) return;
         setPlaying(!state.paused);
         setTrackName(state.track_window.current_track.name);
         setArtistName(state.track_window.current_track.artists.map(a => a.name).join(", "));
         setAlbumName(state.track_window.current_track.album.name);
         setTrackImg(state.track_window.current_track.album.images?.[0]?.url);
         setProgress(state.duration ? (state.position / state.duration) * 100 : 0);
-    },
+      },
       () => {
-        console.log("skonczyl sie track")
+        console.log("skonczyl sie track");
         next();
       }
-  );
+    );
 
-  newAdapter.init();
-  setAdapter(newAdapter);
-}, [spotifyToken]);
-
+    newAdapter.init();
+    setAdapter(newAdapter);
+  }, [spotifyToken, adapter, dispatch]);
 
   const pause = () => {
     if (!adapter) return;
     adapter.pause();
   };
 
-  const resume = () => {
+  const resume = async () => {
     if (!adapter) return;
+    const deviceId = store.getState().player.deviceId;
     const track = queueTracks[currentTrackIndex];
-    if (track && !isStarted) {
+    if (!track || !deviceId) return;
+
+    if (!isStarted) {
       setIsStarted(true);
-      adapter.playUris([track.track.url]);
+      await adapter.transferPlayback(deviceId);
+      setTimeout(() => {
+        adapter.playUris([track.track.url]);
+      }, 700);
     } else {
       adapter.resume();
     }
