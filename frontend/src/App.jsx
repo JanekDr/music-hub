@@ -12,6 +12,7 @@ import CreatePlaylist from "./components/CreatePlaylist.jsx";
 import Library from "./components/Library.jsx";
 import SpotifyPlayer from "./components/SpotifyPlayer.jsx";
 import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
+import UniversalPlayer from "./components/UniversalPlayer.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -96,7 +97,7 @@ function AppLayout() {
             />
             <Route path="/" element={<Navigate to="/dashboard" />} />
       </Routes>
-      {isAuthenticated && <SpotifyPlayer />}
+      {isAuthenticated && <UniversalPlayer />}
     </div>
   );
 }
