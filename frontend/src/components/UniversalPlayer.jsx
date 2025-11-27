@@ -29,6 +29,7 @@ const UniversalPlayer = () => {
   const [progress, setProgress] = useState(0);
   const [trackImg, setTrackImg] = useState("");
   const [showQueue, setShowQueue] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
 
   // 1. Token + kolejka
   useEffect(() => {
@@ -67,16 +68,6 @@ const UniversalPlayer = () => {
   setAdapter(newAdapter);
 }, [spotifyToken]);
 
-  // 3. Sterowanie kolejką
-
-  // const playCurrentFromQueue = () => {
-  //   if (!adapter) return;
-  //   const track = queueTracks[currentTrackIndex];
-  //   if (!track) return;
-  //   const uri = track.track.url;      // w Twoim modelu queue -> track.url = spotify uri
-  //   adapter.playUris([uri]);
-  // };
-
   const pause = () => {
     if (!adapter) return;
     adapter.pause();
@@ -84,15 +75,12 @@ const UniversalPlayer = () => {
 
   const resume = () => {
     if (!adapter) return;
-    if (playing) {
-      adapter.pause();
+    const track = queueTracks[currentTrackIndex];
+    if (track && !isStarted) {
+      setIsStarted(true);
+      adapter.playUris([track.track.url]);
     } else {
-      const track = queueTracks[currentTrackIndex];
-      if (track) {
-        adapter.playUris([track.track.url]);
-      } else {
-        adapter.resume();
-      }
+      adapter.resume();
     }
   };
 
@@ -105,6 +93,7 @@ const UniversalPlayer = () => {
     dispatch(setCurrentTrackIndex(nextIndex));
     const nextUri = queueTracks[nextIndex].track.url;
     adapter.playUris([nextUri]);
+    setIsStarted(true);
   };
 
   const previous = () => {
@@ -116,9 +105,8 @@ const UniversalPlayer = () => {
     dispatch(setCurrentTrackIndex(prevIndex));
     const prevUri = queueTracks[prevIndex].track.url;
     adapter.playUris([prevUri]);
+    setIsStarted(true);
   };
-
-  // 4. Operacje na kolejce (remove, drag&drop, zapis)
 
   const handleRemove = async (id) => {
     const updatedQueue = queueTracks.filter(track => track.id !== id);
