@@ -49,7 +49,7 @@ const UniversalPlayer = () => {
 
   const newAdapter = new SpotifyAdapter(
     () => store.getState().player.spotifyToken,
-      () => store.getState().player.deviceId,
+    () => store.getState().player.deviceId,
     (devId) => {
       dispatch(setDeviceId(devId));
     },
@@ -61,12 +61,17 @@ const UniversalPlayer = () => {
         setAlbumName(state.track_window.current_track.album.name);
         setTrackImg(state.track_window.current_track.album.images?.[0]?.url);
         setProgress(state.duration ? (state.position / state.duration) * 100 : 0);
-    }
+    },
+      () => {
+        console.log("skonczyl sie track")
+        next();
+      }
   );
 
   newAdapter.init();
   setAdapter(newAdapter);
 }, [spotifyToken]);
+
 
   const pause = () => {
     if (!adapter) return;
