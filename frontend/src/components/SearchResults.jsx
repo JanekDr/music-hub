@@ -19,7 +19,7 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
     }
     // SoundCloud
     return {
-      url: track.permalink_url,
+      url: track.uri,
       name: track.title,
       author: track.user?.username || track.user?.full_name
     };
