@@ -11,6 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import SoundcloudToken
+from .utils import get_app_sc_token
 
 User = get_user_model()
 
@@ -223,21 +224,7 @@ def search(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def soundcloud_stream(request, track_id: str):
-    raw_token = request.GET.get("token")
-    if not raw_token:
-        return Response({"detail": "No token"}, status=401)
-
-    try:
-        validated = AccessToken(raw_token)
-        user_id = validated["user_id"]
-        user = User.objects.get(id=user_id)
-    except Exception as e:
-        print("JWT error:", e)
-        return Response({"detail": "Invalid token"}, status=401)
-
-    sc_token = get_valid_soundcloud_token(user)
-    if not sc_token:
-        return Response({"detail": "No SoundCloud token for user"}, status=401)
+    sc_token = get_app_sc_token()
 
     resp = requests.get(
         f"https://api.soundcloud.com/tracks/{track_id}/stream",

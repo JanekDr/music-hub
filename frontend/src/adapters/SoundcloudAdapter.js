@@ -47,13 +47,8 @@ async playCurrent() {
   if (!id) return;
 
   const API_BASE_URL = 'http://localhost:8000/api';
-  const jwt = localStorage.getItem('accessToken');
-  if (!jwt) {
-    console.warn('No accessToken in localStorage');
-    return;
-  }
 
-  const url = `${API_BASE_URL}/soundcloud/stream/${id}/?token=${encodeURIComponent(jwt)}`;
+  const url = `${API_BASE_URL}/soundcloud/stream/${id}/`;
   console.log('[SCAdapter] stream url', url);
 
   this.audio.src = url;
