@@ -9,6 +9,7 @@ class TrackSerializer(serializers.ModelSerializer):
         model = Track
         fields = [
             'id',
+            'track_id',
             'url',
             'name',
             'author',

@@ -7,6 +7,7 @@ from .views import (
     soundcloud_disconnect,
     get_soundcloud_user,
     search,
+    soundcloud_stream
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('disconnect/', soundcloud_disconnect, name='soundcloud_disconnect'),
     path('user/', get_soundcloud_user, name='get_soundcloud_user'),
     path('search/', search, name='soundcloud_search'),
+    path('stream/<str:track_id>/', soundcloud_stream, name='soundcloud_stream'),
 ]

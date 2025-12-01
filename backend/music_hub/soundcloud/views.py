@@ -1,15 +1,18 @@
-from django.http import HttpResponseRedirect, JsonResponse
+from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, StreamingHttpResponse
 from django.conf import settings
 from urllib.parse import urlencode
 from django.shortcuts import redirect
 import requests
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework_simplejwt.tokens import AccessToken
 from .models import SoundcloudToken
 
+User = get_user_model()
 
 def get_valid_soundcloud_token(user):
     try:
@@ -216,3 +219,44 @@ def search(request):
     }
     response = requests.get(url, headers=headers, params=params)
     return Response(response.json())
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def soundcloud_stream(request, track_id: str):
+    raw_token = request.GET.get("token")
+    if not raw_token:
+        return Response({"detail": "No token"}, status=401)
+
+    try:
+        validated = AccessToken(raw_token)
+        user_id = validated["user_id"]
+        user = User.objects.get(id=user_id)
+    except Exception as e:
+        print("JWT error:", e)
+        return Response({"detail": "Invalid token"}, status=401)
+
+    sc_token = get_valid_soundcloud_token(user)
+    if not sc_token:
+        return Response({"detail": "No SoundCloud token for user"}, status=401)
+
+    resp = requests.get(
+        f"https://api.soundcloud.com/tracks/{track_id}/stream",
+        headers={
+            "accept": "application/json; charset=utf-8",
+            "Authorization": f"OAuth {sc_token}",
+        },
+        allow_redirects=False,
+        stream=True,
+    )
+
+    if resp.status_code in (301, 302, 303, 307, 308):
+        loc = resp.headers.get("Location")
+        if not loc:
+            return HttpResponse(status=502)
+        return HttpResponseRedirect(loc)
+
+    return StreamingHttpResponse(
+        resp.iter_content(chunk_size=8192),
+        status=resp.status_code,
+        content_type=resp.headers.get("Content-Type", "audio/mpeg"),
+    )

@@ -12,6 +12,7 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
   const mapTrackForApi = (track) => {
     if (platform === 'spotify') {
       return {
+        track_id: track.id,
         url: track.uri,
         name: track.name,
         author: track.artists.map(a => a.name).join(', ')
@@ -19,15 +20,14 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
     }
     // SoundCloud
     return {
+      track_id: track.id,
       url: track.uri,
       name: track.title,
       author: track.user?.username || track.user?.full_name
     };
   };
 
-  // Render pojedynczego tracka
   const renderTrackItem = (track) => {
-    // Ustal obrazek i artystę
     let img = '';
     let name = '';
     let artists = '';

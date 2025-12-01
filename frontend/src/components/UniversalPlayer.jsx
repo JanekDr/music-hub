@@ -4,6 +4,7 @@ import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from "..
 import { authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { SpotifyAdapter } from "../adapters/SpotifyAdapter.js";
+import {SoundcloudAdapter} from "../adapters/SoundcloudAdapter.js";
 import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaWindowMinimize, FaVolumeUp } from "react-icons/fa";
 import { PiQueueBold } from "react-icons/pi";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -21,7 +22,8 @@ const UniversalPlayer = () => {
   const currentTrackIndex = useSelector(state => state.player.currentTrackIndex || 0);
   const queueTracks = (queue[0]?.queue_tracks) || [];
 
-  const [adapter, setAdapter] = useState(null);
+  const [spAdapter, setSpAdapter] = useState(null);
+  const [scAdapter, setScAdapter] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [trackName, setTrackName] = useState("");
   const [artistName, setArtistName] = useState("");
@@ -47,7 +49,7 @@ const UniversalPlayer = () => {
   }, [isAuthenticated, spotifyToken, dispatch]);
 
   useEffect(() => {
-    if (!spotifyToken || adapter) return;
+    if (!spotifyToken || spAdapter) return;
 
     const newAdapter = new SpotifyAdapter(
       () => store.getState().player.spotifyToken,
@@ -70,30 +72,71 @@ const UniversalPlayer = () => {
 
     newAdapter.init();
     adapterRef.current = newAdapter;
-    setAdapter(newAdapter);
-  }, [spotifyToken, adapter, dispatch]);
+    setSpAdapter(newAdapter);
+  }, [spotifyToken, spAdapter, dispatch]);
+
+  //SOUNDCLOUD INIT
+  useEffect(() => {
+    if (scAdapter) return;
+
+    const a = new SoundcloudAdapter(
+      () => {
+        const state = store.getState();
+        const queue = state.player.queue;
+        const index = state.player.currentTrackIndex || 0;
+        const tracks = (queue[0]?.queue_tracks) || [];
+        return tracks[index] || null;
+      },
+      scState => {
+        if (!scState) return;
+        if (typeof scState.playing === "boolean") setPlaying(scState.playing);
+        if (typeof scState.progress === "number") setProgress(scState.progress);
+      },
+      () => {
+        console.log("SC: skonczyl sie track");
+        next();                                      // ta sama kolejka
+      }
+    );
+    a.init();
+    setScAdapter(a);
+  }, [scAdapter, queueTracks, currentTrackIndex]);
 
   const pause = () => {
-    if (!adapter) return;
-    adapter.pause();
+    if (!spAdapter) return;
+    spAdapter.pause();
   };
 
-  const resume = async () => {
-    if (!adapter) return;
+const resume = async () => {
+  const track = queueTracks[currentTrackIndex];
+  if (!track) return;
+
+  const platform = track.track.platform;
+
+  if (platform === "spotify") {
+    console.log("Spotify playing");
+    if (!spAdapter) return;
     const deviceId = store.getState().player.deviceId;
-    const track = queueTracks[currentTrackIndex];
-    if (!track || !deviceId) return;
+    if (!deviceId) return;
 
     if (!isStarted) {
       setIsStarted(true);
-      await adapter.transferPlayback(deviceId);
+      await spAdapter.transferPlayback(deviceId);
       setTimeout(() => {
-        adapter.playUris([track.track.url]);
+        spAdapter.playUris([track.track.url]);
       }, 700);
     } else {
-      adapter.resume();
+      spAdapter.resume();
     }
-  };
+  }
+
+  if (platform === "soundcloud") {
+    console.log("Soundcloud playing");
+    console.log(queueTracks[currentTrackIndex]);
+    if (!scAdapter) return;
+    await scAdapter.playCurrent();
+  }
+};
+
 
   const next = () => {
     const a = adapterRef.current;
@@ -116,14 +159,14 @@ const UniversalPlayer = () => {
   };
 
   const previous = () => {
-    if (!adapter) return;
+    if (!spAdapter) return;
     if (queueTracks.length === 0) return;
     if (currentTrackIndex === 0) return;
 
     const prevIndex = currentTrackIndex - 1;
     dispatch(setCurrentTrackIndex(prevIndex));
     const prevUri = queueTracks[prevIndex].track.url;
-    adapter.playUris([prevUri]);
+    spAdapter.playUris([prevUri]);
     setIsStarted(true);
   };
 
