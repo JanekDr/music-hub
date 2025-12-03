@@ -13,7 +13,6 @@ export class SoundcloudAdapter {
     this.onTrackEndCb = onTrackEndCb;
 
     this.audio = null;
-    this._currentUrl = null;
     this._lastTrackId = null;
   }
 
@@ -61,10 +60,8 @@ export class SoundcloudAdapter {
    async updateTrackInfo() {
     const item = this.getCurrentTrack();
     if (!item?.track) return;
-    console.log(item.track.track_id)
     const track = await authAPI.getTrackData(item.track.track_id);
 
-    console.log(track);
     if (this.onTrackInfoChangeCb && item.track.track_id !== this._lastTrackId) {
       this.onTrackInfoChangeCb({
         trackName: track.data.title,
@@ -95,5 +92,21 @@ export class SoundcloudAdapter {
   setVolume(volume01) {
     if (!this.audio) return;
     this.audio.volume = Math.max(0, Math.min(1, volume01));
+  }
+
+  async pause() {
+    if (!this.audio) return;
+    this.audio.pause();
+  }
+
+  async resume() {
+    if (!this.audio) return;
+
+    if (!this.audio.src){
+      console.log("gram od poczatku")
+      await this.playCurrent();
+    }
+    console.log("wznawiam granie od: ", this.audio.currentTime);
+    await this.audio.play();
   }
 }

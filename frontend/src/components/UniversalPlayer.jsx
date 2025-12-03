@@ -116,6 +116,7 @@ const UniversalPlayer = () => {
     const value01 = value / 100;
 
     dispatch(setVolume(value01));
+    console.log("zapisano zmiane glosnosci", value01)
     spAdapter?.setVolume(value01);
     scAdapter?.setVolume(value01);
 
@@ -126,9 +127,22 @@ const UniversalPlayer = () => {
     setShowVolume(v => !v);
   };
 
-  const pause = () => {
-    if (!spAdapter) return;
-    spAdapter.pause();
+  const pause = async () => {
+    const track = queueTracks[currentTrackIndex];
+    if (!track) return;
+
+    const platform = track.track.platform;
+    if (platform === "soundcloud") {
+      if (!scAdapter) return;
+      if (playing) {
+        await scAdapter.pause();
+      }
+    } else if (platform === "spotify") {
+      if (!spAdapter) return;
+      if(playing) {
+        await spAdapter.pause();
+      }
+    }
   };
 
   const resume = async () => {
@@ -153,12 +167,17 @@ const UniversalPlayer = () => {
         spAdapter.resume();
       }
     }
-
     if (platform === "soundcloud") {
       console.log("Soundcloud playing");
       console.log(queueTracks[currentTrackIndex]);
+
       if (!scAdapter) return;
-      await scAdapter.playCurrent();
+
+      if (scAdapter.audio && scAdapter.audio.src) {
+        await scAdapter.resume();
+      } else {
+        await scAdapter.playCurrent();
+      }
     }
   };
 
