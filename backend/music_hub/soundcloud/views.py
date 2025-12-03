@@ -112,7 +112,7 @@ def refresh_soundcloud_token(user):
         'accept': 'application/json; charset=utf-8',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-
+    print("refresh token: ", token_obj.refresh_token)
     payload = {
         'grant_type': 'refresh_token',
         'client_id': settings.SOUNDCLOUD_CLIENT_ID,
@@ -156,19 +156,22 @@ def get_user_soundcloud_connection_status(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def soundcloud_disconnect(request):
-    soundcloud_token = get_valid_soundcloud_token(request.user)
-    response = requests.post(
-        "https://secure.soundcloud.com/sign-out",
-        json={
-            "access_token": soundcloud_token,
-        }
-    )
-    if response.status_code >= 400:
-        return JsonResponse({'error': f'SoundCloud API error {response.status_code}'}, status=400)
-
     try:
+        soundcloud_token = get_valid_soundcloud_token(request.user)
+
         token_obj = SoundcloudToken.objects.get(user=request.user)
         token_obj.delete()
+
+        response = requests.post(
+            "https://secure.soundcloud.com/sign-out",
+            json={
+                "access_token": soundcloud_token,
+            }
+        )
+
+        if response.status_code >= 400:
+            print(f'soundcloud error, status code: {response.status_code}, \ndetails: {response}')
+
         return JsonResponse({'message': 'Soundcloud account disconnected'})
     except SoundcloudToken.DoesNotExist:
         return JsonResponse({'error': 'Soundcloud account not connected'}, status=400)
