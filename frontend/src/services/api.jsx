@@ -77,6 +77,7 @@ export const authAPI = {
   soundcloudDisconnect: () => api.post('/soundcloud/disconnect/'),
   getSoundcloudUserInfo: () => api.get('/soundcloud/user/'),
   searchSoundcloudTracks: (query) => api.get('/soundcloud/search/', {params: { q: query} }),
+  getTrackData: (trackId) => api.get('soundcloud/get_track_data/', { params: { track_id: trackId } }),
 };
 
 export default api;

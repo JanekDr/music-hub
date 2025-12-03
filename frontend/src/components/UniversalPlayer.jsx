@@ -48,6 +48,7 @@ const UniversalPlayer = () => {
     }
   }, [isAuthenticated, spotifyToken, dispatch]);
 
+  //SPOTIFY INIT
   useEffect(() => {
     if (!spotifyToken || spAdapter) return;
 
@@ -92,11 +93,19 @@ const UniversalPlayer = () => {
         if (typeof scState.playing === "boolean") setPlaying(scState.playing);
         if (typeof scState.progress === "number") setProgress(scState.progress);
       },
+      scTrackInfo => {
+        if (!scTrackInfo) return;
+        setTrackName(scTrackInfo.trackName);
+        setArtistName(scTrackInfo.artistName);
+        setAlbumName(scTrackInfo.albumName);
+        setTrackImg(scTrackInfo.trackImg);
+      },
       () => {
         console.log("SC: skonczyl sie track");
-        next();                                      // ta sama kolejka
+        next();
       }
     );
+
     a.init();
     setScAdapter(a);
   }, [scAdapter, queueTracks, currentTrackIndex]);
@@ -201,7 +210,6 @@ const resume = async () => {
     }
   };
 
-  // 5. DnD item
   const DraggableQueueItem = ({ track, idx }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: track.id });
 

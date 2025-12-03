@@ -119,6 +119,7 @@ def refresh_soundcloud_token(user):
         'client_secret': settings.SOUNDCLOUD_CLIENT_SECRET,
         'refresh_token': token_obj.refresh_token,
     }
+
     response = requests.post(refresh_url, data=payload, headers=headers)
 
     if response.status_code >= 400:
@@ -133,6 +134,7 @@ def refresh_soundcloud_token(user):
     token_obj.save()
 
     return new_access_token
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -150,6 +152,7 @@ def get_user_soundcloud_connection_status(request):
         'expires_at': expires_at,
     })
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def soundcloud_disconnect(request):
@@ -166,9 +169,10 @@ def soundcloud_disconnect(request):
     try:
         token_obj = SoundcloudToken.objects.get(user=request.user)
         token_obj.delete()
-        return JsonResponse({'message': 'Spotify account disconnected'})
+        return JsonResponse({'message': 'Soundcloud account disconnected'})
     except SoundcloudToken.DoesNotExist:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({'error': 'Soundcloud account not connected'}, status=400)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -203,10 +207,9 @@ def search(request):
         return JsonResponse({'error': 'No search term provided'}, status=400)
 
     soundcloud_token = get_valid_soundcloud_token(request.user)
-    print(soundcloud_token)
-    print("gowno")
+
     if not soundcloud_token:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({'error': 'Soundcloud account not connected'}, status=400)
 
     url = "https://api.soundcloud.com/tracks"
     headers = {
@@ -220,6 +223,7 @@ def search(request):
     }
     response = requests.get(url, headers=headers, params=params)
     return Response(response.json())
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -247,3 +251,33 @@ def soundcloud_stream(request, track_id: str):
         status=resp.status_code,
         content_type=resp.headers.get("Content-Type", "audio/mpeg"),
     )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_track_data(request):
+    track_id = request.GET.get('track_id')
+    if not track_id:
+        return JsonResponse({'error': 'No track_id provided'}, status=400)
+
+    user_access_token = get_valid_soundcloud_token(request.user)
+
+    if not user_access_token:
+        return JsonResponse({'error': 'Soundcloud account not connected'}, status=400)
+
+    headers = {
+        'accept': 'application/json; charset=utf-8',
+        'Authorization': f'OAuth {user_access_token}'
+    }
+    response = requests.get(f"https://api.soundcloud.com/tracks/soundcloud:tracks:{track_id}", headers=headers)
+
+    try:
+        track_data = response.json()
+    except ValueError:
+        track_data = {"error": response.text}
+        return Response(track_data, status=500)
+
+    if response.status_code == 200:
+        return Response(track_data)
+    else:
+        return Response(track_data, status=response.status_code)
