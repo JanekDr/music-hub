@@ -91,4 +91,9 @@ export class SoundcloudAdapter {
     this.audio.src = url;
     await this.audio.play();
   }
+
+  setVolume(volume01) {
+    if (!this.audio) return;
+    this.audio.volume = Math.max(0, Math.min(1, volume01));
+  }
 }

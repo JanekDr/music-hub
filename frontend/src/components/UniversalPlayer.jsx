@@ -1,17 +1,17 @@
 import {useEffect, useRef, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex } from "../store/playerSlice";
+import {setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex, setVolume} from "../store/playerSlice";
 import { authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { SpotifyAdapter } from "../adapters/SpotifyAdapter.js";
-import {SoundcloudAdapter} from "../adapters/SoundcloudAdapter.js";
+import { SoundcloudAdapter } from "../adapters/SoundcloudAdapter.js";
 import { FaStepBackward, FaStepForward, FaPlay, FaPause, FaWindowMinimize, FaVolumeUp } from "react-icons/fa";
 import { PiQueueBold } from "react-icons/pi";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { useSortable, SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import "../styles/spotifyPlayer.css";
 import store from "../store/index.js";
+import '../styles/spotifyPlayer.css'
 
 const UniversalPlayer = () => {
   const dispatch = useDispatch();
@@ -21,6 +21,7 @@ const UniversalPlayer = () => {
   const queue = useSelector(state => state.player.queue);
   const currentTrackIndex = useSelector(state => state.player.currentTrackIndex || 0);
   const queueTracks = (queue[0]?.queue_tracks) || [];
+  const volume = useSelector(state => state.player.volume);
 
   const [spAdapter, setSpAdapter] = useState(null);
   const [scAdapter, setScAdapter] = useState(null);
@@ -32,10 +33,10 @@ const UniversalPlayer = () => {
   const [trackImg, setTrackImg] = useState("");
   const [showQueue, setShowQueue] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [showVolume, setShowVolume] = useState(false);
 
   const adapterRef = useRef(null);
 
-  // 1. Token + kolejka
   useEffect(() => {
     if (isAuthenticated && !spotifyToken) {
       authAPI.getSpotifyToken()
@@ -110,41 +111,56 @@ const UniversalPlayer = () => {
     setScAdapter(a);
   }, [scAdapter, queueTracks, currentTrackIndex]);
 
+  const handleVolumeChange = (e) => {
+    const value = Number(e.target.value);
+    const value01 = value / 100;
+
+    dispatch(setVolume(value01));
+    spAdapter?.setVolume(value01);
+    scAdapter?.setVolume(value01);
+
+    e.target.style.setProperty('--val', `${value}%`);
+  };
+
+  const handleVolumeClick = () => {
+    setShowVolume(v => !v);
+  };
+
   const pause = () => {
     if (!spAdapter) return;
     spAdapter.pause();
   };
 
-const resume = async () => {
-  const track = queueTracks[currentTrackIndex];
-  if (!track) return;
+  const resume = async () => {
+    const track = queueTracks[currentTrackIndex];
+    if (!track) return;
 
-  const platform = track.track.platform;
+    const platform = track.track.platform;
 
-  if (platform === "spotify") {
-    console.log("Spotify playing");
-    if (!spAdapter) return;
-    const deviceId = store.getState().player.deviceId;
-    if (!deviceId) return;
+    if (platform === "spotify") {
+      console.log("Spotify playing");
+      if (!spAdapter) return;
+      const deviceId = store.getState().player.deviceId;
+      if (!deviceId) return;
 
-    if (!isStarted) {
-      setIsStarted(true);
-      await spAdapter.transferPlayback(deviceId);
-      setTimeout(() => {
-        spAdapter.playUris([track.track.url]);
-      }, 700);
-    } else {
-      spAdapter.resume();
+      if (!isStarted) {
+        setIsStarted(true);
+        await spAdapter.transferPlayback(deviceId);
+        setTimeout(() => {
+          spAdapter.playUris([track.track.url]);
+        }, 700);
+      } else {
+        spAdapter.resume();
+      }
     }
-  }
 
-  if (platform === "soundcloud") {
-    console.log("Soundcloud playing");
-    console.log(queueTracks[currentTrackIndex]);
-    if (!scAdapter) return;
-    await scAdapter.playCurrent();
-  }
-};
+    if (platform === "soundcloud") {
+      console.log("Soundcloud playing");
+      console.log(queueTracks[currentTrackIndex]);
+      if (!scAdapter) return;
+      await scAdapter.playCurrent();
+    }
+  };
 
 
   const next = () => {
@@ -284,12 +300,40 @@ const resume = async () => {
             <div className="progress-filled" style={{ width: `${progress}%` }}></div>
           </div>
         </div>
-        <div className="right-section">
-          <button className="player-controls-button" onClick={() => setShowQueue(!showQueue)} aria-label=""><PiQueueBold /></button>
-          <button className="player-controls-button" onClick={() => { }} aria-label="Change volume"><FaVolumeUp /></button>
+        <div className="right-section" style={{ position: "relative" }}>
+          <button
+            className="player-controls-button"
+            onClick={() => setShowQueue(!showQueue)}
+            aria-label="Kolejka"
+          >
+            <PiQueueBold />
+          </button>
+
+          <button
+            className="player-controls-button"
+            onClick={handleVolumeClick}
+            aria-label="Głośność"
+          >
+            <FaVolumeUp />
+          </button>
+
+          {showVolume && (
+            <div className="volume-popup">
+              <div className="volume-slider-rotate">
+                <input
+                  className="volume-slider"
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Math.round((volume || 0) * 100)}
+                  onChange={handleVolumeChange}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
       {showQueue && (
         <div className="queue-sidebar">
           <div className="queue-header">

@@ -10,7 +10,6 @@ import Navbar from "./components/Navbar.jsx";
 import Player from "./components/Player.jsx";
 import CreatePlaylist from "./components/CreatePlaylist.jsx";
 import Library from "./components/Library.jsx";
-import SpotifyPlayer from "./components/SpotifyPlayer.jsx";
 import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
 import UniversalPlayer from "./components/UniversalPlayer.jsx";
 

@@ -25,53 +25,59 @@ export class SpotifyAdapter {
     });
   }
   init() {
-  const initPlayer = () => {
-    if (this.player) return;
+    const initPlayer = () => {
+      if (this.player) return;
 
-    const token = this.getToken();
+      const token = this.getToken();
 
-    if (!token) return;
+      if (!token) return;
 
-    if (!window.Spotify || !window.Spotify.Player) {
-      return;
-    }
-
-    const player = new window.Spotify.Player({
-      name: "Music-Hub Player",
-      getOAuthToken: cb => cb(token),
-      volume: 0.05,
-    });
-
-    this.player = player;
-
-    player.addListener('ready', async ({ device_id }) => {
-      this.setDeviceIdCb(device_id);
-    });
-
-    player.addListener("player_state_changed", (state) => {
-      if (!state) return;
-      if (this.onStateChangeCb) this.onStateChangeCb(state);
-
-      if (
-        this._lastState &&
-        !this._lastState.paused &&
-        state.paused &&
-        state.position === 0 &&
-        state.track_window.previous_tracks
-          .some(t => t.id === this._lastState.track_window.current_track.id)
-      ) {
-        if (this.onTrackEndCb) this.onTrackEndCb();
+      if (!window.Spotify || !window.Spotify.Player) {
+        return;
       }
 
-      this._lastState = state;
-    });
+      const player = new window.Spotify.Player({
+        name: "Music-Hub Player",
+        getOAuthToken: cb => cb(token),
+        volume: 0.05,
+      });
 
-    player.connect();
-  };
+      this.player = player;
+
+      player.addListener('ready', async ({ device_id }) => {
+        this.setDeviceIdCb(device_id);
+      });
+
+      player.addListener("player_state_changed", (state) => {
+        if (!state) return;
+        if (this.onStateChangeCb) this.onStateChangeCb(state);
+
+        if (
+          this._lastState &&
+          !this._lastState.paused &&
+          state.paused &&
+          state.position === 0 &&
+          state.track_window.previous_tracks
+            .some(t => t.id === this._lastState.track_window.current_track.id)
+        ) {
+          if (this.onTrackEndCb) this.onTrackEndCb();
+        }
+
+        this._lastState = state;
+      });
+
+      player.connect();
+    };
 
   window.onSpotifyWebPlaybackSDKReady = initPlayer;
   if (window.Spotify) initPlayer();
 }
+
+  setVolume(volume01) {
+    if (!this.player) return;
+    const v = Math.max(0, Math.min(1, volume01));
+    this.player.setVolume(v);
+  }
 
   playUris(uris) {
     const token = this.getToken();

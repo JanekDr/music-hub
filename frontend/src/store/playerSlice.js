@@ -9,6 +9,7 @@ const playerSlice = createSlice({
     deviceId: null,
     currentTrackId: null,
     currentTrackIndex: null,
+    volume: 0.5
   },
   reducers: {
     setQueue: (state, action) => { state.queue = action.payload; },
@@ -17,6 +18,7 @@ const playerSlice = createSlice({
     setDeviceId: (state, action) => { state.deviceId = action.payload; },
     setCurrentTrackId: (state, action) => { state.currentTrackId = action.payload; },
     setCurrentTrackIndex: (state, action) => { state.currentTrackIndex = action.payload; },
+    setVolume: (state, action) => { state.volume = action.payload; },
   }
 });
 
@@ -26,7 +28,8 @@ export const {
   setSpotifyToken,
   setDeviceId,
   setCurrentTrackId,
-  setCurrentTrackIndex
+  setCurrentTrackIndex,
+  setVolume
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
