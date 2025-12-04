@@ -123,4 +123,9 @@ export class SpotifyAdapter {
       },
     });
   }
+
+  stop() {
+    if (!this.player) return;
+    this.player.pause();
+  }
 }

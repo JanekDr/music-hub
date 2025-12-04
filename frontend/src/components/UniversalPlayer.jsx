@@ -127,6 +127,20 @@ const UniversalPlayer = () => {
     setShowVolume(v => !v);
   };
 
+  const stopCurrentPlatform = () => {
+    const track = queueTracks[currentTrackIndex];
+    if (!track) return;
+
+    const platform = track.track.platform;
+
+    if (platform === "spotify" && spAdapter) {
+      spAdapter.stop();
+    }
+    if (platform === "soundcloud" && scAdapter) {
+      scAdapter.stop();
+    }
+  };
+
   const pause = async () => {
     const track = queueTracks[currentTrackIndex];
     if (!track) return;
@@ -182,36 +196,66 @@ const UniversalPlayer = () => {
   };
 
 
-  const next = () => {
-    const a = adapterRef.current;
+  const next = async () => {
+    stopCurrentPlatform();
 
     const state = store.getState();
     const queueState = state.player.queue;
     const currentIndex = state.player.currentTrackIndex || 0;
     const tracks = (queueState[0]?.queue_tracks) || [];
 
-    if (tracks.length === 0) return;
-    if (currentIndex + 1 >= tracks.length) return;
+    if (tracks.length === 0 || currentIndex + 1 >= tracks.length) return;
 
     const nextIndex = currentIndex + 1;
     const nextTrack = tracks[nextIndex];
-    const nextUri = nextTrack.track.url;
+    const platform = nextTrack.track.platform;
 
     dispatch(setCurrentTrackIndex(nextIndex));
-    a.playUris([nextUri]);
-    setIsStarted(true);
+
+    if (platform === "spotify") {
+      const uri = nextTrack.track.url;
+      if (adapterRef.current && uri) {
+        adapterRef.current.playUris([uri]);
+        setIsStarted(true);
+      }
+    }
+
+    if (platform === "soundcloud") {
+      if (scAdapter) {
+        await scAdapter.playCurrent();
+      }
+    }
   };
 
-  const previous = () => {
-    if (!spAdapter) return;
-    if (queueTracks.length === 0) return;
-    if (currentTrackIndex === 0) return;
+  const previous = async () => {
+    stopCurrentPlatform();
 
-    const prevIndex = currentTrackIndex - 1;
+    const state = store.getState();
+    const queueState = state.player.queue;
+    const currentIndex = state.player.currentTrackIndex || 0;
+    const tracks = (queueState[0]?.queue_tracks) || [];
+
+    if (tracks.length === 0 || currentIndex === 0) return;
+
+    const prevIndex = currentIndex - 1;
+    const prevTrack = tracks[prevIndex];
+    const platform = prevTrack.track.platform;
+
     dispatch(setCurrentTrackIndex(prevIndex));
-    const prevUri = queueTracks[prevIndex].track.url;
-    spAdapter.playUris([prevUri]);
-    setIsStarted(true);
+
+    if (platform === "spotify") {
+      const uri = prevTrack.track.url;
+      if (adapterRef.current && uri) {
+        adapterRef.current.playUris([uri]);
+        setIsStarted(true);
+      }
+    }
+
+    if (platform === "soundcloud") {
+      if (scAdapter) {
+        await scAdapter.playCurrent();
+      }
+    }
   };
 
   const handleRemove = async (id) => {

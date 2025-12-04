@@ -109,4 +109,11 @@ export class SoundcloudAdapter {
     console.log("wznawiam granie od: ", this.audio.currentTime);
     await this.audio.play();
   }
+
+  stop() {
+    if (!this.audio) return;
+    this.audio.pause();
+    this.audio.currentTime = 0;
+    this.audio.src = "";
+  }
 }
