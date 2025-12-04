@@ -82,7 +82,6 @@ export class SpotifyAdapter {
   playUris(uris) {
     const token = this.getToken();
     const deviceId = this.getDeviceId();
-    console.log("[Adapter] playUris", { deviceId, uris });
 
     if (!token || !deviceId || !uris?.length) return;
 
@@ -93,7 +92,7 @@ export class SpotifyAdapter {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }).then(res => res.text().then(t => console.log("[Adapter] playUris response", res.status, t)));
+    })
   }
 
   pause() {

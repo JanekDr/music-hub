@@ -18,13 +18,10 @@ User = get_user_model()
 def get_valid_soundcloud_token(user):
     try:
         token_obj = SoundcloudToken.objects.get(user=user)
-        print("token do sprawdzenia: ", token_obj.access_token)
     except SoundcloudToken.DoesNotExist:
         return None
     if token_obj.expires_at <= timezone.now():
-        print("proba odswiezenia tokenu")
         refresh_soundcloud_token(user)
-        print("odswiezono token")
         token_obj.refresh_from_db()
     return token_obj.access_token
 
@@ -112,7 +109,6 @@ def refresh_soundcloud_token(user):
         'accept': 'application/json; charset=utf-8',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-    print("refresh token: ", token_obj.refresh_token)
     payload = {
         'grant_type': 'refresh_token',
         'client_id': settings.SOUNDCLOUD_CLIENT_ID,
@@ -146,7 +142,6 @@ def get_user_soundcloud_connection_status(request):
     except SoundcloudToken.DoesNotExist:
         connected = False
         expires_at = None
-    print("Connected", connected, request.user)
     return JsonResponse({
         'connected': connected,
         'expires_at': expires_at,

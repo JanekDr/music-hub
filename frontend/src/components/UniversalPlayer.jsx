@@ -67,7 +67,6 @@ const UniversalPlayer = () => {
         setProgress(state.duration ? (state.position / state.duration) * 100 : 0);
       },
       () => {
-        console.log("skonczyl sie track");
         next();
       }
     );
@@ -102,7 +101,6 @@ const UniversalPlayer = () => {
         setTrackImg(scTrackInfo.trackImg);
       },
       () => {
-        console.log("SC: skonczyl sie track");
         next();
       }
     );
@@ -116,7 +114,6 @@ const UniversalPlayer = () => {
     const value01 = value / 100;
 
     dispatch(setVolume(value01));
-    console.log("zapisano zmiane glosnosci", value01)
     spAdapter?.setVolume(value01);
     scAdapter?.setVolume(value01);
 
@@ -166,7 +163,6 @@ const UniversalPlayer = () => {
     const platform = track.track.platform;
 
     if (platform === "spotify") {
-      console.log("Spotify playing");
       if (!spAdapter) return;
       const deviceId = store.getState().player.deviceId;
       if (!deviceId) return;
@@ -182,9 +178,6 @@ const UniversalPlayer = () => {
       }
     }
     if (platform === "soundcloud") {
-      console.log("Soundcloud playing");
-      console.log(queueTracks[currentTrackIndex]);
-
       if (!scAdapter) return;
 
       if (scAdapter.audio && scAdapter.audio.src) {

@@ -103,10 +103,8 @@ export class SoundcloudAdapter {
     if (!this.audio) return;
 
     if (!this.audio.src){
-      console.log("gram od poczatku")
       await this.playCurrent();
     }
-    console.log("wznawiam granie od: ", this.audio.currentTime);
     await this.audio.play();
   }
 

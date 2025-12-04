@@ -127,7 +127,6 @@ def get_user_spotify_connection_status(request):
     except SpotifyToken.DoesNotExist:
         connected = False
         expires_at = None
-    print("Connected", connected, request.user)
     return JsonResponse({
         'connected': connected,
         'expires_at': expires_at,
@@ -139,7 +138,6 @@ def spotify_disconnect(request):
     try:
         token_obj = SpotifyToken.objects.get(user=request.user)
         token_obj.delete()
-        print("disconnected", request.user)
         return JsonResponse({'message': 'Spotify account disconnected'})
     except SpotifyToken.DoesNotExist:
         return JsonResponse({'error': 'Spotify account not connected'}, status=400)
