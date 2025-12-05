@@ -71,8 +71,10 @@ const CreatePlaylist = () => {
   const [isPublic, setIsPublic] = useState(false);
 
   const [search, setSearch] = useState('');
-  const [tracks, setTracks] = useState([]);
+  const [spotifyTracks, setSpotifyTracks] = useState([]);
+  const [soundcloudTracks, setSoundcloudTracks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [, setTracks] = useState([]);
 
   useEffect(() => {
     authAPI.users()
@@ -89,21 +91,39 @@ const CreatePlaylist = () => {
     e.preventDefault();
     if (!search.trim()) return;
     setLoading(true);
-    try {
-      const resp = await authAPI.searchTracks(search.trim());
-      setTracks(resp.data.tracks.items);
-    } catch {
-      setTracks([]);
-    } finally {
-      setLoading(false);
+    Promise.all([
+      authAPI.searchSpotifyTracks(search)
+        .then(resp => setSpotifyTracks(resp.data.tracks.items))
+        .catch(() => setSpotifyTracks([])),
+      authAPI.searchSoundcloudTracks(search)
+        .then(resp => setSoundcloudTracks(resp.data || []))
+        .catch(() => setSoundcloudTracks([]))
+    ]).finally(() => setLoading(false));
+  };
+
+  const handleAddToPlaylist = (track, platform) => {
+    const unified = platform === 'spotify'
+      ? {
+          id: track.id,
+          url: track.uri,
+          name: track.name,
+          artists: track.artists.map(a => a.name).join(', '),
+          image: track.album?.images?.[0]?.url || ''
+        }
+      : {
+          id: track.id,
+          url: track.uri || track.permalink_url,
+          name: track.title,
+          artists: track.user?.username || track.user?.full_name || '',
+          image: track.artwork_url || track.user?.avatar_url || ''
+        };
+
+    if (!selectedTracks.find(t => t.id === unified.id)) {
+      console.log(unified)
+      setSelectedTracks(prev => [...prev, unified]);
     }
   };
 
-  const handleAddToPlaylist = (track) => {
-    if (!selectedTracks.find(t => t.id === track.id)) {
-      setSelectedTracks([...selectedTracks, track]);
-    }
-  };
 
   const handleRemoveTrack = (id) => {
     setSelectedTracks(selectedTracks.filter(t => t.id !== id));
@@ -117,14 +137,17 @@ const CreatePlaylist = () => {
     const payload = {
       name: playlistName,
       tracks: selectedTracks.map(t => ({
-        url: t.uri,
+        track_id: t.id,
+        url: t.url,
         name: t.name,
-        author: t.artists?.[0]?.name,
+        author: t.artists,
       })),
       collaborators: selectedCollaborators.map(opt => opt.value),
       followers: [],
       is_public: isPublic,
     };
+    console.log("tworze playliste: ")
+    console.log(payload);
     try {
       await authAPI.createPlaylist(payload);
       alert("Playlista utworzona!");
@@ -156,7 +179,7 @@ const CreatePlaylist = () => {
             value={selectedCollaborators}
             onChange={setSelectedCollaborators}
             options={collaboratorsOptions}
-            placeholder="Wybierz kolaboratorów"
+            placeholder="Wybierz współtwórców"
             className="collaborator-multiselect"
             styles={customSelectStyles}
           />
@@ -173,12 +196,15 @@ const CreatePlaylist = () => {
           <ul className="track-list">
             {selectedTracks.map(track => (
               <li key={track.url}>
-                <img src={track.album?.images?.[0]?.url} alt={track.name || "cover"} />
+                <img src={track.image} alt={track.name || "cover"} />
                 <div>
                   <b>{track.name} </b>
-                  <span>{track.artists?.map(a => a.name).join(', ')}</span>
+                  <span>{track.artists}</span>
                 </div>
-                <button className="track-remove" onClick={() => handleRemoveTrack(track.id)}>
+                <button
+                  className="track-remove"
+                  onClick={() => handleRemoveTrack(track.id)}
+                >
                   Usuń
                 </button>
               </li>
@@ -198,10 +224,27 @@ const CreatePlaylist = () => {
             {loading ? 'Szukam...' : 'Szukaj'}
           </button>
         </form>
-        <SearchResults
-          tracks={tracks}
-          onAddToPlaylist={handleAddToPlaylist}
-        />
+
+        <div className="playlist-results-wrapper">
+          <div className="results-section">
+            <h3 className="results-header">Spotify</h3>
+            <SearchResults
+              tracks={spotifyTracks}
+              onAddToPlaylist={(track) => handleAddToPlaylist(track, 'spotify')}
+              platform="spotify"
+            />
+          </div>
+
+          <div className="results-section">
+            <h3 className="results-header">SoundCloud</h3>
+            <SearchResults
+              tracks={soundcloudTracks}
+              onAddToPlaylist={(track) => handleAddToPlaylist(track, 'soundcloud')}
+              platform="soundcloud"
+            />
+          </div>
+        </div>
+
         <button
           className="create-btn fixed-bottom-btn"
           onClick={handleCreatePlaylist}

@@ -1,11 +1,10 @@
 import '../styles/searchResults.css';
 import { FaPlus, FaList } from 'react-icons/fa';
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {authAPI} from "../services/api.jsx";
 import {setQueue} from "../store/playerSlice.js";
 
 const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
-  const queue = useSelector(state => state.player.queue);
   const dispatch = useDispatch();
 
   // Mapowanie do uniwersalnego formatu na bazie platformy
@@ -42,33 +41,35 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
     }
 
     return (
-      <li key={track.id || track.uri || track.permalink_url} className="track-item" onDoubleClick={() => onPlayTrack(track)}>
-        <img
-          src={img}
-          alt={name}
-          className="track-image"
-        />
-        <div className="track-info">
-          <b className="track-name">{name}</b>
-          <span className="track-artists">{artists}</span>
-        </div>
-        <div className="track-actions">
-          <button
-            className="icon-btn playlist-btn"
-            onClick={() => onAddToPlaylist(track)}
-            title="Dodaj do playlisty"
-          >
-            <FaPlus />
-          </button>
-          <button
-            className="icon-btn queue-btn"
-            onClick={()=>handleAddToQueue(track)}
-            title="Dodaj do kolejki"
-          >
-            <FaList />
-          </button>
-        </div>
-      </li>
+      <div className="search-result-list">
+        <ul key={track.id || track.uri || track.permalink_url} className="track-item" onDoubleClick={() => onPlayTrack(track)}>
+          <img
+            src={img}
+            alt={name}
+            className="track-image"
+          />
+          <div className="track-info">
+            <b className="track-name">{name}</b>
+            <span className="track-artists">{artists}</span>
+          </div>
+          <div className="track-actions">
+            <button
+              className="icon-btn playlist-btn"
+              onClick={() => onAddToPlaylist(track)}
+              title="Dodaj do playlisty"
+            >
+              <FaPlus />
+            </button>
+            <button
+              className="icon-btn queue-btn"
+              onClick={()=>handleAddToQueue(track)}
+              title="Dodaj do kolejki"
+            >
+              <FaList />
+            </button>
+          </div>
+        </ul>
+      </div>
     );
   };
 

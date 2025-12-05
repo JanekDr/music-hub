@@ -158,7 +158,7 @@ def search(request):
     params = {
         'q': query,
         'type': 'track',
-        'limit': 5
+        'limit': 10
     }
     response = requests.get(url, headers=headers, params=params)
     return JsonResponse(response.json())

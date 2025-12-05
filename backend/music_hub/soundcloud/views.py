@@ -217,7 +217,7 @@ def search(request):
     params = {
         'q': query,
         'access': 'playable',
-        'limit': 5
+        'limit': 10
     }
     response = requests.get(url, headers=headers, params=params)
     return Response(response.json())

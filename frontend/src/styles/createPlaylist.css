@@ -162,6 +162,7 @@
   background: #222;
   border-radius: 5px;
   padding: 7px 11px;
+  height:72px;
 }
 .playlist-picked img {
   width: 45px; height: 45px;
@@ -182,7 +183,6 @@
 
 .playlist-right-panel {
   flex: 1.1;
-  min-width: 430px;
   display: flex;
   flex-direction: column;
   background: #202020bb;
@@ -235,3 +235,28 @@
   align-items: center;
   gap: 9px;
 }
+
+.playlist-results-wrapper {
+  display: flex;
+  flex-direction: row;      /* obok siebie */
+  gap: 18px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.playlist-right-panel .results-section {
+  flex: 1;
+  background: #1a1a1f;
+  border-radius: 14px;
+  padding: 14px 16px 10px 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  margin: 10px 5px 10px 5px;
+}
+
+.playlist-right-panel .results-section .search-results-list {
+  overflow-y: auto;
+}
+
