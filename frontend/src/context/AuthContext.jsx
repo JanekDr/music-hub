@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI } from '../services/api.js';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (formData) => {
     try {
-        const response = await authAPI.register(formData);
+        await authAPI.register(formData);
         return {success:true};
     } catch (error) {
         console.error('An error occured:', error);

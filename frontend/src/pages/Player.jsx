@@ -1,10 +1,12 @@
 import {useEffect, useState} from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { authAPI } from '../services/api.js';
 import { FaSpotify, FaSoundcloud } from "react-icons/fa";
-import SearchResults from './SearchResults';
+import SearchResults from '../components/SearchResults.jsx';
 import '../styles/player.css';
+import { spotifyApi } from "../services/spotifyApi.js";
+import { soundcloudApi } from "../services/soundcloudApi.js";
 
 const Player = () => {
   const deviceId = useSelector(state => state.player.deviceId);
@@ -23,10 +25,10 @@ const Player = () => {
 
     setLoading(true);
     Promise.all([
-      authAPI.searchSpotifyTracks(query)
+      spotifyApi.searchSpotifyTracks(query)
         .then(resp => setSpotifyTracks(resp.data.tracks.items))
         .catch(() => setSpotifyTracks([])),
-      authAPI.searchSoundcloudTracks(query)
+      soundcloudApi.searchSoundcloudTracks(query)
         .then(resp => setSoundcloudTracks(resp.data || []))
         .catch(() => setSoundcloudTracks([]))
     ]).finally(() => setLoading(false));

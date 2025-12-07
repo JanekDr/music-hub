@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { authAPI } from "../services/api.jsx";
-import "../styles/Library.css";
+import { authAPI } from "../services/api.js";
+import { spotifyApi } from "../services/spotifyApi.js";
+// import { soundcloudApi } from "../services/soundcloudApi.js";
+import "../styles/library.css";
 import {FaSoundcloud, FaSpotify, FaPlay} from "react-icons/fa";
 
 
@@ -17,7 +19,7 @@ const Library = () => {
     useEffect(() => {
         Promise.all([
             authAPI.getUserPlaylists(),
-            authAPI.getSpotifyPlaylists(),
+            spotifyApi.getSpotifyPlaylists(),
             // authAPI.getSoundcloudPlaylists() // SoundCloud ( ---||--- )
         ]).then(([hubRes,spotifyRes]) => {
             setHubPlaylists(hubRes.data || []);

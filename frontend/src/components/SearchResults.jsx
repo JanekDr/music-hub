@@ -1,13 +1,12 @@
 import '../styles/searchResults.css';
 import { FaPlus, FaList } from 'react-icons/fa';
 import {useDispatch} from "react-redux";
-import {authAPI} from "../services/api.jsx";
+import {authAPI} from "../services/api.js";
 import {setQueue} from "../store/playerSlice.js";
 
 const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
   const dispatch = useDispatch();
 
-  // Mapowanie do uniwersalnego formatu na bazie platformy
   const mapTrackForApi = (track) => {
     if (platform === 'spotify') {
       return {

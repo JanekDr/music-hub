@@ -1,4 +1,4 @@
-import {authAPI} from "../services/api.jsx";
+import soundcloudApi from "../services/soundcloudApi.js";
 
 export class SoundcloudAdapter {
   constructor(
@@ -60,7 +60,7 @@ export class SoundcloudAdapter {
    async updateTrackInfo() {
     const item = this.getCurrentTrack();
     if (!item?.track) return;
-    const track = await authAPI.getTrackData(item.track.track_id);
+    const track = await soundcloudApi.getTrackData(item.track.track_id);
 
     if (this.onTrackInfoChangeCb && item.track.track_id !== this._lastTrackId) {
       this.onTrackInfoChangeCb({

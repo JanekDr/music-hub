@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {setSpotifyToken, setDeviceId, setQueue, setCurrentTrackIndex, setVolume} from "../store/playerSlice";
-import { authAPI } from "../services/api";
+import { authAPI } from "../services/api.js";
 import { useAuth } from "../context/AuthContext";
 import { SpotifyAdapter } from "../adapters/SpotifyAdapter.js";
 import { SoundcloudAdapter } from "../adapters/SoundcloudAdapter.js";
@@ -12,6 +12,7 @@ import { useSortable, SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import store from "../store/index.js";
 import '../styles/spotifyPlayer.css'
+import spotifyApi from "../services/spotifyApi.js";
 
 const UniversalPlayer = () => {
   const dispatch = useDispatch();
@@ -39,7 +40,7 @@ const UniversalPlayer = () => {
 
   useEffect(() => {
     if (isAuthenticated && !spotifyToken) {
-      authAPI.getSpotifyToken()
+      spotifyApi.getSpotifyToken()
         .then(res => dispatch(setSpotifyToken(res.data.access_token)))
         .catch(() => dispatch(setSpotifyToken(null)));
 

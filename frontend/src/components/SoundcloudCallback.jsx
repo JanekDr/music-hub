@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { authAPI } from "../services/api.jsx";
+import { soundcloudApi } from "../services/soundcloudApi.js";
 
 const SoundcloudCallback = () => {
   useEffect(() => {
@@ -10,7 +10,7 @@ const SoundcloudCallback = () => {
       const token = localStorage.getItem("accessToken");
 
       try {
-        const response = await authAPI.exchangeSoundcloudToken(code, code_verifier, token);
+        const response = await soundcloudApi.exchangeSoundcloudToken(code, code_verifier, token);
         console.log('SoundCloud token:', response.data);
         window.location.href = `http://127.0.0.1:3000/dashboard`;
       } catch (error) {

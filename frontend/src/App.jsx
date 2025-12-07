@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 import SpotifyLoginButton from "./components/SpotifyLoginButton.jsx";
 import './styles/reset.css';
 import './styles/layout.css';
 import Navbar from "./components/Navbar.jsx";
-import Player from "./components/Player.jsx";
-import CreatePlaylist from "./components/CreatePlaylist.jsx";
-import Library from "./components/Library.jsx";
+import Player from "./pages/Player.jsx";
+import CreatePlaylist from "./pages/CreatePlaylist.jsx";
+import Library from "./pages/Library.jsx";
 import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
 import UniversalPlayer from "./components/UniversalPlayer.jsx";
 
@@ -56,13 +56,6 @@ function AppLayout() {
               path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/spotify" element={
-                <ProtectedRoute>
-                  <SpotifyLoginButton />
                 </ProtectedRoute>
               }
             />

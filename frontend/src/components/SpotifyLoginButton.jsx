@@ -4,7 +4,6 @@ const SpotifyLoginButton = () => {
 
   const handleLogin = () => {
     const token = localStorage.getItem('accessToken');
-    console.log('Access token przed przekierowaniem:', token);
 
     if (!token) {
       alert('Nie jesteś zalogowany!');

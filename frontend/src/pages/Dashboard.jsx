@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../services/api';
-import SpotifyStatus from "./SpotifyStatus.jsx";
+import { useAuth } from '../context/AuthContext.jsx';
+import { authAPI } from '../services/api.js';
+import SpotifyStatus from "../components/SpotifyStatus.jsx";
 import '../styles/dashboard.css'
 import '../styles/spotify.css'
-import SoundcloudStatus from "./SoundcloudStatus.jsx";
+import SoundcloudStatus from "../components/SoundcloudStatus.jsx";
 
 
 const UserProfile = ({ user }) => (

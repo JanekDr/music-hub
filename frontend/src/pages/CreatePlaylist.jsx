@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import SearchResults from './SearchResults';
-import { authAPI } from '../services/api.jsx';
+import SearchResults from '../components/SearchResults.jsx';
+import { authAPI } from '../services/api.js';
+import { soundcloudApi } from '../services/soundcloudApi.js';
+import { spotifyApi } from '../services/spotifyApi.js';
 import '../styles/createPlaylist.css';
 
 const CreatePlaylist = () => {
@@ -92,10 +94,10 @@ const CreatePlaylist = () => {
     if (!search.trim()) return;
     setLoading(true);
     Promise.all([
-      authAPI.searchSpotifyTracks(search)
+      spotifyApi.searchSpotifyTracks(search)
         .then(resp => setSpotifyTracks(resp.data.tracks.items))
         .catch(() => setSpotifyTracks([])),
-      authAPI.searchSoundcloudTracks(search)
+      soundcloudApi.searchSoundcloudTracks(search)
         .then(resp => setSoundcloudTracks(resp.data || []))
         .catch(() => setSoundcloudTracks([]))
     ]).finally(() => setLoading(false));
@@ -119,7 +121,6 @@ const CreatePlaylist = () => {
         };
 
     if (!selectedTracks.find(t => t.id === unified.id)) {
-      console.log(unified)
       setSelectedTracks(prev => [...prev, unified]);
     }
   };
@@ -146,8 +147,6 @@ const CreatePlaylist = () => {
       followers: [],
       is_public: isPublic,
     };
-    console.log("tworze playliste: ")
-    console.log(payload);
     try {
       await authAPI.createPlaylist(payload);
       alert("Playlista utworzona!");

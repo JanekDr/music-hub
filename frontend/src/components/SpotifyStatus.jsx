@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
 import SpotifyLoginButton from './SpotifyLoginButton.jsx';
 import { FaSpotify } from 'react-icons/fa';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import '../styles/playersConnectionStatus.css';
+import spotifyApi from "../services/spotifyApi.js";
 
 const SpotifyStatus = () => {
   const [connected, setConnected] = useState(false);
@@ -13,7 +13,7 @@ const SpotifyStatus = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await authAPI.getSpotifyStatus();
+        const response = await spotifyApi.getSpotifyStatus();
         setConnected(response.data.connected);
         setExpiresAt(response.data.expires_at);
       } catch (error) {
@@ -26,7 +26,7 @@ const SpotifyStatus = () => {
   const disconnectSpotify = async () => {
     setLoading(true);
     try {
-      const response = await authAPI.postSpotifyDisconnect();
+      const response = await spotifyApi.disconnectSpotify();
       if (response.data.message) {
         setConnected(false);
         setExpiresAt(null);

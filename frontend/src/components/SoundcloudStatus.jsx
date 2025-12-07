@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { soundcloudApi } from '../services/soundcloudApi.js';
 import SoundcloudLoginButton from './SoundcloudLoginButton.jsx';
 import { FaSoundcloud } from 'react-icons/fa';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
@@ -13,7 +13,7 @@ const SoundcloudStatus = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await authAPI.getSoundcloudStatus();
+        const response = await soundcloudApi.getSoundcloudStatus();
         setConnected(response.data.connected);
         setExpiresAt(response.data.expires_at);
       } catch (error) {
@@ -26,7 +26,7 @@ const SoundcloudStatus = () => {
   const disconnectSoundcloud = async () => {
     setLoading(true);
     try {
-      const response = await authAPI.soundcloudDisconnect();
+      const response = await soundcloudApi.soundcloudDisconnect();
       if (response.data.message) {
         setConnected(false);
         setExpiresAt(null);
