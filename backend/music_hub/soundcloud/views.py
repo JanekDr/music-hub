@@ -174,10 +174,10 @@ def soundcloud_disconnect(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_soundcloud_user(request):
+def get_user_playlists(request):
     soundcloud_token = get_valid_soundcloud_token(request.user)
 
-    url = "https://api.soundcloud.com/me"
+    url = "https://api.soundcloud.com/me/playlists"
     headers = {
         "accept": "application/json; charset=utf-8",
         "Authorization": f"OAuth {soundcloud_token}"

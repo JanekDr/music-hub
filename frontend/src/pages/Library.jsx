@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { authAPI } from "../services/api.js";
 import { spotifyApi } from "../services/spotifyApi.js";
-// import { soundcloudApi } from "../services/soundcloudApi.js";
 import "../styles/library.css";
 import {FaSoundcloud, FaSpotify, FaPlay} from "react-icons/fa";
+import { soundcloudApi } from "../services/soundcloudApi.js";
 
 
 const HubLogo = () => (
@@ -20,11 +20,13 @@ const Library = () => {
         Promise.all([
             authAPI.getUserPlaylists(),
             spotifyApi.getSpotifyPlaylists(),
-            // authAPI.getSoundcloudPlaylists() // SoundCloud ( ---||--- )
-        ]).then(([hubRes,spotifyRes]) => {
+            soundcloudApi.getUserPlaylists()
+        ]).then(([hubRes,spotifyRes, soundcloudRes]) => {
             setHubPlaylists(hubRes.data || []);
             setSpotifyPlaylists(spotifyRes.data.items || []);
-            // setSoundcloudPlaylists(soundcloudRes.data.items || []);
+            console.log(spotifyRes.data.items);
+            setSoundcloudPlaylists(soundcloudRes.data || []);
+            console.log(soundcloudRes.data);
             setLoading(false);
         }).catch(() => {
             setHubPlaylists([]);
@@ -80,42 +82,78 @@ const SectionWithLogo = ({ logo, label, children }) => (
 );
 
 const PlaylistCards = ({ playlists, platform }) => (
-    <div className="library-list">
-        {playlists.length ? playlists.map(pl => (
-            <div className="library-card" key={pl.id}>
-                <div className="library-card-title">
-                    {pl.name}
-                    <FaPlay color="#1DB954" size={28} />
-                </div>
-                {platform === "hub" && (
-                    <div className="library-card-owner">Właściciel: {pl.owner.username || '-'}</div>
-                )}
-                <div className="library-card-tracks">
-                    {platform === "hub"
-                        ? (pl.tracks?.length || 0)
-                        : (pl.tracks?.total ?? 0)
-                    } utworów
-                </div>
-                <div className="library-track-chips">
-                    {platform === "hub" && pl.tracks?.slice?.(0, 3).map(track =>
-                        <span className="library-track-chip" key={track.id}>
-                            {track.name} - {track.author}
-                        </span>
-                    )}
-                    {/* Dla Spotify, SoundCloud można dodać podgląd tracks w przyszłości */}
-                </div>
-                {platform === "hub" && (
-                    <div className={`library-card-status ${pl.is_public ? 'library-card-status-public' : 'library-card-status-private'}`}>
-                        {pl.is_public ? 'Publiczna' : 'Prywatna'}
-                    </div>
-                )}
+  <div className="library-list">
+    {playlists.length ? playlists.map(pl => {
+      const title =
+        platform === "spotify" ? pl.name :
+        platform === "soundcloud" ? pl.title :
+        pl.name;
+
+      const tracksCount =
+        platform === "hub" ? (pl.tracks?.length || 0) :
+        platform === "spotify" ? (pl.tracks?.total ?? 0) :
+        platform === "soundcloud" ? (pl.track_count ?? pl.tracks?.length ?? 0) :
+        0;
+
+      const ownerName =
+        platform === "hub" ? (pl.owner?.username || "-") :
+        platform === "soundcloud" ? (pl.user?.username || "-") :
+        null;
+
+      // const href =
+      //     platform === "spotify" ? (pl.href) :
+      //     platform === "soundcloud" ? (pl.permalink_url) :
+      //     null;
+      //   console.log(href);
+      return (
+        <div className="library-card" key={pl.id}>
+          <div className="library-card-title">
+              <a href={href}>{title}</a>
+            <FaPlay color="#1DB954" size={28} />
+          </div>
+
+          {platform === "hub" && (
+            <div className="library-card-owner">
+              Owner: {ownerName}
             </div>
-        )) : (
-            <div className="library-list-empty">
-                Brak playlist do wyświetlenia.
+          )}
+
+          {platform === "soundcloud" && (
+            <div className="library-card-owner">
+              Owner: {ownerName}
             </div>
-        )}
-    </div>
+          )}
+
+          <div className="library-card-tracks">
+            {tracksCount} utworów
+          </div>
+
+          <div className="library-track-chips">
+            {platform === "hub" && pl.tracks?.slice?.(0, 3).map(track =>
+              <span className="library-track-chip" key={track.id}>
+                {track.name} - {track.author}
+              </span>
+            )}
+            {platform === "soundcloud" && pl.tracks?.slice?.(0, 3).map(track =>
+              <span className="library-track-chip" key={track.id}>
+                {track.title} - {track.user?.username || ""}
+              </span>
+            )}
+          </div>
+
+          {platform === "hub" && (
+            <div className={`library-card-status ${pl.is_public ? 'library-card-status-public' : 'library-card-status-private'}`}>
+              {pl.is_public ? 'Public' : 'Private'}
+            </div>
+          )}
+        </div>
+      );
+    }) : (
+      <div className="library-list-empty">
+        No playlists to display.
+      </div>
+    )}
+  </div>
 );
 
 export default Library;
