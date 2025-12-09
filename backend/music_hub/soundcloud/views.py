@@ -21,7 +21,9 @@ def get_valid_soundcloud_token(user):
     except SoundcloudToken.DoesNotExist:
         return None
     if token_obj.expires_at <= timezone.now():
-        refresh_soundcloud_token(user)
+        resp = refresh_soundcloud_token(user)
+        if resp is None:
+            return None
         token_obj.refresh_from_db()
     return token_obj.access_token
 
@@ -119,7 +121,7 @@ def refresh_soundcloud_token(user):
     response = requests.post(refresh_url, data=payload, headers=headers)
 
     if response.status_code >= 400:
-        return JsonResponse({'error': response}, status=400)
+        return None
 
     token_info = response.json()
     new_access_token = token_info.get('access_token')
