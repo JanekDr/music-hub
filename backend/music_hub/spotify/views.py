@@ -27,7 +27,19 @@ def get_valid_spotify_token(user):
     return token_obj.access_token
 
 def spotify_login(request):
-    scopes = 'user-read-email user-read-private user-read-playback-state user-modify-playback-state streaming playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private app-remote-control'
+    scopes = (
+              'user-read-email '
+              'user-read-private'
+              'user-read-playback-state'
+              'user-modify-playback-state'
+              'streaming'
+              'playlist-read-private'
+              'playlist-read-collaborative'
+              'playlist-modify-public'
+              'playlist-modify-private'
+              'app-remote-control'
+          )
+
     user_token = request.GET.get('token')#is that safe?
     params = {
         'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,
@@ -116,6 +128,22 @@ def get_user_playlists(request):
         headers = {'Authorization': f'Bearer {spotify_token}'}
         response = requests.get('https://api.spotify.com/v1/me/playlists', headers=headers)
         return JsonResponse(response.json())
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_playlist_details(request, playlist_id: str):
+    spotify_token = get_valid_spotify_token(request.user)
+    if not spotify_token:
+        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+
+    headers = {'Authorization': f'Bearer {spotify_token}'}
+    response = requests.get(f'https://api.spotify.com/v1/playlists/{playlist_id}', headers=headers)
+
+    if response.status_code != 200:
+        print(response.text)
+        return JsonResponse({'error': 'Playlist not found'}, status=404)
+
+    return JsonResponse(response.json())
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
