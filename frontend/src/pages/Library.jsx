@@ -100,15 +100,21 @@ const PlaylistCards = ({ playlists, platform }) => (
         platform === "soundcloud" ? (pl.user?.username || "-") :
         null;
 
-      // const href =
-      //     platform === "spotify" ? (pl.href) :
-      //     platform === "soundcloud" ? (pl.permalink_url) :
-      //     null;
-      //   console.log(href);
+      const href =
+          platform === "spotify" ? (pl.external_urls.spotify) :
+          platform === "soundcloud" ? (pl.permalink_url) :
+          null;
+        console.log(href);
       return (
         <div className="library-card" key={pl.id}>
           <div className="library-card-title">
-              <a href={href}>{title}</a>
+              <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+              >
+                  {title}
+              </a>
             <FaPlay color="#1DB954" size={28} />
           </div>
 
