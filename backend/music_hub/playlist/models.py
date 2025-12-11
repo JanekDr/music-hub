@@ -6,7 +6,7 @@ from users.models import CustomUser
 # Create your models here.
 class Track(models.Model):
     track_id = models.CharField(max_length=32)
-    url = models.CharField(max_length=128) #charfield bcs url="spotify:track:6RFhSlo0x0a5s3WnYj9xJa"
+    url = models.CharField(max_length=128)
     platform = models.CharField(max_length=50, blank=True)
     name = models.CharField(max_length=50, default='')
     author = models.CharField(max_length=50, default='')

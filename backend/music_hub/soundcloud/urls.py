@@ -9,6 +9,7 @@ from .views import (
     search,
     soundcloud_stream,
     get_track_data,
+    get_user_playlist_details,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('search/', search, name='soundcloud_search'),
     path('stream/<str:track_id>/', soundcloud_stream, name='soundcloud_stream'),
     path('get_track_data/', get_track_data, name='get_track_data'),
+    path('playlists/<str:playlist_id>', get_user_playlist_details, name='get_user_playlist_details'),
 ]

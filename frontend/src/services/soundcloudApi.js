@@ -7,6 +7,7 @@ export const soundcloudApi = {
     getUserPlaylists: () => api.get("/soundcloud/playlists/"),
     searchSoundcloudTracks: (query) => api.get("/soundcloud/search/", { params: { q: query } }),
     getTrackData:  (trackId) => api.get("/soundcloud/get_track_data/", { params: { track_id: trackId } }),
+    getPlaylistDetails: (playlistId) => api.get(`soundcloud/playlists/${playlistId}`),
 }
 
 export default soundcloudApi;

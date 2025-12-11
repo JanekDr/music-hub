@@ -280,3 +280,31 @@ def get_track_data(request):
         return Response(track_data)
     else:
         return Response(track_data, status=response.status_code)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_playlist_details(request, playlist_id: str):
+    user_access_token = get_valid_soundcloud_token(request.user)
+
+    if not user_access_token:
+        return JsonResponse({'error': 'Soundcloud account not connected'}, status=400)
+
+    headers = {
+        'accept': 'application/json; charset=utf-8',
+        'Authorization': f'OAuth {user_access_token}'
+    }
+    params = {
+        'access': 'playable',
+    }
+    response = requests.get(
+        f"https://api.soundcloud.com/playlists/soundcloud:playlists:{playlist_id}",
+        headers=headers,
+        params=params
+    )
+
+    if response.status_code != 200:
+        print(response.text)
+        return JsonResponse({'error': 'Playlist not found'}, status=404)
+
+    return Response(response.json())

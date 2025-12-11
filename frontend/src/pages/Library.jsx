@@ -4,6 +4,7 @@ import { spotifyApi } from "../services/spotifyApi.js";
 import "../styles/library.css";
 import {FaSoundcloud, FaSpotify, FaPlay} from "react-icons/fa";
 import { soundcloudApi } from "../services/soundcloudApi.js";
+import {Link} from "react-router-dom";
 
 
 const HubLogo = () => (
@@ -24,9 +25,7 @@ const Library = () => {
         ]).then(([hubRes,spotifyRes, soundcloudRes]) => {
             setHubPlaylists(hubRes.data || []);
             setSpotifyPlaylists(spotifyRes.data.items || []);
-            console.log(spotifyRes.data.items);
             setSoundcloudPlaylists(soundcloudRes.data || []);
-            console.log(soundcloudRes.data);
             setLoading(false);
         }).catch(() => {
             setHubPlaylists([]);
@@ -43,7 +42,7 @@ const Library = () => {
                 <div className="library-loading">Wczytywanie...</div>
             ) : (
                 <div>
-                    {/* Międzyplatformowe */}
+                    {/* multiplatform */}
                     <SectionWithLogo logo={<HubLogo />} label="Muzyczny hub (multi-platformowe)">
                         <PlaylistCards playlists={hubPlaylists} platform="hub" />
                     </SectionWithLogo>
@@ -84,6 +83,7 @@ const SectionWithLogo = ({ logo, label, children }) => (
 const PlaylistCards = ({ playlists, platform }) => (
   <div className="library-list">
     {playlists.length ? playlists.map(pl => {
+        console.log(pl);
       const title =
         platform === "spotify" ? pl.name :
         platform === "soundcloud" ? pl.title :
@@ -99,23 +99,15 @@ const PlaylistCards = ({ playlists, platform }) => (
         platform === "hub" ? (pl.owner?.username || "-") :
         platform === "soundcloud" ? (pl.user?.username || "-") :
         null;
-
-      const href =
-          platform === "spotify" ? (pl.external_urls.spotify) :
-          platform === "soundcloud" ? (pl.permalink_url) :
-          null;
-        console.log(href);
       return (
         <div className="library-card" key={pl.id}>
           <div className="library-card-title">
-              <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <Link
+                  to={`/playlist/${platform}/${pl.id}`}
               >
                   {title}
-              </a>
-            <FaPlay color="#1DB954" size={28} />
+              </Link>
+            <FaPlay color="#1DB954" size={28} style={{cursor: 'pointer'}} />
           </div>
 
           {platform === "hub" && (

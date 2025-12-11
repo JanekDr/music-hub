@@ -1,0 +1,245 @@
+/* --- TŁO I STRUKTURA --- */
+.playlist-page {
+    position: relative;
+    background-color: #0f0f13;
+    background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+    font-family: 'Inter', sans-serif;
+    color: white;
+}
+
+/* Gradient w tle całej strony (z pierwszego zdjęcia) */
+.page-bg-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60vh; /* Gradient zajmuje górne 60% strony */
+    background-size: cover;
+    background-position: center;
+    filter: blur(60px) brightness(0.6); /* Mocne rozmycie */
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); /* Płynne znikanie w czerń */
+    /*-webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);*/
+    /*z-index: 0;*/
+    pointer-events: none;
+}
+
+.back-btn {
+    position: relative;
+    z-index: 10;
+    margin: 20px;
+    background: rgba(0,0,0,0.3);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hero-section {
+    position: relative;
+    z-index: 1;
+    padding: 40px 2rem 2rem; /* Zmniejszyłem padding boczny, bo max-width załatwi centrowanie */
+
+    /* Flexbox ustawi obrazek i tekst obok siebie */
+    display: flex;
+    align-items: flex-end; /* Wyrównanie do dołu */
+    gap: 24px; /* Odstęp między obrazkiem a tekstem */
+
+    max-width: 1200px; /* Centrowanie całej sekcji Hero */
+    margin: 0 auto;
+    height: 350px;
+}
+
+.hero-image-container {
+    width: 232px; /* Stały rozmiar okładki (jak w Spotify) */
+    height: 232px;
+    flex-shrink: 0; /* Zapobiega zgniataniu obrazka */
+    box-shadow: 0 4px 60px rgba(0,0,0,0.5); /* Cień pod okładką */
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-content {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.platform-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.hero-title {
+    font-size: 4.5rem;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    line-height: 1.1;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.hero-meta {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 24px;
+}
+
+.play-btn-white {
+    background: white;
+    color: black;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s;
+}
+
+.play-btn-white:hover {
+    transform: scale(1.05);
+}
+
+/* --- LISTA UTWORÓW (Glass Cards) --- */
+.tracks-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* GRID - Musi być identyczny dla nagłówka i kart */
+.tracks-header-row,
+.track-card-glass {
+    display: grid;
+    /* Grid: # | Tytuł | Album | + | Czas */
+    grid-template-columns: 40px 4fr 2fr 40px 60px;
+    gap: 16px;
+    align-items: center; /* Kluczowe do wyśrodkowania w pionie! */
+    padding: 0 16px;
+}
+
+.tracks-header-row {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    color: #b3b3b3;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+/* Karta Utworu */
+.track-card-glass {
+    background: rgba(255, 255, 255, 0.04); /* Lekko przezroczyste tło */
+    border-radius: 8px; /* Zaokrąglenie rogów */
+    height: 72px; /* Stała wysokość karty */
+    margin-bottom: 8px; /* Odstęp między kartami */
+    transition: background 0.2s;
+    border: 1px solid transparent;
+}
+
+.track-card-glass:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255,255,255,0.1);
+}
+
+/* --- Sekcja Tytuł + Zdjęcie (Naprawa rozjeżdżania) --- */
+.track-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Wyśrodkowanie zdjęcia i tekstu w pionie */
+    height: 100%;
+    overflow: hidden;
+}
+
+.track-img-wrapper {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0; /* Zapobiega zgniataniu obrazka */
+    margin-right: 16px;
+}
+
+.track-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block; /* Usuwa dziwne marginesy obrazków */
+}
+
+.track-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.track-text-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Wyśrodkowanie tekstów w pionie */
+    overflow: hidden;
+}
+
+.track-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.track-artist {
+    font-size: 0.85rem;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Pozostałe kolumny */
+.col-num { text-align: center; color: #b3b3b3; }
+.col-album { color: #b3b3b3; font-size: 0.9rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.col-time { text-align: right; color: #b3b3b3; }
+.col-actions { display: flex; justify-content: center; }
+
+.add-queue-btn {
+    background: transparent;
+    border: none;
+    color: #b3b3b3;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.track-card-glass:hover .add-queue-btn { opacity: 1; }
+.add-queue-btn:hover { color: white; transform: scale(1.1); }

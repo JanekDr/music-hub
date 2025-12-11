@@ -337,7 +337,7 @@ const UniversalPlayer = () => {
               className="track-image"
             />
           </div>
-          <div className="track-meta">
+          <div className="track-info">
             <div className="track-name">{trackName || "Brak utworu"}</div>
             <div className="artist-name">{artistName || "Brak wykonawcy"}</div>
             <div className="album-name">{albumName || ""}</div>

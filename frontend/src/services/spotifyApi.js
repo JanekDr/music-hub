@@ -6,6 +6,7 @@ export const spotifyApi = {
   searchSpotifyTracks: (query) => api.get("/spotify/search/", { params: { q: query } }),
   getSpotifyToken: () => api.get("/spotify/token/"),
   getSpotifyPlaylists: () => api.get("/spotify/playlist/"),
+  getPlaylistDetails: (playlistId) => api.get(`/spotify/playlist/${playlistId}`),
 };
 
 export default spotifyApi;

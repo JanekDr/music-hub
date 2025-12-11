@@ -12,6 +12,7 @@ import CreatePlaylist from "./pages/CreatePlaylist.jsx";
 import Library from "./pages/Library.jsx";
 import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
 import UniversalPlayer from "./components/UniversalPlayer.jsx";
+import Playlist from "./pages/Playlist.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -84,6 +85,13 @@ function AppLayout() {
               path="/soundcloud/callback" element={
               <ProtectedRoute>
                 <SoundcloudCallback />
+              </ProtectedRoute>
+            }
+            />
+            <Route
+              path="/playlist/:platform/:id" element={
+              <ProtectedRoute>
+                <Playlist />
               </ProtectedRoute>
             }
             />
