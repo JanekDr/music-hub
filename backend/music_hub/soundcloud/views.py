@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework_simplejwt.tokens import AccessToken
 from .models import SoundcloudToken
 from .utils import get_app_sc_token
 
