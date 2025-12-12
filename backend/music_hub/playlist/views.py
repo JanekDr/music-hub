@@ -9,6 +9,7 @@ from .models import Playlist, QueueTrack, Track, Queue
 from .serializers import PlaylistSerializer, QueueSerializer, TrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
+
 class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
@@ -23,68 +24,85 @@ class QueueViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrStaffOnly]
 
     def get_queryset(self):
-        return Queue.objects.filter(user = self.request.user)
+        return Queue.objects.filter(user=self.request.user)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def reorder_queue(self, request):
         queue = Queue.objects.get(user=request.user)
-        new_order = request.data.get('queue_track_ids', [])
+        new_order = request.data.get("queue_track_ids", [])
         if not isinstance(new_order, list):
-            return Response({'error': 'queue_track_ids must be a list'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "queue_track_ids must be a list"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         for position, qt_id in enumerate(new_order):
             qt = QueueTrack.objects.get(pk=qt_id, queue=queue)
             qt.to(position)
 
-        return Response({'detail': 'Queue reordered successfully'}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Queue reordered successfully"}, status=status.HTTP_200_OK
+        )
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def add_to_queue(self, request):
-        queue = Queue.objects.get(user = self.request.user)
-        track_id = request.data.get('track_id')
+        queue = Queue.objects.get(user=self.request.user)
+        track_id = request.data.get("track_id")
         if not track_id:
-            return JsonResponse({'error': 'Track id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(
+                {"error": "Track id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         track = get_object_or_404(Track, pk=track_id)
 
         qt = QueueTrack.objects.create(queue=queue, track=track)
         qt.bottom()
-        return JsonResponse({'success':True},status=status.HTTP_201_CREATED)
+        return JsonResponse({"success": True}, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['delete'])
+    @action(detail=False, methods=["delete"])
     def remove_from_queue(self, request):
-        queue = Queue.objects.get(user = self.request.user)
-        queue_track_id = request.data.get('queue_track_id')
+        queue = Queue.objects.get(user=self.request.user)
+        queue_track_id = request.data.get("queue_track_id")
 
         if not queue_track_id:
-            return JsonResponse({'error': 'Track id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(
+                {"error": "Track id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
         qt.delete()
-        return JsonResponse({'track': None}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({"track": None}, status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def move_track_relative(self, request):
-        queue = Queue.objects.get(user = self.request.user)
-        queue_track_id = request.data.get('track_id')
-        target_track_id = request.data.get('target_track_id')
+        queue = Queue.objects.get(user=self.request.user)
+        queue_track_id = request.data.get("track_id")
+        target_track_id = request.data.get("target_track_id")
 
         if not queue_track_id or not target_track_id:
-            return JsonResponse({'error': 'Track id or target track id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(
+                {"error": "Track id or target track id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
         target_qt = get_object_or_404(QueueTrack, pk=target_track_id, queue=queue)
         qt.below(target_qt)
 
-        return JsonResponse({'success': True}, status=status.HTTP_200_OK)
+        return JsonResponse({"success": True}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def replace_queue(self, request):
+        queue = Queue.objects.get(user=self.request.user)
+        queue.clean()
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def add_track(request):
     serializer = TrackSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -26,76 +26,83 @@ def get_valid_spotify_token(user):
         token_obj.refresh_from_db()
     return token_obj.access_token
 
+
 def spotify_login(request):
     scopes = (
-              'user-read-email '
-              'user-read-private'
-              'user-read-playback-state'
-              'user-modify-playback-state'
-              'streaming'
-              'playlist-read-private'
-              'playlist-read-collaborative'
-              'playlist-modify-public'
-              'playlist-modify-private'
-              'app-remote-control'
-          )
+        "user-read-email "
+        "user-read-private"
+        "user-read-playback-state"
+        "user-modify-playback-state"
+        "streaming"
+        "playlist-read-private"
+        "playlist-read-collaborative"
+        "playlist-modify-public"
+        "playlist-modify-private"
+        "app-remote-control"
+    )
 
-    user_token = request.GET.get('token')#is that safe?
+    user_token = request.GET.get("token")  # is that safe?
     params = {
-        'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,
-        'response_type': 'code',
-        'redirect_uri': settings.SPOTIFY_REDIRECT_URI,
-        'scope': scopes,
-        'state': user_token,
-        'show_dialog': 'true',
+        "client_id": settings.SOCIAL_AUTH_SPOTIFY_KEY,
+        "response_type": "code",
+        "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+        "scope": scopes,
+        "state": user_token,
+        "show_dialog": "true",
     }
-    url = f'https://accounts.spotify.com/authorize?{urlencode(params)}'
+    url = f"https://accounts.spotify.com/authorize?{urlencode(params)}"
     return HttpResponseRedirect(url)
 
+
 def spotify_callback(request):
-    code = request.GET.get('code')
-    error = request.GET.get('error')
-    state = request.GET.get('state')  # to jest token JWT
+    code = request.GET.get("code")
+    error = request.GET.get("error")
+    state = request.GET.get("state")  # to jest token JWT
     if error:
-        return JsonResponse({'error': error}, status=400)
+        return JsonResponse({"error": error}, status=400)
 
     try:
-        UntypedToken(state)#??????????? po co walidacja uzytkownika skoro i tak interceptor doda jwt w requescie
+        UntypedToken(
+            state
+        )  # ??????????? po co walidacja uzytkownika skoro i tak interceptor doda jwt w requescie
         jwt_auth = JWTAuthentication()
         validated_token = jwt_auth.get_validated_token(state)
         user = jwt_auth.get_user(validated_token)
     except (InvalidToken, TokenError):
-        return JsonResponse({'error': 'Invalid token'}, status=401)
+        return JsonResponse({"error": "Invalid token"}, status=401)
     except User.DoesNotExist:
-        return JsonResponse({'error': 'User not found'}, status=404)
+        return JsonResponse({"error": "User not found"}, status=404)
 
-    token_url = 'https://accounts.spotify.com/api/token'
+    token_url = "https://accounts.spotify.com/api/token"
     payload = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': settings.SPOTIFY_REDIRECT_URI,
-        'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,
-        'client_secret': settings.SOCIAL_AUTH_SPOTIFY_SECRET,
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+        "client_id": settings.SOCIAL_AUTH_SPOTIFY_KEY,
+        "client_secret": settings.SOCIAL_AUTH_SPOTIFY_SECRET,
     }
     response = requests.post(token_url, data=payload)
     token_info = response.json()
 
-    access_token = token_info.get('access_token')
-    refresh_token = token_info.get('refresh_token')
-    expires_in = token_info.get('expires_in')  # w sekundach
+    access_token = token_info.get("access_token")
+    refresh_token = token_info.get("refresh_token")
+    expires_in = token_info.get("expires_in")  # w sekundach
 
     expires_at = timezone.now() + timedelta(seconds=expires_in)
     obj, created = SpotifyToken.objects.update_or_create(
         user=user,
-        defaults={'access_token': access_token,
-                  'refresh_token': refresh_token,
-                  'expires_at': expires_at}
+        defaults={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "expires_at": expires_at,
+        },
     )
 
     user.spotify_token = obj
     user.save()
 
-    return redirect('http://localhost:3000/dashboard')
+    return redirect("http://localhost:3000/dashboard")
+
 
 @permission_classes([IsAuthenticated])
 def refresh_spotify_token(user):
@@ -103,49 +110,54 @@ def refresh_spotify_token(user):
     if token_obj.expires_at > timezone.now():
         return token_obj.access_token
 
-    refresh_url = 'https://accounts.spotify.com/api/token'
+    refresh_url = "https://accounts.spotify.com/api/token"
     payload = {
-        'grant_type': 'refresh_token',
-        'refresh_token': token_obj.refresh_token,
-        'client_id': settings.SOCIAL_AUTH_SPOTIFY_KEY,
-        'client_secret': settings.SOCIAL_AUTH_SPOTIFY_SECRET,
+        "grant_type": "refresh_token",
+        "refresh_token": token_obj.refresh_token,
+        "client_id": settings.SOCIAL_AUTH_SPOTIFY_KEY,
+        "client_secret": settings.SOCIAL_AUTH_SPOTIFY_SECRET,
     }
     response = requests.post(refresh_url, data=payload)
     token_info = response.json()
-    new_access_token = token_info.get('access_token')
-    expires_in = token_info.get('expires_in')
+    new_access_token = token_info.get("access_token")
+    expires_in = token_info.get("expires_in")
     token_obj.access_token = new_access_token
     token_obj.expires_at = timezone.now() + timedelta(seconds=expires_in)
     token_obj.save()
     return new_access_token
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_playlists(request):
-        spotify_token = get_valid_spotify_token(request.user)
-        if not spotify_token:
-            return JsonResponse({'error': 'Spotify account not connected'}, status=400)
-        headers = {'Authorization': f'Bearer {spotify_token}'}
-        response = requests.get('https://api.spotify.com/v1/me/playlists', headers=headers)
-        return JsonResponse(response.json())
+    spotify_token = get_valid_spotify_token(request.user)
+    if not spotify_token:
+        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+    headers = {"Authorization": f"Bearer {spotify_token}"}
+    response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers)
+    return JsonResponse(response.json())
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_playlist_details(request, playlist_id: str):
     spotify_token = get_valid_spotify_token(request.user)
     if not spotify_token:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({"error": "Spotify account not connected"}, status=400)
 
-    headers = {'Authorization': f'Bearer {spotify_token}'}
-    response = requests.get(f'https://api.spotify.com/v1/playlists/{playlist_id}', headers=headers)
+    headers = {"Authorization": f"Bearer {spotify_token}"}
+    response = requests.get(
+        f"https://api.spotify.com/v1/playlists/{playlist_id}", headers=headers
+    )
 
     if response.status_code != 200:
         print(response.text)
-        return JsonResponse({'error': 'Playlist not found'}, status=404)
+        return JsonResponse({"error": "Playlist not found"}, status=404)
 
     return JsonResponse(response.json())
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_spotify_connection_status(request):
     try:
@@ -155,48 +167,49 @@ def get_user_spotify_connection_status(request):
     except SpotifyToken.DoesNotExist:
         connected = False
         expires_at = None
-    return JsonResponse({
-        'connected': connected,
-        'expires_at': expires_at,
-    })
+    return JsonResponse(
+        {
+            "connected": connected,
+            "expires_at": expires_at,
+        }
+    )
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def spotify_disconnect(request):
     try:
         token_obj = SpotifyToken.objects.get(user=request.user)
         token_obj.delete()
-        return JsonResponse({'message': 'Spotify account disconnected'})
+        return JsonResponse({"message": "Spotify account disconnected"})
     except SpotifyToken.DoesNotExist:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({"error": "Spotify account not connected"}, status=400)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def search(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
     if not query:
-        return JsonResponse({'error': 'No search term provided'}, status=400)
+        return JsonResponse({"error": "No search term provided"}, status=400)
 
     token = get_valid_spotify_token(request.user)
     if not token:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({"error": "Spotify account not connected"}, status=400)
 
     url = "https://api.spotify.com/v1/search"
-    headers = {'Authorization': f'Bearer {token}'}
-    params = {
-        'q': query,
-        'type': 'track',
-        'limit': 10
-    }
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"q": query, "type": "track", "limit": 10}
     response = requests.get(url, headers=headers, params=params)
     return JsonResponse(response.json())
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_spotify_token(request):
     spotify_token = get_valid_spotify_token(request.user)
 
     if not spotify_token:
-        return JsonResponse({'error': 'Spotify account not connected'}, status=400)
+        return JsonResponse({"error": "Spotify account not connected"}, status=400)
 
-    return JsonResponse({'access_token': spotify_token}, status=200)
+    return JsonResponse({"access_token": spotify_token}, status=200)

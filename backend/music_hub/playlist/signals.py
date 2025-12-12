@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from users.models import CustomUser
 from .models import Queue
 
+
 @receiver(post_save, sender=CustomUser)
 def create_user_queue(sender, instance, created, **kwargs):
     if created:

@@ -7,14 +7,7 @@ from users.serializers import UserSerializer
 class TrackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
-        fields = [
-            'id',
-            'track_id',
-            'url',
-            'name',
-            'author',
-            'platform'
-        ]
+        fields = ["id", "track_id", "url", "name", "author", "platform"]
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
@@ -24,20 +17,20 @@ class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = [
-            'id',
-            'name',
-            'tracks',
-            'owner',
-            'collaborators',
-            'followers',
-            'is_public',
-            'created_at'
+            "id",
+            "name",
+            "tracks",
+            "owner",
+            "collaborators",
+            "followers",
+            "is_public",
+            "created_at",
         ]
 
     def create(self, validated_data):
-        collaborators = validated_data.pop('collaborators', [])
-        followers = validated_data.pop('followers', [])
-        tracks = validated_data.pop('tracks', [])
+        collaborators = validated_data.pop("collaborators", [])
+        followers = validated_data.pop("followers", [])
+        tracks = validated_data.pop("tracks", [])
         playlist = Playlist.objects.create(**validated_data)
         playlist.collaborators.set(collaborators)
         playlist.followers.set(followers)
@@ -47,9 +40,9 @@ class PlaylistSerializer(serializers.ModelSerializer):
         return playlist
 
     def update(self, instance, validated_data):
-        collaborators_data = validated_data.pop('collaborators', None)
-        followers_data = validated_data.pop('followers', None)
-        tracks_data = validated_data.pop('tracks', None)
+        collaborators_data = validated_data.pop("collaborators", None)
+        followers_data = validated_data.pop("followers", None)
+        tracks_data = validated_data.pop("tracks", None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -71,12 +64,14 @@ class PlaylistSerializer(serializers.ModelSerializer):
         return instance
 
 
-class QueueTrackSerializer(serializers.HyperlinkedModelSerializer, OrderedModelSerializer):
+class QueueTrackSerializer(
+    serializers.HyperlinkedModelSerializer, OrderedModelSerializer
+):
     track = TrackSerializer()
 
     class Meta:
         model = QueueTrack
-        fields = ['id', 'track', 'order']
+        fields = ["id", "track", "order"]
 
 
 class QueueSerializer(serializers.ModelSerializer):
@@ -85,4 +80,4 @@ class QueueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Queue
-        fields = ['id', 'user', 'queue_tracks']
+        fields = ["id", "user", "queue_tracks"]

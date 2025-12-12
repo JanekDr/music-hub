@@ -6,15 +6,19 @@ from ordered_model.admin import OrderedStackedInline, OrderedInlineModelAdminMix
 admin.site.register(Playlist)
 admin.site.register(Track)
 
+
 class QueueTrackStackedInline(OrderedStackedInline):
     model = QueueTrack
-    fields = ('track', 'move_up_down_links',)
-    readonly_fields = ('move_up_down_links',)
+    fields = (
+        "track",
+        "move_up_down_links",
+    )
+    readonly_fields = ("move_up_down_links",)
     extra = 1
 
 
 class QueueAdmin(OrderedInlineModelAdminMixin, admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = ("user",)
     inlines = (QueueTrackStackedInline,)
 
 

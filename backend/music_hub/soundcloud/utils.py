@@ -8,6 +8,7 @@ SC_CLIENT_SECRET = settings.SOUNDCLOUD_CLIENT_SECRET
 SC_TOKEN = None
 SC_EXPIRES_AT = 0
 
+
 def get_app_sc_token():
     global SC_TOKEN, SC_EXPIRES_AT
     now = time.time()

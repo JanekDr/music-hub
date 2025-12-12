@@ -50,6 +50,35 @@ const Playlist = () => {
         }
     };
 
+    const handlePlayAll = async () => {
+        if (!tracks.length) return;
+
+        try {
+            const tracksPayload = tracks.map(track => ({
+                track_id: track.id.toString(),
+                name: track.name,
+                author: track.artist,
+                url: platform === 'spotify' ? track.uri : (track.url || track.uri),
+                platform: platform
+            }));
+
+            // 2. Wywołaj endpoint w API, który podmienia kolejkę
+            // UWAGA: Musisz upewnić się, że masz metodę 'replaceQueue' w swoim services/api.js
+            // Backend powinien: wyczyścić kolejkę -> dodać utwory (lub ich ID) -> zwrócić sukces
+            await authAPI.replaceQueue(tracksPayload);
+
+            // 3. Pobierz nową kolejkę i zaktualizuj Reduxa
+            const queueResponse = await authAPI.getQueue();
+            dispatch(setQueue(queueResponse.data));
+
+            console.log("Playing all tracks!");
+
+        } catch (err) {
+            console.error("Error while playing all tracks:", err);
+            // Opcjonalnie: alert("Nie udało się odtworzyć playlisty");
+        }
+    };
+
     useEffect(() => {
         const fetchDetails = async () => {
             setLoading(true);

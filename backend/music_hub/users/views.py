@@ -25,11 +25,14 @@ class RegisterView(APIView):
 
             refresh = RefreshToken.for_user(user)
 
-            return Response({
-                'user': UserSerializer(user).data,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "user": UserSerializer(user).data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -40,38 +43,47 @@ class UserModelViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_update(self, serializer):
-        if self.request.user != self.queryset.model.objects.get(pk=serializer.data['id']):
+        if self.request.user != self.queryset.model.objects.get(
+            pk=serializer.data["id"]
+        ):
             return Response({"You are not the owner"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     try:
-        refresh_token = request.data.get('refresh_token')
+        refresh_token = request.data.get("refresh_token")
         if not refresh_token:
             print("DEBUG: No refresh_token in request.data")
-            return Response({
-                'message': 'refresh_token is required',
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "message": "refresh_token is required",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         token = RefreshToken(refresh_token)
         token.blacklist()
 
-        return Response({
-            'message': 'Successfully logged out',
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": "Successfully logged out",
+            },
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
-        return Response({
-            'message': f'Error: {str(e)}',
-            'error_type': type(e).__name__
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"message": f"Error: {str(e)}", "error_type": type(e).__name__},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

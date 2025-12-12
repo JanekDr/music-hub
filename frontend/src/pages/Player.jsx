@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { authAPI } from '../services/api.js';
 import { FaSpotify, FaSoundcloud } from "react-icons/fa";
 import SearchResults from '../components/SearchResults.jsx';
 import '../styles/player.css';

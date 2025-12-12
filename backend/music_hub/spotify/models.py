@@ -11,4 +11,4 @@ class SpotifyToken(models.Model):
     expires_at = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.user.username}`s SpotifyToken'
+        return f"{self.user.username}`s SpotifyToken"
