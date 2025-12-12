@@ -137,7 +137,7 @@ const UniversalPlayer = () => {
            if (currentTrackObj.track.platform !== "spotify") spAdapter.pause();
         }
         if (prevPlatform === "soundcloud" && scAdapter) {
-           if (currentTrackObj.track.platform !== "soundcloud") spAdapter.pause();
+           if (currentTrackObj.track.platform !== "soundcloud") scAdapter.pause();
         }
       }
       playTrackDirectly(currentTrackObj);
