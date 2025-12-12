@@ -19,6 +19,7 @@ export const authAPI = {
   removeFromQueue: (queueTrackId) => api.delete("/queue/remove_from_queue/", queueTrackId),
   reorderQueue: (payload) => api.post("/queue/reorder_queue/", payload),
   addTrack: (data) => api.post("/tracks/add_track/", data),
+  replaceQueue: (tracks) => api.post("/queue/replace_queue/", {tracks: tracks}),
 };
 
 export default authAPI;

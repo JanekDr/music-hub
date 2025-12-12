@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { authAPI } from "../services/api";
 import { spotifyApi } from "../services/spotifyApi";
 import { soundcloudApi } from "../services/soundcloudApi";
-import { setQueue } from "../store/playerSlice";
+import {setCurrentTrackIndex, setQueue} from "../store/playerSlice";
 
 // Icons & Styles
 import { FaPlay, FaClock, FaArrowLeft, FaSpotify, FaSoundcloud, FaPlus } from "react-icons/fa";
@@ -52,7 +52,7 @@ const Playlist = () => {
 
     const handlePlayAll = async () => {
         if (!tracks.length) return;
-
+        console.log(tracks)
         try {
             const tracksPayload = tracks.map(track => ({
                 track_id: track.id.toString(),
@@ -62,20 +62,16 @@ const Playlist = () => {
                 platform: platform
             }));
 
-            // 2. Wywołaj endpoint w API, który podmienia kolejkę
-            // UWAGA: Musisz upewnić się, że masz metodę 'replaceQueue' w swoim services/api.js
-            // Backend powinien: wyczyścić kolejkę -> dodać utwory (lub ich ID) -> zwrócić sukces
             await authAPI.replaceQueue(tracksPayload);
 
-            // 3. Pobierz nową kolejkę i zaktualizuj Reduxa
             const queueResponse = await authAPI.getQueue();
             dispatch(setQueue(queueResponse.data));
+            dispatch(setCurrentTrackIndex(0))
 
             console.log("Playing all tracks!");
 
         } catch (err) {
             console.error("Error while playing all tracks:", err);
-            // Opcjonalnie: alert("Nie udało się odtworzyć playlisty");
         }
     };
 
@@ -201,7 +197,7 @@ const Playlist = () => {
                         <span className="dot">•</span>
                         <span>{tracks.length} tracks</span>
                     </div>
-                     <button className="play-btn-white">
+                     <button className="play-btn-white" onClick={handlePlayAll}>
                         <FaPlay /> Odtwórz wszystko
                     </button>
                 </div>

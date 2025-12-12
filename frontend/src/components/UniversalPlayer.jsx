@@ -110,6 +110,58 @@ const UniversalPlayer = () => {
     setScAdapter(a);
   }, [scAdapter, queueTracks, currentTrackIndex]);
 
+  useEffect(() => {
+    if (!queueTracks || queueTracks.length === 0) {
+      setTrackName("");
+      setArtistName("");
+      setAlbumName("");
+      setTrackImg("");
+      return;
+    }
+    const currentTrackObj = queueTracks[currentTrackIndex];
+    console.log("asdada")
+    if (currentTrackObj) {
+      console.log(currentTrackObj);
+      setTrackName(currentTrackObj.track.name);
+      setArtistName(currentTrackObj.track.author);
+
+      const img = currentTrackObj.track.image || currentTrackObj.track.artwork_url || "";
+      setTrackImg(img);
+
+      stopCurrentPlatform()
+      playTrackDirectly(currentTrackObj);
+    }
+  }, [queueTracks, currentTrackIndex]);
+
+
+  const playTrackDirectly = async (track) => {
+    if (!track) return;
+    const platform = track.track.platform;
+
+    if (platform === "spotify") {
+      if (!spAdapter) return;
+      const uri = track.track.url;
+      if (isStarted) {
+         spAdapter.playUris([uri]);
+      } else {
+         const deviceId = store.getState().player.deviceId;
+         if (deviceId) {
+            setIsStarted(true);
+            await spAdapter.transferPlayback(deviceId);
+            setTimeout(() => {
+                spAdapter.playUris([uri]);
+            }, 500);
+         }
+      }
+    } else if (platform === "soundcloud") {
+      if (scAdapter) {
+         await scAdapter.playCurrent();
+      }
+    }
+
+    setPlaying(true);
+  };
+
   const handleVolumeChange = (e) => {
     const value = Number(e.target.value);
     const value01 = value / 100;
@@ -159,16 +211,26 @@ const UniversalPlayer = () => {
 
   const resume = async () => {
     const track = queueTracks[currentTrackIndex];
-    if (!track) return;
+    if (!track) {
+      console.log("nie mam tracka")
+      return
+    };
 
     const platform = track.track.platform;
 
     if (platform === "spotify") {
-      if (!spAdapter) return;
+      if (!spAdapter) {
+        console.log("nie ma adaptera")
+        return
+      };
       const deviceId = store.getState().player.deviceId;
-      if (!deviceId) return;
+      if (!deviceId) {
+        console.log("nie ma urzadzenia")
+        return
+      };
 
       if (!isStarted) {
+        console.log("puszczam")
         setIsStarted(true);
         await spAdapter.transferPlayback(deviceId);
         setTimeout(() => {

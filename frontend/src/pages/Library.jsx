@@ -109,7 +109,6 @@ const SectionWithLogo = ({ logo, label, children }) => (
 const PlaylistCards = ({ playlists, platform }) => (
   <div className="library-list">
     {playlists.length ? playlists.map(pl => {
-        console.log(pl);
       const title =
         platform === "spotify" ? pl.name :
         platform === "soundcloud" ? pl.title :
