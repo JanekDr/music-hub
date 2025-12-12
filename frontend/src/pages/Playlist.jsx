@@ -29,6 +29,23 @@ const Playlist = () => {
         return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     };
 
+    const mapTrackForApi = (track) => {
+        if (platform === 'spotify') {
+          return {
+            track_id: track.id,
+            url: track.uri,
+            name: track.name,
+            author: track.artists.map(a => a.name).join(', ')
+          };
+        }
+        // SoundCloud
+        return {
+          track_id: track.id,
+          url: track.uri,
+          name: track.title,
+          author: track.user?.username || track.user?.full_name
+        };
+      };
     const handleAddToQueue = async (e, track) => {
         e.stopPropagation();
         try {
@@ -39,7 +56,7 @@ const Playlist = () => {
                 url: platform === 'spotify' ? track.uri : (track.url || track.uri),
                 platform: platform
             };
-
+            console.log(trackPayload)
             const newTrack = await authAPI.addTrack(trackPayload);
             await authAPI.addToQueue({ 'track_id': newTrack.data.id });
             const queueResponse = await authAPI.getQueue();

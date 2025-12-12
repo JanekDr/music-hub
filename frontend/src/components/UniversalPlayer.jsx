@@ -37,6 +37,7 @@ const UniversalPlayer = () => {
   const [showVolume, setShowVolume] = useState(false);
 
   const adapterRef = useRef(null);
+  const previousTrackRef = useRef(null);
 
   useEffect(() => {
     if (isAuthenticated && !spotifyToken) {
@@ -115,23 +116,34 @@ const UniversalPlayer = () => {
       setTrackName("");
       setArtistName("");
       setAlbumName("");
-      setTrackImg("");
+      setTrackImg(".");
       return;
     }
+    console.log("zmienila sie kolejka reaguje")
     const currentTrackObj = queueTracks[currentTrackIndex];
-    console.log("asdada")
     if (currentTrackObj) {
-      console.log(currentTrackObj);
+      if (previousTrackRef.current && previousTrackRef.current.id === currentTrackObj.id) {
+         return;
+      }
       setTrackName(currentTrackObj.track.name);
       setArtistName(currentTrackObj.track.author);
-
       const img = currentTrackObj.track.image || currentTrackObj.track.artwork_url || "";
       setTrackImg(img);
 
-      stopCurrentPlatform()
+      if (previousTrackRef.current) {
+        const prevPlatform = previousTrackRef.current.track.platform;
+
+        if (prevPlatform === "spotify" && spAdapter) {
+           if (currentTrackObj.track.platform !== "spotify") spAdapter.pause();
+        }
+        if (prevPlatform === "soundcloud" && scAdapter) {
+           if (currentTrackObj.track.platform !== "soundcloud") spAdapter.pause();
+        }
+      }
       playTrackDirectly(currentTrackObj);
+      previousTrackRef.current = currentTrackObj;
     }
-  }, [queueTracks, currentTrackIndex]);
+  }, [queueTracks, currentTrackIndex, spAdapter, scAdapter]);
 
 
   const playTrackDirectly = async (track) => {
