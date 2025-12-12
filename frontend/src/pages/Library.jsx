@@ -18,21 +18,47 @@ const Library = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([
-            authAPI.getUserPlaylists(),
-            spotifyApi.getSpotifyPlaylists(),
-            soundcloudApi.getUserPlaylists()
-        ]).then(([hubRes,spotifyRes, soundcloudRes]) => {
-            setHubPlaylists(hubRes.data || []);
-            setSpotifyPlaylists(spotifyRes.data.items || []);
-            setSoundcloudPlaylists(soundcloudRes.data || []);
-            setLoading(false);
-        }).catch(() => {
-            setHubPlaylists([]);
-            setSpotifyPlaylists([]);
-            setSoundcloudPlaylists([]);
-            setLoading(false);
-        });
+        let isMounted = true;
+
+        const fetchData = async () => {
+            const results = await Promise.allSettled([
+                authAPI.getUserPlaylists(),
+                spotifyApi.getSpotifyPlaylists(),
+                soundcloudApi.getUserPlaylists()
+            ]);
+
+            if (isMounted) {
+                const [hubRes, spotifyRes, soundcloudRes] = results;
+
+                if (hubRes.status === 'fulfilled') {
+                    setHubPlaylists(hubRes.value.data || []);
+                } else {
+                    console.error("Hub API Error:", hubRes.reason);
+                    setHubPlaylists([]);
+                }
+
+                if (spotifyRes.status === 'fulfilled') {
+                    setSpotifyPlaylists(spotifyRes.value.data.items || []);
+                } else {
+                    console.error("Spotify API Error:", spotifyRes.reason);
+                    setSpotifyPlaylists([]);
+                }
+
+                if (soundcloudRes.status === 'fulfilled') {
+                    setSoundcloudPlaylists(soundcloudRes.value.data || []);
+                } else {
+                    console.error("SoundCloud API Error:", soundcloudRes.reason);
+                    setSoundcloudPlaylists([]);
+                }
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (
