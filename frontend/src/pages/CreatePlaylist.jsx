@@ -110,16 +110,17 @@ const CreatePlaylist = () => {
           url: track.uri,
           name: track.name,
           artists: track.artists.map(a => a.name).join(', '),
-          image: track.album?.images?.[0]?.url || ''
+          image_url: track.album.images[0].url || '',
+          track_duration: track.duration_ms
         }
       : {
           id: track.id,
           url: track.uri || track.permalink_url,
           name: track.title,
-          artists: track.user?.username || track.user?.full_name || '',
-          image: track.artwork_url || track.user?.avatar_url || ''
+          artists: track.user?.username || '',
+          image_url: track.artwork_url || track.user.avatar_url || '',
+          track_duration: track.duration
         };
-
     if (!selectedTracks.find(t => t.id === unified.id)) {
       setSelectedTracks(prev => [...prev, unified]);
     }
@@ -142,6 +143,8 @@ const CreatePlaylist = () => {
         url: t.url,
         name: t.name,
         author: t.artists,
+        track_duration: t.track_duration,
+        image_url: t.image_url
       })),
       collaborators: selectedCollaborators.map(opt => opt.value),
       followers: [],
@@ -195,7 +198,7 @@ const CreatePlaylist = () => {
           <ul className="track-list">
             {selectedTracks.map(track => (
               <li key={track.url}>
-                <img src={track.image} alt={track.name || "cover"} />
+                <img src={track.image_url} alt={track.name || "cover"} />
                 <div>
                   <b>{track.name} </b>
                   <span>{track.artists}</span>

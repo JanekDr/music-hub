@@ -119,7 +119,6 @@ const UniversalPlayer = () => {
       setTrackImg(".");
       return;
     }
-    console.log("zmienila sie kolejka reaguje")
     const currentTrackObj = queueTracks[currentTrackIndex];
     if (currentTrackObj) {
       if (previousTrackRef.current && previousTrackRef.current.id === currentTrackObj.id) {
@@ -127,8 +126,7 @@ const UniversalPlayer = () => {
       }
       setTrackName(currentTrackObj.track.name);
       setArtistName(currentTrackObj.track.author);
-      const img = currentTrackObj.track.image || currentTrackObj.track.artwork_url || "";
-      setTrackImg(img);
+      setTrackImg(currentTrackObj.track.image_url);
 
       if (previousTrackRef.current) {
         const prevPlatform = previousTrackRef.current.track.platform;
@@ -224,7 +222,6 @@ const UniversalPlayer = () => {
   const resume = async () => {
     const track = queueTracks[currentTrackIndex];
     if (!track) {
-      console.log("nie mam tracka")
       return
     };
 
@@ -232,17 +229,14 @@ const UniversalPlayer = () => {
 
     if (platform === "spotify") {
       if (!spAdapter) {
-        console.log("nie ma adaptera")
         return
       };
       const deviceId = store.getState().player.deviceId;
       if (!deviceId) {
-        console.log("nie ma urzadzenia")
         return
       };
 
       if (!isStarted) {
-        console.log("puszczam")
         setIsStarted(true);
         await spAdapter.transferPlayback(deviceId);
         setTimeout(() => {

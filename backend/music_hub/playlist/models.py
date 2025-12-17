@@ -7,10 +7,12 @@ from users.models import CustomUser
 # Create your models here.
 class Track(models.Model):
     track_id = models.CharField(max_length=32)
-    url = models.CharField(max_length=256)
+    url = models.CharField(max_length=255)
     platform = models.CharField(max_length=50, blank=True)
-    name = models.CharField(max_length=50, default="")
-    author = models.CharField(max_length=50, default="")
+    name = models.CharField(max_length=255, default="")
+    author = models.CharField(max_length=255, default="")
+    track_duration = models.PositiveIntegerField(default=0, help_text="Track duration in milliseconds")
+    image_url = models.URLField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.url:
@@ -38,9 +40,12 @@ class Playlist(models.Model):
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def can_edit(self, user_id):
-        user = get_object_or_404(CustomUser, id=user_id)
-        return True if user in self.collaborators and self.is_public else False
+    def can_edit(self, user):
+        if user == self.owner:
+            return True
+        if self.collaborators.filter(id=user.id).exists():
+            return True
+        return False
 
     def __str__(self):
         return f"{self.owner}`s playlist - {self.name}"

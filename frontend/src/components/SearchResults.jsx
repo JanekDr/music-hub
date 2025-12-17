@@ -13,7 +13,9 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
         track_id: track.id,
         url: track.uri,
         name: track.name,
-        author: track.artists.map(a => a.name).join(', ')
+        author: track.artists.map(a => a.name).join(', '),
+        track_duration: track.duration_ms,
+        image_url: track.album.images[0].url
       };
     }
     // SoundCloud
@@ -21,7 +23,9 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
       track_id: track.id,
       url: track.uri,
       name: track.title,
-      author: track.user?.username || track.user?.full_name
+      author: track.user?.username || '',
+      track_duration: track.duration,
+      image_url: track.artwork_url || track.user.avatar_url || ''
     };
   };
 
@@ -29,14 +33,15 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
     let img = '';
     let name = '';
     let artists = '';
+    console.log(track)
     if (platform === 'spotify') {
-      img = track.album?.images?.[0]?.url || '';
+      img = track.album.images[0].url || '';
       name = track.name;
       artists = track.artists.map(a => a.name).join(', ');
     } else {
-      img = track.artwork_url || track.user?.avatar_url || '';
+      img = track.artwork_url || track.user.avatar_url || '';
       name = track.title;
-      artists = track.user?.username || track.user?.full_name || '';
+      artists = track.user.username || '';
     }
 
     return (

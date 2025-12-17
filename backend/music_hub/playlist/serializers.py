@@ -7,7 +7,16 @@ from users.serializers import UserSerializer
 class TrackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
-        fields = ["id", "track_id", "url", "name", "author", "platform"]
+        fields = [
+            "id",
+            "track_id",
+            "url",
+            "name",
+            "author",
+            "platform",
+            "track_duration",
+            "image_url"
+        ]
 
 
 class PlaylistSerializer(serializers.ModelSerializer):

@@ -37,9 +37,10 @@ const Playlist = () => {
                 name: track.name,
                 author: track.artist,
                 url: platform === 'spotify' ? track.uri : (track.url || track.uri),
-                platform: platform
+                platform: platform,
+                track_duration: track.track_duration,
+                image_url: track.image_url,
             };
-            console.log(trackPayload)
             const newTrack = await authAPI.addTrack(trackPayload);
             await authAPI.addToQueue({ 'track_id': newTrack.data.id });
             const queueResponse = await authAPI.getQueue();
@@ -52,23 +53,22 @@ const Playlist = () => {
 
     const handlePlayAll = async () => {
         if (!tracks.length) return;
-        console.log(tracks)
         try {
             const tracksPayload = tracks.map(track => ({
                 track_id: track.id.toString(),
                 name: track.name,
                 author: track.artist,
                 url: platform === 'spotify' ? track.uri : (track.url || track.uri),
-                platform: platform
+                platform: platform,
+                track_duration: track.track_duration,
+                image_url: track.image_url
             }));
-
             await authAPI.replaceQueue(tracksPayload);
 
             const queueResponse = await authAPI.getQueue();
             dispatch(setQueue(queueResponse.data));
             dispatch(setCurrentTrackIndex(0))
 
-            console.log("Playing all tracks!");
 
         } catch (err) {
             console.error("Error while playing all tracks:", err);
@@ -101,14 +101,13 @@ const Playlist = () => {
                         artist: item.track.artists.map(a => a.name).join(", "),
                         album: item.track.album.name,
                         track_duration: item.track.duration_ms,
-                        image: item.track.album.images?.[2]?.url,
+                        image_url: item.track.album.images?.[2]?.url,
                         uri: item.track.uri
                     }));
 
                 } else if (platform === 'soundcloud') {
                     res = await soundcloudApi.getPlaylistDetails(id);
                     const data = res.data;
-                    console.log(data);
                     playlistData = {
                         title: data.title,
                         image: data.artwork_url?.replace('large', 't500x500') || data.tracks[0].artwork_url.replace('large', 't500x500'),
@@ -123,7 +122,7 @@ const Playlist = () => {
                         artist: track.user.username,
                         album: "-",
                         track_duration: track.duration,
-                        image: track.artwork_url,
+                        image_url: track.artwork_url || track.user.avatar_url,
                         url: track.permalink_url
                     }));
 
@@ -132,7 +131,7 @@ const Playlist = () => {
                     const data = res.data;
                     playlistData = {
                         title: data.name,
-                        image: null,
+                        image: data.tracks[0].image_url,
                         description: "Hub mixed playlist",
                         owner: data.owner.username,
                         platformIcon: <span>HUB</span>
@@ -143,11 +142,10 @@ const Playlist = () => {
                         name: track.name,
                         artist: track.author,
                         album: track.platform,
-                        track_duration: track.duration,
-                        // image: track.image_url,
+                        track_duration: track.track_duration,
+                        image_url: track.image_url,
                         url: track.url,
                     }));
-                    console.log(fetchedTracks);
                 }
 
                 setPlaylist(playlistData);
@@ -219,8 +217,8 @@ const Playlist = () => {
 
                             <div className="col-title track-meta">
                                 <div className="track-img-wrapper">
-                                    {track.image ? (
-                                        <img src={track.image} alt="" className="track-thumb"/>
+                                    {track.image_url ? (
+                                        <img src={track.image_url} alt="" className="track-thumb"/>
                                     ) : (
                                         <div className="track-thumb-placeholder">🎵</div>
                                     )}

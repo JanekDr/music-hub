@@ -65,9 +65,9 @@ export class SoundcloudAdapter {
     if (this.onTrackInfoChangeCb && item.track.track_id !== this._lastTrackId) {
       this.onTrackInfoChangeCb({
         trackName: track.data.title,
-        artistName: track.data.metadata_artist || "Unknown",
+        artistName: track.data.user.username || "Unknown",
         albumName: track.data.playlist_title || "Single",
-        trackImg: track.data.artwork_url,
+        trackImg: track.data.artwork_url || track.data.user.avatar_url,
       });
       this._lastTrackId = track.track_id;
     }

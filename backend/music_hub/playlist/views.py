@@ -95,7 +95,7 @@ class QueueViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def replace_queue(self, request):
         tracks_data = request.data.get("tracks", [])
-
+        print(tracks_data)
         if not tracks_data and isinstance(request.data, list):
             tracks_data = request.data
 
@@ -116,14 +116,16 @@ class QueueViewSet(viewsets.ModelViewSet):
                         track_id=track_data['track_id'],
                         platform=track_data['platform']
                     ).first()
-
+                    print(track_data)
                     if not track:
                         track = Track.objects.create(
                             track_id=track_data['track_id'],
                             platform=track_data['platform'],
                             name=track_data['name'],
                             author=track_data['author'],
-                            url=track_data['url']
+                            url=track_data['url'],
+                            track_duration=track_data['track_duration'],
+                            image_url=track_data['image_url']
                         )
 
                     QueueTrack.objects.create(queue=queue, track=track)
