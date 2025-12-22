@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { FaSpotify, FaSoundcloud } from "react-icons/fa";
 import SearchResults from '../components/SearchResults.jsx';
+import AddToPlaylistModal from '../components/AddToPlaylistModal.jsx';
 import '../styles/player.css';
 import { spotifyApi } from "../services/spotifyApi.js";
 import { soundcloudApi } from "../services/soundcloudApi.js";
@@ -14,6 +15,8 @@ const Player = () => {
   const [spotifyTracks, setSpotifyTracks] = useState([]);
   const [soundcloudTracks, setSoundcloudTracks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [trackToAdd, setTrackToAdd] = useState(null);
 
   const { search } = useLocation();
 
@@ -48,6 +51,12 @@ const Player = () => {
     }).catch(err => console.error("Error playing track:", err));
   }
 
+  const handleOpenModal = (track) => {
+    setIsModalOpen(true);
+    setTrackToAdd(track);
+    console.log("track ktory zostanie dodany: ", track)
+  }
+
   return (
     <div className="player">
       {loading && <p>Szukam...</p>}
@@ -59,6 +68,7 @@ const Player = () => {
         <SearchResults
             tracks={spotifyTracks}
             onPlayTrack={handlePlayTrack}
+            onAddToPlaylist={(track) => handleOpenModal(track)}
             platform="spotify"
         />
       </div>
@@ -68,10 +78,15 @@ const Player = () => {
         </h3>
         <SearchResults
             tracks={soundcloudTracks}
-            onPlayTrack={handlePlayTrack}
+            onAddToPlaylist={(track) => handleOpenModal(track)}
             platform="soundcloud"
         />
       </div>
+      <AddToPlaylistModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        track={trackToAdd}
+      />
     </div>
   );
 };

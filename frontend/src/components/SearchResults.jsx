@@ -33,7 +33,6 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
     let img = '';
     let name = '';
     let artists = '';
-    console.log(track)
     if (platform === 'spotify') {
       img = track.album.images[0].url || '';
       name = track.name;

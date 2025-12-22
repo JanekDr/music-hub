@@ -12,6 +12,7 @@ export const authAPI = {
   createPlaylist: (data) => api.post("/playlist/", data),
   getUserPlaylists: () => api.get("/playlist/"),
   getUserPlaylist: (playlistId) => api.get(`/playlist/${playlistId}`),
+  addTrackToPlaylist: (playlistId, track_data) => api.post(`/playlist/${playlistId}/add_track/`, track_data),
 
   // queue
   getQueue: () => api.get("/queue/"),

@@ -10,6 +10,8 @@ from .models import Playlist, QueueTrack, Track, Queue
 from .serializers import PlaylistSerializer, QueueSerializer, TrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
+def get_or_create_track(track, owner):
+    pass
 
 class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
@@ -18,6 +20,41 @@ class PlaylistViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def add_track(self, request, pk=None):
+        playlist = self.get_object()
+
+        track_id = request.data.get('track_id')
+        if not track_id:
+            return Response(
+                {"error": "Track id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        track = Track.objects.filter(
+            track_id=track_id,
+        ).first()
+
+        if not track:
+            track_data = request.data
+            print(track_data)
+            try:
+                track = Track.objects.create(
+                    track_id=track_id,
+                    name=track_data['name'],
+                    author=track_data['author'],
+                    url=track_data['url'],
+                    track_duration=track_data['track_duration'],
+                    image_url=track_data['image_url']
+                )
+            except Exception as e:
+                return Response(
+                {"error - missing track's arguments": str(e)},
+                      status=status.HTTP_400_BAD_REQUEST
+                )
+
+        playlist.tracks.add(track)
+        return Response({"status": "success"}, status=status.HTTP_200_OK)
 
 
 class QueueViewSet(viewsets.ModelViewSet):
@@ -148,5 +185,4 @@ def add_track(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

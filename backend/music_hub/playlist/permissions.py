@@ -9,7 +9,7 @@ class IsOwnerOrCollaboratorOrReadOnly(permissions.BasePermission):
         if request.method == "DELETE":
             return obj.owner == request.user
 
-        if request.method in ["PATCH", "PUT"]:
+        if request.method in ["PATCH", "PUT", "POST"]:
             return obj.owner == request.user or request.user in obj.collaborators.all()
 
         return False

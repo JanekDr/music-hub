@@ -9,7 +9,8 @@ const playerSlice = createSlice({
     deviceId: null,
     currentTrackId: null,
     currentTrackIndex: null,
-    volume: 0.5
+    volume: 0.25,
+    hubPlaylists: []
   },
   reducers: {
     setQueue: (state, action) => { state.queue = action.payload; },
@@ -19,6 +20,7 @@ const playerSlice = createSlice({
     setCurrentTrackId: (state, action) => { state.currentTrackId = action.payload; },
     setCurrentTrackIndex: (state, action) => { state.currentTrackIndex = action.payload; },
     setVolume: (state, action) => { state.volume = action.payload; },
+    setHubPlaylists: (state, action) => { state.hubPlaylists = action.payload; },
   }
 });
 
@@ -29,7 +31,8 @@ export const {
   setDeviceId,
   setCurrentTrackId,
   setCurrentTrackIndex,
-  setVolume
+  setVolume,
+  setHubPlaylists
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
