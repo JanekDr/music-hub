@@ -28,18 +28,19 @@ def get_valid_spotify_token(user):
 
 
 def spotify_login(request):
-    scopes = (
-        "user-read-email "
-        "user-read-private"
-        "user-read-playback-state"
-        "user-modify-playback-state"
-        "streaming"
-        "playlist-read-private"
-        "playlist-read-collaborative"
-        "playlist-modify-public"
-        "playlist-modify-private"
+    scopes_list = [
+        "user-read-email",
+        "user-read-private",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "streaming",
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "playlist-modify-public",
+        "playlist-modify-private",
         "app-remote-control"
-    )
+    ]
+    scopes = " ".join(scopes_list)
 
     user_token = request.GET.get("token")  # is that safe?
     params = {
