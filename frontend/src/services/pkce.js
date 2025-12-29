@@ -14,3 +14,10 @@ export async function pkceChallengeFromVerifier(verifier) {
     .replace(/=/g, '');
   return base64url;
 }
+
+export const generateState = (length = 32) => {
+    const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (x) => validChars[x % validChars.length]).join('');
+};

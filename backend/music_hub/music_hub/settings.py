@@ -170,4 +170,4 @@ SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8000/api/spotify/callback"
 
 SOUNDCLOUD_CLIENT_ID = os.getenv("SOUNDCLOUD_CLIENT_ID")
 SOUNDCLOUD_CLIENT_SECRET = os.getenv("SOUNDCLOUD_CLIENT_SECRET")
-SOUNDCLOUD_REDIRECT_URI = "http://127.0.0.1:8000/api/soundcloud/callback"
+SOUNDCLOUD_REDIRECT_URI = "http://127.0.0.1:3000/soundcloud/callback"

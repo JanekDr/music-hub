@@ -6,8 +6,6 @@ from django.http import (
     StreamingHttpResponse,
 )
 from django.conf import settings
-from urllib.parse import urlencode
-from django.shortcuts import redirect
 import requests
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
@@ -33,36 +31,6 @@ def get_valid_soundcloud_token(user):
     return token_obj.access_token
 
 
-def soundcloud_login(request):
-    user_token = request.GET.get("token")
-    code_challenge = request.GET.get("code_challenge")
-    state = user_token
-
-    params = {
-        "client_id": settings.SOUNDCLOUD_CLIENT_ID,
-        "response_type": "code",
-        "redirect_uri": settings.SOUNDCLOUD_REDIRECT_URI,
-        "state": state,
-        "code_challenge": code_challenge,
-        "code_challenge_method": "S256",
-    }
-    url = f"https://secure.soundcloud.com/authorize?{urlencode(params)}"
-    return HttpResponseRedirect(url)
-
-
-def soundcloud_callback(request):
-    code = request.GET.get("code")
-    state = request.GET.get("state")  # JWT
-    error = request.GET.get("error")
-
-    if error:
-        return JsonResponse({"error": error}, status=400)
-
-    return redirect(
-        f"http://localhost:3000/soundcloud/callback?code={code}&state={state}"
-    )
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def soundcloud_token_exchange(request):
@@ -70,7 +38,7 @@ def soundcloud_token_exchange(request):
     code_verifier = request.data.get("code_verifier")
 
     if not code or not code_verifier:
-        return JsonResponse({"error": "code verification required"}, status=400)
+        return Response({"error": "code verification required"}, status=400)
 
     token_url = "https://secure.soundcloud.com/oauth/token"
 
@@ -88,11 +56,17 @@ def soundcloud_token_exchange(request):
         "code": code,
     }
 
-    response = requests.post(token_url, headers=headers, data=payload)
-    token_info = response.json()
+    try:
+        response = requests.post(token_url, headers=headers, data=payload, timeout=10)
+        token_info = response.json()
+
+    except requests.exceptions.RequestException:
+        return Response({"error": "Failed to connect to SoundCloud"}, status=503)
+    except ValueError:
+        return Response({"error": "Invalid response from SoundCloud"}, status=502)
 
     if "error" in token_info:
-        return JsonResponse({"error": token_info["error"]}, status=400)
+        return Response(token_info, status=400)
 
     access_token = token_info.get("access_token")
     refresh_token = token_info.get("refresh_token")

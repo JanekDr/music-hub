@@ -1,7 +1,5 @@
 from django.urls import path
 from .views import (
-    soundcloud_login,
-    soundcloud_callback,
     soundcloud_token_exchange,
     get_user_soundcloud_connection_status,
     soundcloud_disconnect,
@@ -13,8 +11,6 @@ from .views import (
 )
 
 urlpatterns = [
-    path("login/", soundcloud_login, name="soundcloud_login"),
-    path("callback/", soundcloud_callback, name="soundcloud_callback"),
     path("token-exchange/", soundcloud_token_exchange, name="token_exchange"),
     path(
         "user_status/",
