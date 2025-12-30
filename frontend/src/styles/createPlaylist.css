@@ -18,15 +18,22 @@
 
 .playlist-form-card {
   background: #232323;
-  padding: 30px 24px 17px 24px;
+  padding: 30px 24px 30px 24px; /* Więcej oddechu na dole */
   border-radius: 12px;
   box-shadow: 0 6px 17px #162a1c34;
   margin-bottom: 0;
+
+  /* Nowe: Flexbox do idealnego układania elementów */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Równe odstępy między elementami */
 }
-.playlist-form-card h2 { color: #1db954; }
-.collaborator-multiselect {
-  margin: 14px 0 7px 0;
-  color: #000;
+
+.playlist-form-card h2 {
+  color: #1db954;
+  text-align: center; /* Wycentrowanie nagłówka */
+  margin-top: 0;
+  margin-bottom: 5px;
 }
 
 .playlist-form input[type="text"] {
@@ -93,6 +100,13 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+}
+.input-label {
+  color: #b3b3b3;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: -8px;
+  margin-left: 4px;
 }
 
 .search-form {
@@ -201,44 +215,59 @@
   background: #1db954;
   color: #fff;
   position: static;
+  border:none;
 }
 
 .selected-tracks {
   margin-bottom: 10px;
 }
 
-.playlist-form-card input[type="text"],
-.playlist-form-card .playlist-input {
+/* Ujednolicenie inputów */
+.playlist-form-card input[type="text"] {
+  width: 100%; /* Zawsze pełna szerokość */
   background: #181818;
   color: #fafafa;
-  border: 1.5px solid #232;
+  border: 1.5px solid #333;
   border-radius: 8px;
-  font-size: 1.08rem;
-  padding: 10px 14px;
+  font-size: 1.05rem;
+  padding: 12px 14px;
   box-sizing: border-box;
-  margin-bottom: 16px;
-  transition: border 0.15s;
+  transition: all 0.2s ease;
 }
 
-.playlist-form-card input[type="text"]:focus,
-.playlist-form-card .playlist-input:focus {
-  border: 1.5px solid #1db954;
-  outline: none;
+.collaborator-multiselect {
+  width: 100%;
+  margin: 0; /* Gap w rodzicu załatwia sprawę odstępów */
 }
 
 .public-check {
-  margin: 5px 0 0 4px;
-  font-weight: 500;
-  color: #b5ebc5;
-  font-size: 1rem;
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center; /* Wycentrowanie checkboxa i tekstu */
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #fff;
+}
+
+.public-check:hover {
+  background: #333;
+}
+
+.public-check input[type="checkbox"] {
+  accent-color: #1db954;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 .playlist-results-wrapper {
   display: flex;
-  flex-direction: row;      /* obok siebie */
+  flex-direction: row;
   gap: 18px;
   margin-top: 6px;
   overflow: hidden;
@@ -258,5 +287,28 @@
 
 .playlist-right-panel .results-section .search-results-list {
   overflow-y: auto;
+}
+
+.back-btn-simple {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: transparent;
+  color: #b3b3b3;
+  border: 1px solid #333;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn-simple:hover {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+  transform: translateX(-3px);
 }
 

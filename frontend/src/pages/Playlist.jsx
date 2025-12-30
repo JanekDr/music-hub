@@ -198,6 +198,13 @@ const Playlist = () => {
                      <button className="play-btn-white" onClick={handlePlayAll}>
                         <FaPlay /> Odtwórz wszystko
                     </button>
+                    <button
+                        className="edit-playlist"
+                        onClick={() => navigate(`/playlist/edit/${id}`)}
+                        style={{ display: platform === 'hub' ? 'inline-block' : 'none' }}
+                    >
+                        <a>Edit playlist</a>
+                    </button>
                 </div>
             </div>
 

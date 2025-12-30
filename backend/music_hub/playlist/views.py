@@ -37,7 +37,6 @@ class PlaylistViewSet(viewsets.ModelViewSet):
 
         if not track:
             track_data = request.data
-            print(track_data)
             try:
                 track = Track.objects.create(
                     track_id=track_id,
@@ -132,7 +131,6 @@ class QueueViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def replace_queue(self, request):
         tracks_data = request.data.get("tracks", [])
-        print(tracks_data)
         if not tracks_data and isinstance(request.data, list):
             tracks_data = request.data
 
@@ -153,7 +151,6 @@ class QueueViewSet(viewsets.ModelViewSet):
                         track_id=track_data['track_id'],
                         platform=track_data['platform']
                     ).first()
-                    print(track_data)
                     if not track:
                         track = Track.objects.create(
                             track_id=track_data['track_id'],
@@ -170,7 +167,6 @@ class QueueViewSet(viewsets.ModelViewSet):
             return Response({"status": "success", "count": len(tracks_data)}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print(f"Error replacing queue: {e}")
             return Response(
                 {"error": "Something went wrong while replacing queue"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

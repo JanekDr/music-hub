@@ -13,6 +13,7 @@ import Library from "./pages/Library.jsx";
 import SoundcloudCallback from "./components/SoundcloudCallback.jsx";
 import UniversalPlayer from "./components/UniversalPlayer.jsx";
 import Playlist from "./pages/Playlist.jsx";
+import EditPlaylist from "./pages/EditPlaylist.jsx";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -92,6 +93,13 @@ function AppLayout() {
               path="/playlist/:platform/:id" element={
               <ProtectedRoute>
                 <Playlist />
+              </ProtectedRoute>
+            }
+            />
+            <Route
+              path="/playlist/edit/:id" element={
+              <ProtectedRoute>
+                <EditPlaylist />
               </ProtectedRoute>
             }
             />
