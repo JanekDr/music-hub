@@ -39,13 +39,14 @@ class PlaylistSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         collaborators = validated_data.pop("collaborators", [])
         followers = validated_data.pop("followers", [])
-        tracks = validated_data.pop("tracks", [])
+        tracks_data = validated_data.pop("tracks", [])
+
         playlist = Playlist.objects.create(**validated_data)
         playlist.collaborators.set(collaborators)
         playlist.followers.set(followers)
 
-        for track in tracks:
-            track, _ = Track.objects.get_or_create(**track)
+        for track_data in tracks_data:
+            track,_ = Track.get_or_create_safe(track_data)
             playlist.tracks.add(track)
 
         return playlist
@@ -68,11 +69,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
         if tracks_data is not None:
             tracks_obj = []
             for track_data in tracks_data:
-                track = Track.objects.filter(track_id=track_data["track_id"]).first()
-
-                if not track:
-                    track = Track.objects.create(**track_data)
-
+                track, created = Track.get_or_create_safe(track_data)
                 tracks_obj.append(track)
 
             instance.tracks.set(tracks_obj)

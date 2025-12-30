@@ -1,6 +1,5 @@
 from ordered_model.models import OrderedModel
 from django.db import models
-from django.shortcuts import get_object_or_404
 from users.models import CustomUser
 
 
@@ -27,6 +26,18 @@ class Track(models.Model):
 
     def __str__(self):
         return f"{self.platform} - {self.name} - {self.author}"
+
+    @classmethod
+    def get_or_create_safe(cls, track_data):
+        t_id = track_data.get('track_id')
+
+        existing_track = cls.objects.filter(track_id=t_id).first()
+
+        if existing_track:
+            return existing_track, False
+
+        new_track = cls.objects.create(**track_data)
+        return new_track, True
 
 
 class Playlist(models.Model):

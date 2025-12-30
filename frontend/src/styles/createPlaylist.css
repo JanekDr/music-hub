@@ -312,3 +312,7 @@
   transform: translateX(-3px);
 }
 
+.track-info-simple {
+  display: flex;
+  flex-direction: column;
+}

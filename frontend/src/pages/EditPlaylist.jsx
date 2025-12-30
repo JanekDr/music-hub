@@ -9,6 +9,7 @@ import { spotifyApi } from '../services/spotifyApi.js';
 
 import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
 import '../styles/createPlaylist.css';
+import {mapTrackToApiPayload} from "../services/mapTrackToApiPayload.js";
 
 const EditPlaylist = () => {
     const { id } = useParams(); // ID playlisty z URL
@@ -52,29 +53,24 @@ const EditPlaylist = () => {
         dropdownIndicator: (provided) => ({ ...provided, color: '#1db954' }),
     };
 
-    // State playlisty
     const [playlistName, setPlaylistName] = useState('');
     const [currentTracks, setCurrentTracks] = useState([]);
     const [isPublic, setIsPublic] = useState(false);
 
-    // State kolaboratorów
     const [allUsers, setAllUsers] = useState([]);
     const [selectedCollaborators, setSelectedCollaborators] = useState([]);
 
-    // State wyszukiwania
     const [search, setSearch] = useState('');
     const [spotifyResults, setSpotifyResults] = useState([]);
     const [soundcloudResults, setSoundcloudResults] = useState([]);
     const [loadingSearch, setLoadingSearch] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
 
-    // 1. Pobieranie danych playlisty i listy użytkowników przy starcie
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Pobierz playlistę i użytkowników równolegle
                 const [playlistRes, usersRes] = await Promise.all([
-                    authAPI.getUserPlaylist(id), // Zakładam, że to endpoint zwracający szczegóły (jak w Playlist.js dla 'hub')
+                    authAPI.getUserPlaylist(id),
                     authAPI.users()
                 ]);
 
@@ -84,24 +80,12 @@ const EditPlaylist = () => {
                 setPlaylistName(playlist.name);
                 setIsPublic(playlist.is_public);
 
-                // Mapowanie istniejących utworów do formatu używanego w edytorze
-                // UWAGA: Sprawdź czy Twoje API zwraca 'track_id' czy 'id' wewnątrz obiektu tracks
-                const mappedTracks = playlist.tracks.map(t => ({
-                    id: t.id,
-                    track_id: t.track_id,
-                    name: t.name,
-                    artists: t.author,
-                    url: t.url,
-                    image_url: t.image_url,
-                    track_duration: t.track_duration,
-                    platform: t.platform
-                }));
-                setCurrentTracks(mappedTracks);
+                setCurrentTracks(playlist.tracks);
 
                 setAllUsers(users);
 
                 if (playlist.collaborators && playlist.collaborators.length > 0) {
-                    const existingCollabIDs = playlist.collaborators.map(c => c.id || c); // Może być obiekt lub samo ID
+                    const existingCollabIDs = playlist.collaborators.map(c => c.id || c);
                     const formattedCollabs = users
                         .filter(u => existingCollabIDs.includes(u.id))
                         .map(u => ({ value: u.id, label: u.username || u.email }));
@@ -139,34 +123,16 @@ const EditPlaylist = () => {
         ]).finally(() => setLoadingSearch(false));
     };
 
-    const handleAddToPlaylist = (track, platform) => {
-        const unified = platform === 'spotify'
-            ? {
-                id: track.id,
-                url: track.uri,
-                name: track.name,
-                artists: track.artists.map(a => a.name).join(', '),
-                image_url: track.album.images?.[0]?.url || '',
-                track_duration: track.duration_ms,
-                platform: 'spotify'
-            }
-            : {
-                id: track.id,
-                url: track.uri || track.permalink_url,
-                name: track.title,
-                artists: track.user?.username || '',
-                image_url: track.artwork_url || track.user.avatar_url || '',
-                track_duration: track.duration,
-                platform: 'soundcloud'
-            };
-
-        if (!currentTracks.find(t => String(t.id) === String(unified.id))) {
+    const handleAddToPlaylist = (track) => {
+        const unified = mapTrackToApiPayload(track)
+        if (!currentTracks.find(t => String(t.track_id) === String(unified.track_id))) {
             setCurrentTracks(prev => [...prev, unified]);
         }
+        console.log(currentTracks);
     };
 
     const handleRemoveTrack = (trackId) => {
-        setCurrentTracks(prev => prev.filter(t => String(t.id) !== String(trackId)));
+        setCurrentTracks(prev => prev.filter(t => String(t.track_id) !== String(trackId)));
     };
 
     const handleSaveChanges = async () => {
@@ -174,22 +140,14 @@ const EditPlaylist = () => {
             alert("Nazwa playlisty nie może być pusta!");
             return;
         }
-
+        console.log("bedzie zmiana przed zapisaniem playlisty")
         const payload = {
             name: playlistName,
-            tracks: currentTracks.map(t => ({
-                track_id: t.id.toString(),
-                url: t.url,
-                name: t.name,
-                author: t.artists,
-                track_duration: t.track_duration,
-                image_url: t.image_url,
-                platform: t.platform
-            })),
+            tracks: currentTracks.map(t => mapTrackToApiPayload(t)),
             collaborators: selectedCollaborators.map(opt => opt.value),
             is_public: isPublic,
         };
-
+        console.log(payload);
         try {
             await authAPI.editPlaylist(id, payload);
             alert("Zmiany zostały zapisane!");
@@ -248,7 +206,7 @@ const EditPlaylist = () => {
                     </h3>
                     <ul className="track-list">
                         {currentTracks.map((track, index) => (
-                            <li key={`${track.id}-${index}`}>
+                            <li key={`${track.track_id}-${index}`}>
                                 <img
                                     src={track.image_url || 'default_cover.png'}
                                     alt="cover"
@@ -256,11 +214,11 @@ const EditPlaylist = () => {
                                 />
                                 <div className="track-info-simple">
                                     <b>{track.name}</b>
-                                    <span>{track.artists}</span>
+                                    <span>{track.author}</span>
                                 </div>
                                 <button
                                     className="track-remove"
-                                    onClick={() => handleRemoveTrack(track.id)}
+                                    onClick={() => handleRemoveTrack(track.track_id)}
                                     title="Usuń z playlisty"
                                 >
                                     <FaTrash />

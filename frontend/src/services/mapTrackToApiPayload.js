@@ -1,7 +1,19 @@
 export const mapTrackToApiPayload = (track) => {
   if (!track) return null;
 
-  const platform = track.platform || track.uri.startsWith('spotify') ? "spotify" : "soundcloud";
+  if (track.platform !== undefined){
+    return {
+      track_id: track.track_id,
+      name: track.name,
+      author: track.author,
+      url: track.url,
+      image_url: track.image_url,
+      track_duration: track.track_duration,
+      platform: track.platform
+    }
+  }
+
+  const platform = track.uri.startsWith('spotify') ? "spotify" : "soundcloud";
 
   if (platform === 'spotify') {
     return {
@@ -13,7 +25,7 @@ export const mapTrackToApiPayload = (track) => {
       track_duration: track.duration_ms,
       platform: 'spotify'
     };
-  } else if (platform === 'soundcloud') {
+  } else {
     return {
       track_id: String(track.id),
       name: track.title,
@@ -23,9 +35,5 @@ export const mapTrackToApiPayload = (track) => {
       track_duration: track.duration,
       platform: 'soundcloud'
     };
-  } else {
-    return {
-      track
-    }
   }
 };
