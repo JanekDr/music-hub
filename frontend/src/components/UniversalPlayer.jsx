@@ -150,7 +150,10 @@ const UniversalPlayer = () => {
 
     if (platform === "spotify") {
       if (!spAdapter) return;
+
+      spAdapter.setRepeatMode('off').catch(err => console.warn("Cannot turn off repeat mode", err));
       const uri = track.track.url;
+
       if (isStarted) {
          spAdapter.playUris([uri]);
       } else {
@@ -223,7 +226,7 @@ const UniversalPlayer = () => {
     const track = queueTracks[currentTrackIndex];
     if (!track) {
       return
-    };
+    }
 
     const platform = track.track.platform;
 

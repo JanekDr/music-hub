@@ -127,4 +127,20 @@ export class SpotifyAdapter {
     if (!this.player) return;
     this.player.pause();
   }
+
+
+  async setRepeatMode(state) {
+    const token = this.getToken();
+    const deviceId = this.getDeviceId();
+
+    if (!token || !deviceId) return;
+    console.log("wylaczam powtarzanie")
+    return fetch(`https://api.spotify.com/v1/me/player/repeat?state=${state}&device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+  }
 }
