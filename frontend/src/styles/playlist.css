@@ -1,4 +1,3 @@
-/* --- TŁO I STRUKTURA --- */
 .playlist-page {
     position: relative;
     background-color: #0f0f13;
@@ -7,24 +6,21 @@
         radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
         radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
     min-height: 100vh;
-    padding-bottom: 4rem;
+    padding-bottom: 6rem;
     font-family: 'Inter', sans-serif;
     color: white;
 }
 
-/* Gradient w tle całej strony (z pierwszego zdjęcia) */
 .page-bg-gradient {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 60vh; /* Gradient zajmuje górne 60% strony */
+    height: 60vh;
     background-size: cover;
     background-position: center;
-    filter: blur(60px) brightness(0.6); /* Mocne rozmycie */
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%); /* Płynne znikanie w czerń */
-    /*-webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);*/
-    /*z-index: 0;*/
+    filter: blur(60px) brightness(0.6);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
     pointer-events: none;
 }
 
@@ -46,23 +42,20 @@
 .hero-section {
     position: relative;
     z-index: 1;
-    padding: 40px 2rem 2rem; /* Zmniejszyłem padding boczny, bo max-width załatwi centrowanie */
-
-    /* Flexbox ustawi obrazek i tekst obok siebie */
+    padding: 40px 2rem 2rem;
     display: flex;
-    align-items: flex-end; /* Wyrównanie do dołu */
-    gap: 24px; /* Odstęp między obrazkiem a tekstem */
-
-    max-width: 1200px; /* Centrowanie całej sekcji Hero */
+    align-items: flex-end;
+    gap: 24px;
+    max-width: 1200px;
     margin: 0 auto;
     height: 350px;
 }
 
 .hero-image-container {
-    width: 232px; /* Stały rozmiar okładki (jak w Spotify) */
+    width: 232px;
     height: 232px;
-    flex-shrink: 0; /* Zapobiega zgniataniu obrazka */
-    box-shadow: 0 4px 60px rgba(0,0,0,0.5); /* Cień pod okładką */
+    flex-shrink: 0;
+    box-shadow: 0 4px 60px rgba(0,0,0,0.5);
 }
 
 .hero-image {
@@ -104,7 +97,7 @@
     margin-bottom: 24px;
 }
 
-.play-btn-white {
+.play-btn-white, .edit-playlist {
     background: white;
     color: black;
     border: none;
@@ -123,7 +116,6 @@
     transform: scale(1.05);
 }
 
-/* --- LISTA UTWORÓW (Glass Cards) --- */
 .tracks-container {
     position: relative;
     max-width: 1200px;
@@ -131,14 +123,12 @@
     padding: 0 2rem;
 }
 
-/* GRID - Musi być identyczny dla nagłówka i kart */
 .tracks-header-row,
 .track-card-glass {
     display: grid;
-    /* Grid: # | Tytuł | Album | + | Czas */
     grid-template-columns: 40px 4fr 2fr 40px 60px;
     gap: 16px;
-    align-items: center; /* Kluczowe do wyśrodkowania w pionie! */
+    align-items: center;
     padding: 0 16px;
 }
 
@@ -151,12 +141,11 @@
     text-transform: uppercase;
 }
 
-/* Karta Utworu */
 .track-card-glass {
-    background: rgba(255, 255, 255, 0.04); /* Lekko przezroczyste tło */
-    border-radius: 8px; /* Zaokrąglenie rogów */
-    height: 72px; /* Stała wysokość karty */
-    margin-bottom: 8px; /* Odstęp między kartami */
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    height: 72px;
+    margin-bottom: 8px;
     transition: background 0.2s;
     border: 1px solid transparent;
 }
@@ -166,11 +155,10 @@
     border-color: rgba(255,255,255,0.1);
 }
 
-/* --- Sekcja Tytuł + Zdjęcie (Naprawa rozjeżdżania) --- */
 .track-meta {
     display: flex;
     flex-direction: row;
-    align-items: center; /* Wyśrodkowanie zdjęcia i tekstu w pionie */
+    align-items: center;
     height: 100%;
     overflow: hidden;
 }
@@ -178,7 +166,7 @@
 .track-img-wrapper {
     width: 48px;
     height: 48px;
-    flex-shrink: 0; /* Zapobiega zgniataniu obrazka */
+    flex-shrink: 0;
     margin-right: 16px;
 }
 
@@ -187,7 +175,7 @@
     height: 100%;
     object-fit: cover;
     border-radius: 4px;
-    display: block; /* Usuwa dziwne marginesy obrazków */
+    display: block;
 }
 
 .track-thumb-placeholder {
@@ -203,7 +191,7 @@
 .track-text-info {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Wyśrodkowanie tekstów w pionie */
+    justify-content: center;
     overflow: hidden;
 }
 
@@ -225,7 +213,6 @@
     text-overflow: ellipsis;
 }
 
-/* Pozostałe kolumny */
 .col-num { text-align: center; color: #b3b3b3; }
 .col-album { color: #b3b3b3; font-size: 0.9rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .col-time { text-align: right; color: #b3b3b3; }
@@ -243,3 +230,42 @@
 
 .track-card-glass:hover .add-queue-btn { opacity: 1; }
 .add-queue-btn:hover { color: white; transform: scale(1.1); }
+
+.hero-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.edit-playlist {
+    background-color: #4a90e2;
+    color: #ffffff;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.edit-playlist:hover {
+    background-color: #357abd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+}
+
+.edit-playlist:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.edit-playlist a {
+    color: inherit !important;
+    text-decoration: none !important;
+}

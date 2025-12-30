@@ -195,7 +195,8 @@ const Playlist = () => {
                         <span className="dot">•</span>
                         <span>{tracks.length} tracks</span>
                     </div>
-                     <button className="play-btn-white" onClick={handlePlayAll}>
+                    <div className="hero-buttons">
+                        <button className="play-btn-white" onClick={handlePlayAll}>
                         <FaPlay /> Odtwórz wszystko
                     </button>
                     <button
@@ -205,6 +206,7 @@ const Playlist = () => {
                     >
                         <a>Edit playlist</a>
                     </button>
+                    </div>
                 </div>
             </div>
 
