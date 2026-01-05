@@ -140,14 +140,14 @@ const EditPlaylist = () => {
             alert("Nazwa playlisty nie może być pusta!");
             return;
         }
-        console.log("bedzie zmiana przed zapisaniem playlisty")
+
         const payload = {
             name: playlistName,
             tracks: currentTracks.map(t => mapTrackToApiPayload(t)),
             collaborators: selectedCollaborators.map(opt => opt.value),
             is_public: isPublic,
         };
-        console.log(payload);
+
         try {
             await authAPI.editPlaylist(id, payload);
             alert("Zmiany zostały zapisane!");
@@ -157,6 +157,20 @@ const EditPlaylist = () => {
             alert("Wystąpił błąd podczas zapisywania zmian.");
         }
     };
+
+    const handleDeletePlaylist = async () => {
+        if (!window.confirm("Are you sure you want to delete this playlist?")) {
+            return;
+        }
+
+        try {
+            await authAPI.deletePlaylist(id);
+            navigate('/library')
+        } catch (error) {
+            console.log("Error while deleting playlist", error);
+            alert("An Error occured while deleting playlist");
+        }
+    }
 
     if (loadingData) return <div className="loading-screen">Ładowanie edytora...</div>;
 
@@ -229,6 +243,11 @@ const EditPlaylist = () => {
                             <p style={{color: '#888', fontStyle: 'italic'}}>Playlista jest pusta.</p>
                         )}
                     </ul>
+                </div>
+                <div className="playlist-delete">
+                    <button className="playlist-delete-button" type="submit" onClick={handleDeletePlaylist}>
+                        Delete playlist
+                    </button>
                 </div>
             </div>
 

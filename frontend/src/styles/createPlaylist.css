@@ -18,20 +18,19 @@
 
 .playlist-form-card {
   background: #232323;
-  padding: 30px 24px 30px 24px; /* Więcej oddechu na dole */
+  padding: 30px 24px 30px 24px;
   border-radius: 12px;
   box-shadow: 0 6px 17px #162a1c34;
   margin-bottom: 0;
 
-  /* Nowe: Flexbox do idealnego układania elementów */
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Równe odstępy między elementami */
+  gap: 16px;
 }
 
 .playlist-form-card h2 {
   color: #1db954;
-  text-align: center; /* Wycentrowanie nagłówka */
+  text-align: center;
   margin-top: 0;
   margin-bottom: 5px;
 }
@@ -147,7 +146,7 @@
   justify-content: center;
   gap: 36px;
   max-width: 1150px;
-  margin: 75px auto;
+  margin: 95px auto;
 }
 
 .playlist-left-panel {
@@ -184,7 +183,7 @@
   border-radius: 6px;
 }
 .track-remove {
-  background: #f04848;
+  background: #9CA3AF;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -193,6 +192,11 @@
   font-weight: bold;
   margin-left: auto;
   cursor: pointer;
+}
+
+.track-remove:hover {
+  background: #f04848;
+  transition: background 0.15s;
 }
 
 .playlist-right-panel {
@@ -222,9 +226,8 @@
   margin-bottom: 10px;
 }
 
-/* Ujednolicenie inputów */
 .playlist-form-card input[type="text"] {
-  width: 100%; /* Zawsze pełna szerokość */
+  width: 100%;
   background: #181818;
   color: #fafafa;
   border: 1.5px solid #333;
@@ -237,13 +240,13 @@
 
 .collaborator-multiselect {
   width: 100%;
-  margin: 0; /* Gap w rodzicu załatwia sprawę odstępów */
+  margin: 0;
 }
 
 .public-check {
   display: flex;
   align-items: center;
-  justify-content: center; /* Wycentrowanie checkboxa i tekstu */
+  justify-content: center;
   gap: 10px;
   margin-top: 10px;
   padding: 10px;
@@ -315,4 +318,8 @@
 .track-info-simple {
   display: flex;
   flex-direction: column;
+}
+
+.playlist-delete-button {
+  background-color: #f04848 !important;
 }
