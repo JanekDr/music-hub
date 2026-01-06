@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import Q
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -10,13 +11,21 @@ from .models import Playlist, QueueTrack, Track, Queue
 from .serializers import PlaylistSerializer, QueueSerializer, TrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
 
-def get_or_create_track(track, owner):
-    pass
 
 class PlaylistViewSet(viewsets.ModelViewSet):
-    queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrCollaboratorOrReadOnly]
+
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return Playlist.objects.filter(
+            Q(owner=user) |
+            Q(collaborators=user) |
+            Q(visibility="public")
+        )
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

@@ -27,14 +27,17 @@ class PlaylistSerializer(serializers.ModelSerializer):
         model = Playlist
         fields = [
             "id",
+            "slug",
             "name",
             "tracks",
             "owner",
             "collaborators",
             "followers",
-            "is_public",
+            "visibility",
             "created_at",
         ]
+
+        read_only_fields = ["slug", "owner", "created_at"]
 
     def create(self, validated_data):
         collaborators = validated_data.pop("collaborators", [])

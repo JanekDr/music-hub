@@ -134,7 +134,6 @@ export class SpotifyAdapter {
     const deviceId = this.getDeviceId();
 
     if (!token || !deviceId) return;
-    console.log("wylaczam powtarzanie")
     return fetch(`https://api.spotify.com/v1/me/player/repeat?state=${state}&device_id=${deviceId}`, {
       method: 'PUT',
       headers: {

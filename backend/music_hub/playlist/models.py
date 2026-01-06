@@ -1,9 +1,9 @@
+import uuid
 from ordered_model.models import OrderedModel
 from django.db import models
 from users.models import CustomUser
 
 
-# Create your models here.
 class Track(models.Model):
     track_id = models.CharField(max_length=32)
     url = models.CharField(max_length=255)
@@ -41,6 +41,12 @@ class Track(models.Model):
 
 
 class Playlist(models.Model):
+    VISIBILITY_CHOICES = (
+        ('public', 'Public'),
+        ('private', 'Private'),
+        ('unlisted', 'Only with link')
+    )
+
     name = models.CharField(max_length=100)
     tracks = models.ManyToManyField(Track, related_name="playlists")
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -48,7 +54,12 @@ class Playlist(models.Model):
         CustomUser, related_name="collaborators", blank=True
     )
     followers = models.ManyToManyField(CustomUser, related_name="followers", blank=True)
-    is_public = models.BooleanField(default=False)
+    visibility = models.CharField(
+        max_length=20,
+        choices=VISIBILITY_CHOICES,
+        default='private'
+    )
+    slug = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def can_edit(self, user):

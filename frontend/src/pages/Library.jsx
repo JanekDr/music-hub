@@ -109,6 +109,9 @@ const SectionWithLogo = ({ logo, label, children }) => (
 const PlaylistCards = ({ playlists, platform }) => (
   <div className="library-list">
     {playlists.length ? playlists.map(pl => {
+      const id =
+          platform === "hub" ? pl.slug : pl.id
+
       const title =
         platform === "spotify" ? pl.name :
         platform === "soundcloud" ? pl.title :
@@ -125,10 +128,10 @@ const PlaylistCards = ({ playlists, platform }) => (
         platform === "soundcloud" ? (pl.user?.username || "-") :
         null;
       return (
-        <div className="library-card" key={pl.id}>
+        <div className="library-card" key={id}>
           <div className="library-card-title">
               <Link
-                  to={`/playlist/${platform}/${pl.id}`}
+                  to={`/playlist/${platform}/${id}`}
               >
                   {title}
               </Link>
