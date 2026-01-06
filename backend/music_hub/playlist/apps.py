@@ -6,4 +6,4 @@ class PlaylistConfig(AppConfig):
     name = "playlist"
 
     def ready(self):
-        pass
+        from . import signals
