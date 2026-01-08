@@ -3,17 +3,14 @@ import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { FaSpotify, FaSoundcloud, FaListAlt, FaMusic } from "react-icons/fa";
 import SearchResults from '../components/SearchResults.jsx';
-import PlaylistSearchResults from '../components/PlaylistSearchResults.jsx'; // Import nowego komponentu
+import PlaylistSearchResults from '../components/PlaylistSearchResults.jsx';
 import AddToPlaylistModal from '../components/AddToPlaylistModal.jsx';
 import '../styles/player.css';
 import { spotifyApi } from "../services/spotifyApi.js";
 import { soundcloudApi } from "../services/soundcloudApi.js";
-import { authAPI } from "../services/api.js"; // Import twojego API
+import { authAPI } from "../services/api.js";
 
 const Player = () => {
-  const deviceId = useSelector(state => state.player.deviceId);
-  const spotifyToken = useSelector(state => state.player.spotifyToken);
-
   const [searchMode, setSearchMode] = useState('songs');
   const [spotifyTracks, setSpotifyTracks] = useState([]);
   const [soundcloudTracks, setSoundcloudTracks] = useState([]);

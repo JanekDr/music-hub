@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import SearchResults from '../components/SearchResults.jsx';
 import { authAPI } from '../services/api.js';
@@ -6,7 +7,15 @@ import { soundcloudApi } from '../services/soundcloudApi.js';
 import { spotifyApi } from '../services/spotifyApi.js';
 import '../styles/createPlaylist.css';
 
+const visibilityOptions = [
+    { value: 'public', label: 'Wszystkich (Publiczna)' },
+    { value: 'private', label: 'Nikogo (Prywatna)' },
+    { value: 'unlisted', label: 'Osób z linkiem (Niepubliczna)' }
+];
+
 const CreatePlaylist = () => {
+  const navigate = useNavigate();
+
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -28,6 +37,7 @@ const CreatePlaylist = () => {
       ...provided,
       background: state.isFocused ? '#272' : '#1c1f1c',
       color: state.isSelected ? '#ffffff' : '#fafafa',
+      cursor: 'pointer'
     }),
     singleValue: (provided) => ({
       ...provided,
@@ -65,18 +75,17 @@ const CreatePlaylist = () => {
     }),
   };
 
-
   const [playlistName, setPlaylistName] = useState('');
   const [selectedTracks, setSelectedTracks] = useState([]);
   const [collaborators, setCollaborators] = useState([]);
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
-  const [isPublic, setIsPublic] = useState(false);
+
+  const [visibility, setVisibility] = useState(visibilityOptions[1]);
 
   const [search, setSearch] = useState('');
   const [spotifyTracks, setSpotifyTracks] = useState([]);
   const [soundcloudTracks, setSoundcloudTracks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [, setTracks] = useState([]);
 
   useEffect(() => {
     authAPI.users()
@@ -126,7 +135,6 @@ const CreatePlaylist = () => {
     }
   };
 
-
   const handleRemoveTrack = (id) => {
     setSelectedTracks(selectedTracks.filter(t => t.id !== id));
   };
@@ -136,6 +144,7 @@ const CreatePlaylist = () => {
       alert("Podaj nazwę playlisty!");
       return;
     }
+
     const payload = {
       name: playlistName,
       tracks: selectedTracks.map(t => ({
@@ -148,19 +157,43 @@ const CreatePlaylist = () => {
       })),
       collaborators: selectedCollaborators.map(opt => opt.value),
       followers: [],
-      is_public: isPublic,
+      visibility: visibility.value,
+      is_public: visibility.value === 'public',
     };
+
     try {
-      await authAPI.createPlaylist(payload);
-      alert("Playlista utworzona!");
+      const response = await authAPI.createPlaylist(payload);
+
+      let alertMessage = "Playlista utworzona pomyślnie!";
+
+      if (visibility.value === 'unlisted') {
+          const newPlaylistId = response.data.slug;
+
+          if (newPlaylistId) {
+              const link = `${window.location.origin}/playlist/hub/${newPlaylistId}`;
+              try {
+                  await navigator.clipboard.writeText(link);
+                  alertMessage += "\nLink został automatycznie skopiowany do schowka!";
+              } catch (clipErr) {
+                  console.error("Błąd schowka:", clipErr);
+                  alertMessage += "\nNie udało się automatycznie skopiować linku.";
+              }
+          }
+      }
+
+      alert(alertMessage);
+
       setPlaylistName('');
       setSelectedTracks([]);
       setSelectedCollaborators([]);
-      setIsPublic(false);
+      setVisibility(visibilityOptions[1]);
       setSearch('');
-      setTracks([]);
-    } catch {
-        alert("An error occurred.");
+
+      if (response.data.id) navigate(`/playlist/hub/${response.data.slug}`);
+
+    } catch (error) {
+        console.error("Create playlist error:", error);
+        alert("Wystąpił błąd podczas tworzenia playlisty.");
     }
   };
 
@@ -169,29 +202,40 @@ const CreatePlaylist = () => {
       <div className="playlist-left-panel">
         <div className="playlist-form-card">
           <h2>Utwórz playlistę</h2>
+          <label className="input-label">Nazwa</label>
           <input
             type="text"
             value={playlistName}
             onChange={e => setPlaylistName(e.target.value)}
-            placeholder="Nazwa playlisty"
             maxLength={100}
           />
+
+          <label className="input-label">Współtwórcy</label>
           <Select
             isMulti
             value={selectedCollaborators}
             onChange={setSelectedCollaborators}
             options={collaboratorsOptions}
-            placeholder="Wybierz współtwórców"
+            placeholder="Wybierz współtwórców..."
             className="collaborator-multiselect"
             styles={customSelectStyles}
           />
-          <label className="public-check">
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={e => setIsPublic(e.target.checked)}
-            /> Publiczna playlista
-          </label>
+
+          <label className="input-label" style={{marginTop: '15px'}}>Udostępnij playlistę dla:</label>
+          <Select
+              value={visibility}
+              onChange={setVisibility}
+              options={visibilityOptions}
+              styles={customSelectStyles}
+              isSearchable={false}
+          />
+
+          {visibility.value === 'unlisted' && (
+              <p style={{fontSize: '0.8rem', color: '#888', marginTop: '5px'}}>
+                  Link zostanie skopiowany do schowka po utworzeniu playlisty.
+              </p>
+          )}
+
         </div>
         <div className="playlist-picked">
           <h3 className="selected-tracks">Wybrane utwory ({selectedTracks.length})</h3>
@@ -250,7 +294,7 @@ const CreatePlaylist = () => {
         <button
           className="create-btn fixed-bottom-btn"
           onClick={handleCreatePlaylist}
-          disabled={!playlistName || selectedTracks.length === 0}
+          disabled={!playlistName}
         >
           Zapisz playlistę
         </button>

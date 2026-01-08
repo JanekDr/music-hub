@@ -45,8 +45,8 @@ const AddToPlaylistModal = ({ isOpen, onClose, track }) => {
                 <ul className="playlist-list">
                     {hubPlaylists.map((playlist) => (
                         <li
-                            key={playlist.id}
-                            onClick={() => onAddToPlaylist(playlist.id)}
+                            key={playlist.slug}
+                            onClick={() => onAddToPlaylist(playlist.slug)}
                             className="playlist-item"
                         >
                             {playlist.name}

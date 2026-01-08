@@ -48,7 +48,7 @@ class PlaylistViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
-    def add_track(self, request, pk=None):
+    def add_track(self, request, slug=None):
         playlist = self.get_object()
 
         track_id = request.data.get('track_id')

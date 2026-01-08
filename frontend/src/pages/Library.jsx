@@ -10,7 +10,11 @@ import {Link} from "react-router-dom";
 const HubLogo = () => (
     <svg width="30" height="30" viewBox="0 0 30 30"><circle cx="14" cy="14" r="14" fill="#1DB954"/><text x="14" y="19" fontSize="13" fontWeight="bold" fill="#fff" textAnchor="middle" fontFamily="Arial">HUB</text></svg>
 );
-
+const VISIBILITY_LABELS = {
+  public: 'Public',
+  private: 'Private',
+  unlisted: 'Only with link'
+};
 const Library = () => {
     const [hubPlaylists, setHubPlaylists] = useState([]);
     const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
@@ -168,8 +172,8 @@ const PlaylistCards = ({ playlists, platform }) => (
           </div>
 
           {platform === "hub" && (
-            <div className={`library-card-status ${pl.is_public ? 'library-card-status-public' : 'library-card-status-private'}`}>
-              {pl.is_public ? 'Public' : 'Private'}
+            <div className={`library-card-status library-card-status-${pl.visibility}`}>
+              {VISIBILITY_LABELS[pl.visibility] || pl.visibility}
             </div>
           )}
         </div>

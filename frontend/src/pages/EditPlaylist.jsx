@@ -7,14 +7,22 @@ import { authAPI } from '../services/api.js';
 import { soundcloudApi } from '../services/soundcloudApi.js';
 import { spotifyApi } from '../services/spotifyApi.js';
 
-import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTrash, FaCopy, FaCheck } from 'react-icons/fa';
 import '../styles/createPlaylist.css';
-import {mapTrackToApiPayload} from "../services/mapTrackToApiPayload.js";
+import { mapTrackToApiPayload } from "../services/mapTrackToApiPayload.js";
+
+// Opcje widoczności
+const visibilityOptions = [
+    { value: 'public', label: 'Wszystkich (Publiczna)' },
+    { value: 'private', label: 'Nikogo (Prywatna)' },
+    { value: 'unlisted', label: 'Osób z linkiem (Niepubliczna)' }
+];
 
 const EditPlaylist = () => {
-    const { id } = useParams(); // ID playlisty z URL
+    const { id } = useParams();
     const navigate = useNavigate();
 
+    // Style dla Select (bez zmian)
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
@@ -36,6 +44,7 @@ const EditPlaylist = () => {
             ...provided,
             background: state.isFocused ? '#272' : '#1c1f1c',
             color: state.isSelected ? '#ffffff' : '#fafafa',
+            cursor: 'pointer'
         }),
         singleValue: (provided) => ({
             ...provided, color: '#f4ffe0', fontWeight: 550,
@@ -55,7 +64,8 @@ const EditPlaylist = () => {
 
     const [playlistName, setPlaylistName] = useState('');
     const [currentTracks, setCurrentTracks] = useState([]);
-    const [isPublic, setIsPublic] = useState(false);
+    const [visibility, setVisibility] = useState(visibilityOptions[1]); // Domyślnie prywatna
+    const [copied, setCopied] = useState(false); // Stan dla potwierdzenia skopiowania
 
     const [allUsers, setAllUsers] = useState([]);
     const [selectedCollaborators, setSelectedCollaborators] = useState([]);
@@ -78,11 +88,15 @@ const EditPlaylist = () => {
                 const users = usersRes.data;
 
                 setPlaylistName(playlist.name);
-                setIsPublic(playlist.is_public);
-
                 setCurrentTracks(playlist.tracks);
-
                 setAllUsers(users);
+
+                if (playlist.visibility) {
+                    const foundOption = visibilityOptions.find(opt => opt.value === playlist.visibility);
+                    if (foundOption) setVisibility(foundOption);
+                } else {
+                    setVisibility(playlist.is_public ? visibilityOptions[0] : visibilityOptions[1]);
+                }
 
                 if (playlist.collaborators && playlist.collaborators.length > 0) {
                     const existingCollabIDs = playlist.collaborators.map(c => c.id || c);
@@ -128,11 +142,24 @@ const EditPlaylist = () => {
         if (!currentTracks.find(t => String(t.track_id) === String(unified.track_id))) {
             setCurrentTracks(prev => [...prev, unified]);
         }
-        console.log(currentTracks);
     };
 
     const handleRemoveTrack = (trackId) => {
         setCurrentTracks(prev => prev.filter(t => String(t.track_id) !== String(trackId)));
+    };
+
+    // Funkcja kopiowania linku
+    const handleCopyLink = () => {
+        // Tworzymy link (zakładając strukturę /playlist/hub/:id)
+        const link = `${window.location.origin}/playlist/hub/${id}`;
+
+        navigator.clipboard.writeText(link).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // Reset po 2 sekundach
+        }).catch(err => {
+            console.error('Nie udało się skopiować: ', err);
+            alert("Nie udało się skopiować linku automatycznie.");
+        });
     };
 
     const handleSaveChanges = async () => {
@@ -145,7 +172,8 @@ const EditPlaylist = () => {
             name: playlistName,
             tracks: currentTracks.map(t => mapTrackToApiPayload(t)),
             collaborators: selectedCollaborators.map(opt => opt.value),
-            is_public: isPublic,
+            visibility: visibility.value,
+            is_public: visibility.value === 'public'
         };
 
         try {
@@ -182,9 +210,7 @@ const EditPlaylist = () => {
                 </button>
 
                 <div className="playlist-form-card">
-                    <h2>
-                        Edytuj Playlistę
-                    </h2>
+                    <h2>Edytuj Playlistę</h2>
 
                     <label className="input-label">Nazwa</label>
                     <input
@@ -205,13 +231,42 @@ const EditPlaylist = () => {
                         styles={customSelectStyles}
                     />
 
-                    <label className="public-check">
-                        <input
-                            type="checkbox"
-                            checked={isPublic}
-                            onChange={e => setIsPublic(e.target.checked)}
-                        /> Publiczna playlista
-                    </label>
+                    <label className="input-label" style={{marginTop: '15px'}}>Udostępnij playlistę dla:</label>
+                    <Select
+                        value={visibility}
+                        onChange={setVisibility}
+                        options={visibilityOptions}
+                        styles={customSelectStyles}
+                        isSearchable={false}
+                    />
+
+                    {/* NOWY PRZYCISK KOPIOWANIA - widoczny tylko dla "unlisted" */}
+                    {visibility.value === 'unlisted' && (
+                        <div style={{ marginTop: '12px' }}>
+                            <button
+                                type="button"
+                                onClick={handleCopyLink}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    background: copied ? '#21d661' : '#333',
+                                    color: copied ? '#000' : '#fff',
+                                    border: '1px solid #444',
+                                    padding: '8px 16px',
+                                    borderRadius: '20px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    transition: 'all 0.2s ease',
+                                    width: '100%',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                {copied ? <FaCheck /> : <FaCopy />}
+                                {copied ? 'Skopiowano do schowka!' : 'Kopiuj link do udostępnienia'}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="playlist-picked">
@@ -252,6 +307,7 @@ const EditPlaylist = () => {
             </div>
 
             <div className="playlist-right-panel">
+                {/* Prawa strona bez zmian */}
                 <form className="search-form" onSubmit={handleSearch}>
                     <input
                         type="text"

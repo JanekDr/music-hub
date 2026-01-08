@@ -79,12 +79,9 @@
     margin-top: 14px;
     font-size: 0.88rem;
 }
-.library-card-status-public {
-    color: #1DB954;
-}
-.library-card-status-private {
-    color: #ffaa44;
-}
+.library-card-status-public { color: #1db954; }
+.library-card-status-private { color: #e32a01; }
+.library-card-status-unlisted { color: #eebb00; }
 .library-list-empty {
     color: #bbb;
     font-size: 1.1rem;
