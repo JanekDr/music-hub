@@ -24,11 +24,25 @@ class PlaylistViewSet(viewsets.ModelViewSet):
         return Playlist.objects.filter(
             Q(owner=user) |
             Q(collaborators=user) |
-            Q(visibility="public")
-        )
+            Q(visibility="public") |
+            Q(followers=user)
+        ).distinct()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def user(self, request):
+        user = self.request.user
+
+        playlists = Playlist.objects.filter(
+            Q(owner=user) |
+            Q(followers=user)
+        ).distinct()
+
+        serializer = PlaylistSerializer(playlists, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
     def add_track(self, request, pk=None):
