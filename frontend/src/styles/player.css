@@ -1,7 +1,17 @@
 .player {
     display: flex;
-    justify-content: space-evenly;
-    margin-top: 10rem;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 8rem;
+    width: 100%;
+}
+.results-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 .results-section {
   min-width:440px;
@@ -20,4 +30,36 @@
   margin: 0 0 12px 20px;
   color: #eee;
   letter-spacing: 0.03em;
+}
+
+.search-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 0 10px;
+}
+
+.tab-btn {
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 10px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.tab-btn.active {
+  background-color: #1db954;
+  border-color: #1db954;
+  color: white;
+  font-weight: bold;
 }

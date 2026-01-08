@@ -10,7 +10,11 @@ export const authAPI = {
 
   // playlists
   createPlaylist: (data) => api.post("/playlist/", data),
-  getPlaylists: () => api.get("/playlist/"),
+  getPlaylists: (search) => api.get("/playlist/", {
+      params: {
+          search: search
+      }
+  }),
   getUserPlaylists: () => api.get("/playlist/user/"),
   getUserPlaylist: (playlistId) => api.get(`/playlist/${playlistId}`),
   addTrackToPlaylist: (playlistId, track_data) => api.post(`/playlist/${playlistId}/add_track/`, track_data),
