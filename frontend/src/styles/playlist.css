@@ -95,9 +95,11 @@
     font-size: 1rem;
     color: rgba(255,255,255,0.9);
     margin-bottom: 24px;
+    display: flex;
+    gap:10px;
 }
 
-.play-btn-white, .edit-playlist {
+.play-btn-white, .edit-playlist, .follow-btn.following, .follow-btn {
     background: white;
     color: black;
     border: none;
@@ -235,6 +237,7 @@
     display: flex;
     flex-direction: row;
     gap: 16px;
+    margin-top: 25px;
 }
 
 .edit-playlist {
@@ -268,4 +271,19 @@
 .edit-playlist a {
     color: inherit !important;
     text-decoration: none !important;
+}
+
+.follow-btn:hover {
+    border-color: white;
+    transform: scale(1.02);
+}
+
+.follow-btn.following {
+    background-color: #8232e6;
+    border-color: #8232e6;
+    color: #fff;
+}
+
+.follow-btn svg {
+    font-size: 1.1em;
 }

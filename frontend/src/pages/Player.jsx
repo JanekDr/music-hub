@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { FaSpotify, FaSoundcloud, FaListAlt, FaMusic } from "react-icons/fa";
 import SearchResults from '../components/SearchResults.jsx';
@@ -58,25 +57,17 @@ const Player = () => {
     setTrackToAdd(track);
   }
 
-  // Funkcja do obserwowania playlisty
   const handleFollowPlaylist = async (slug) => {
     try {
-        // Musisz mieć endpoint do followania, np. POST /playlists/:slug/follow/
-        // Jeśli go nie masz, musisz go dodać w backendzie.
-        // Tutaj przykład wywołania:
-        await authAPI.post(`/playlists/${slug}/follow/`);
-        alert("Zaobserwowano playlistę!");
+        const response = await authAPI.followPlaylist(slug);
+        alert(`Playlist ${response.data.status} successfully!`);
     } catch (error) {
-        console.error("Błąd obserwowania:", error);
-        alert("Nie udało się zaobserwować playlisty (jesteś właścicielem lub błąd sieci).");
+        alert("Follow playlist failed - you already follow this playlist or you are owner.");
     }
   }
 
   return (
     <div className="player">
-
-      {/* --- PRZYCISKI (TABS) --- */}
-      {/* Są teraz bezpośrednim dzieckiem flex-column, więc będą na górze */}
       <div className="search-tabs">
         <button
             className={`tab-btn ${searchMode === 'songs' ? 'active' : ''}`}
@@ -92,13 +83,10 @@ const Player = () => {
         </button>
       </div>
 
-      {/* --- KONTENER WYNIKÓW --- */}
-      {/* To nowy div, który trzyma kolumny obok siebie */}
       <div className="results-container">
 
           {loading && <p style={{width: '100%', textAlign: 'center'}}>Szukam...</p>}
 
-          {/* WIDOK UTWORÓW */}
           {searchMode === 'songs' && (
             <>
                 <div className="results-section">
@@ -124,7 +112,6 @@ const Player = () => {
             </>
           )}
 
-          {/* WIDOK PLAYLIST */}
           {searchMode === 'playlists' && (
             <div className="results-section">
                 <h3 className="results-header">

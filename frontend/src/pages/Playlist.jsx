@@ -6,10 +6,10 @@ import { useDispatch } from "react-redux";
 import { authAPI } from "../services/api";
 import { spotifyApi } from "../services/spotifyApi";
 import { soundcloudApi } from "../services/soundcloudApi";
-import {setCurrentTrackIndex, setQueue} from "../store/playerSlice";
+import { setCurrentTrackIndex, setQueue } from "../store/playerSlice";
 
 // Icons & Styles
-import { FaPlay, FaClock, FaArrowLeft, FaSpotify, FaSoundcloud, FaPlus } from "react-icons/fa";
+import { FaPlay, FaClock, FaArrowLeft, FaSpotify, FaSoundcloud, FaPlus, FaHeart, FaRegHeart } from "react-icons/fa";
 import "../styles/playlist.css";
 
 const Playlist = () => {
@@ -21,6 +21,10 @@ const Playlist = () => {
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
 
     const formatDuration = (ms) => {
         if (!ms) return "-";
@@ -64,14 +68,21 @@ const Playlist = () => {
                 image_url: track.image_url
             }));
             await authAPI.replaceQueue(tracksPayload);
-
             const queueResponse = await authAPI.getQueue();
             dispatch(setQueue(queueResponse.data));
             dispatch(setCurrentTrackIndex(0))
-
-
         } catch (err) {
             console.error("Error while playing all tracks:", err);
+        }
+    };
+
+    const handleFollowToggle = async () => {
+        try {
+            await authAPI.followPlaylist(playlist.slug);
+            setIsFollowing(prev => !prev);
+            setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
+        } catch (err) {
+            console.error("Błąd podczas followowania:", err);
         }
     };
 
@@ -86,7 +97,6 @@ const Playlist = () => {
                 if (platform === 'spotify') {
                     res = await spotifyApi.getPlaylistDetails(id);
                     const data = res.data;
-
                     playlistData = {
                         title: data.name,
                         image: data.images?.[0]?.url,
@@ -94,7 +104,6 @@ const Playlist = () => {
                         owner: data.owner.display_name,
                         platformIcon: <FaSpotify />
                     };
-
                     fetchedTracks = data.tracks.items.map(item => ({
                         id: item.track.id,
                         name: item.track.name,
@@ -115,7 +124,6 @@ const Playlist = () => {
                         owner: data.user.username,
                         platformIcon: <FaSoundcloud />
                     };
-
                     fetchedTracks = data.tracks.map(track => ({
                         id: track.id,
                         name: track.title,
@@ -127,16 +135,22 @@ const Playlist = () => {
                     }));
 
                 } else if (platform === 'hub') {
-                    res = await authAPI.getUserPlaylist(id);
-                    const data = res.data;
+                    const [playlistRes, userRes] = await Promise.all([
+                        authAPI.getUserPlaylist(id),
+                        authAPI.getProfile()
+                    ]);
+
+                    const data = playlistRes.data;
+                    const currentUser = userRes.data;
+
                     playlistData = {
                         title: data.name,
-                        image: data.tracks[0].image_url,
+                        image: data.tracks[0]?.image_url,
                         description: "Hub mixed playlist",
-                        owner: data.owner.username,
-                        platformIcon: <span>HUB</span>
+                        owner: data.owner.email,
+                        platformIcon: <span>HUB</span>,
+                        slug: data.slug
                     };
-
                     fetchedTracks = data.tracks.map(track => ({
                         id: track.track_id,
                         name: track.name,
@@ -146,6 +160,17 @@ const Playlist = () => {
                         image_url: track.image_url,
                         url: track.url,
                     }));
+
+                    if (currentUser) {
+                        const ownerId = data.owner.id || data.owner;
+                        setIsOwner(String(ownerId) === String(currentUser.id));
+
+                        const isUserFollowing = data.followers.some(f =>
+                            (f.id || f) === currentUser.id
+                        );
+                        setIsFollowing(isUserFollowing);
+                    }
+                    setFollowersCount(data.followers.length);
                 }
 
                 setPlaylist(playlistData);
@@ -171,7 +196,7 @@ const Playlist = () => {
         <div className="playlist-page">
             <div
                 className="page-bg-gradient"
-                style={{ backgroundImage: `url(${playlist.image})` }}
+                style={{ backgroundImage: `url(${playlist?.image})` }}
             />
 
             <button className="back-btn" onClick={() => navigate(-1)}>
@@ -194,18 +219,38 @@ const Playlist = () => {
                         <span>By <strong>{playlist.owner}</strong></span>
                         <span className="dot">•</span>
                         <span>{tracks.length} tracks</span>
+                        {platform === 'hub' && (
+                            <>
+                                <span className="dot">•</span>
+                                <span>{followersCount} likes</span>
+                            </>
+                        )}
                     </div>
+
                     <div className="hero-buttons">
                         <button className="play-btn-white" onClick={handlePlayAll}>
-                        <FaPlay /> Odtwórz wszystko
-                    </button>
-                    <button
-                        className="edit-playlist"
-                        onClick={() => navigate(`/playlist/edit/${id}`)}
-                        style={{ display: platform === 'hub' ? 'inline-block' : 'none' }}
-                    >
-                        <a>Edit playlist</a>
-                    </button>
+                            <FaPlay /> Odtwórz wszystko
+                        </button>
+
+                        {/* NOWE: Przycisk Follow - tylko dla HUB i jeśli nie jesteś właścicielem */}
+                        {platform === 'hub' && !isOwner && (
+                            <button
+                                className={`follow-btn ${isFollowing ? 'following' : ''}`}
+                                onClick={handleFollowToggle}
+                                title={isFollowing ? "Przestań obserwować" : "Obserwuj"}
+                            >
+                                {isFollowing ? <FaHeart /> : <FaRegHeart />}
+                                {isFollowing ? ' Obserwujesz' : ' Obserwuj'}
+                            </button>
+                        )}
+
+                        <button
+                            className="edit-playlist"
+                            onClick={() => navigate(`/playlist/edit/${id}`)}
+                            style={{ display: (platform === 'hub' && isOwner) ? 'inline-block' : 'none' }}
+                        >
+                            <a>Edit playlist</a>
+                        </button>
                     </div>
                 </div>
             </div>
