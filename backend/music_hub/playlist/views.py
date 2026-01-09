@@ -23,13 +23,21 @@ class PlaylistViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Playlist.objects.all()
 
-        return Playlist.objects.filter(
-            Q(owner=user) |
-            Q(collaborators=user) |
-            Q(visibility="public") |
-            Q(followers=user)
-        ).distinct()
+        access_condition = Q(owner=user) | Q(collaborators=user) | Q(followers=user)
+
+        if self.action == 'list':
+            return queryset.filter(
+                access_condition | Q(visibility="public")
+            ).distinct()
+        else:
+            return queryset.filter(
+                access_condition |
+                Q(visibility="public") |
+                Q(visibility="unlisted")
+            ).distinct()
+
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -46,6 +54,26 @@ class PlaylistViewSet(viewsets.ModelViewSet):
         serializer = PlaylistSerializer(playlists, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def follow_toggle(self, request, slug):
+        user = request.user
+        playlist = self.get_object()
+
+        if playlist.owner == user:
+            return Response({"error": "You cannot follow your`s playlist"}, status=status.HTTP_403_FORBIDDEN)
+
+        if playlist.visibility == "private":
+            return Response({"error": "You cannot follow private playlists"}, status=status.HTTP_403_FORBIDDEN)
+
+        if user in playlist.followers.all():
+            playlist.followers.remove(user)
+            message = "unfollowed"
+        else:
+            playlist.followers.add(user)
+            message = "followed"
+
+        return Response({"status": message, "followers_count": playlist.followers.count()}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
     def add_track(self, request, slug=None):
