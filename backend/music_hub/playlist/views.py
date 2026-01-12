@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
@@ -140,7 +139,7 @@ class QueueViewSet(viewsets.ModelViewSet):
         queue = Queue.objects.get(user=self.request.user)
         track_id = request.data.get("track_id")
         if not track_id:
-            return JsonResponse(
+            return Response(
                 {"error": "Track id is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -148,7 +147,7 @@ class QueueViewSet(viewsets.ModelViewSet):
 
         qt = QueueTrack.objects.create(queue=queue, track=track)
         qt.bottom()
-        return JsonResponse({"success": True}, status=status.HTTP_201_CREATED)
+        return Response({"success": True}, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["delete"])
     def remove_from_queue(self, request):
@@ -156,13 +155,13 @@ class QueueViewSet(viewsets.ModelViewSet):
         queue_track_id = request.data.get("queue_track_id")
 
         if not queue_track_id:
-            return JsonResponse(
+            return Response(
                 {"error": "Track id is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         qt = get_object_or_404(QueueTrack, pk=queue_track_id, queue=queue)
         qt.delete()
-        return JsonResponse({"track": None}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"track": None}, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=["post"])
     def move_track_relative(self, request):
@@ -171,7 +170,7 @@ class QueueViewSet(viewsets.ModelViewSet):
         target_track_id = request.data.get("target_track_id")
 
         if not queue_track_id or not target_track_id:
-            return JsonResponse(
+            return Response(
                 {"error": "Track id or target track id is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -180,7 +179,7 @@ class QueueViewSet(viewsets.ModelViewSet):
         target_qt = get_object_or_404(QueueTrack, pk=target_track_id, queue=queue)
         qt.below(target_qt)
 
-        return JsonResponse({"success": True}, status=status.HTTP_200_OK)
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"])
     def replace_queue(self, request):

@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.http import (
     HttpResponseRedirect,
-    JsonResponse,
     HttpResponse,
     StreamingHttpResponse,
 )
@@ -135,7 +134,7 @@ def get_user_soundcloud_connection_status(request):
     except SoundcloudToken.DoesNotExist:
         connected = False
         expires_at = None
-    return JsonResponse(
+    return Response(
         {
             "connected": connected,
             "expires_at": expires_at,
@@ -164,9 +163,9 @@ def soundcloud_disconnect(request):
                 f"soundcloud error, status code: {response.status_code}, \ndetails: {response}"
             )
 
-        return JsonResponse({"message": "Soundcloud account disconnected"})
+        return Response({"message": "Soundcloud account disconnected"})
     except SoundcloudToken.DoesNotExist:
-        return JsonResponse({"error": "Soundcloud account not connected"}, status=400)
+        return Response({"error": "Soundcloud account not connected"}, status=400)
 
 
 @api_view(["GET"])
@@ -199,12 +198,12 @@ def get_user_playlists(request):
 def search(request):
     query = request.GET.get("q")
     if not query:
-        return JsonResponse({"error": "No search term provided"}, status=400)
+        return Response({"error": "No search term provided"}, status=400)
 
     soundcloud_token = get_valid_soundcloud_token(request.user)
 
     if not soundcloud_token:
-        return JsonResponse({"error": "Soundcloud account not connected"}, status=400)
+        return Response({"error": "Soundcloud account not connected"}, status=400)
 
     url = "https://api.soundcloud.com/tracks"
     headers = {
@@ -249,12 +248,12 @@ def soundcloud_stream(request, track_id: str):
 def get_track_data(request):
     track_id = request.GET.get("track_id")
     if not track_id:
-        return JsonResponse({"error": "No track_id provided"}, status=400)
+        return Response({"error": "No track_id provided"}, status=400)
 
     user_access_token = get_valid_soundcloud_token(request.user)
 
     if not user_access_token:
-        return JsonResponse({"error": "Soundcloud account not connected"}, status=400)
+        return Response({"error": "Soundcloud account not connected"}, status=400)
 
     headers = {
         "accept": "application/json; charset=utf-8",
@@ -283,7 +282,7 @@ def get_user_playlist_details(request, playlist_id: str):
     user_access_token = get_valid_soundcloud_token(request.user)
 
     if not user_access_token:
-        return JsonResponse({"error": "Soundcloud account not connected"}, status=400)
+        return Response({"error": "Soundcloud account not connected"}, status=400)
 
     headers = {
         "accept": "application/json; charset=utf-8",
@@ -300,6 +299,6 @@ def get_user_playlist_details(request, playlist_id: str):
 
     if response.status_code != 200:
         print(response.text)
-        return JsonResponse({"error": "Playlist not found"}, status=404)
+        return Response({"error": "Playlist not found"}, status=404)
 
     return Response(response.json())

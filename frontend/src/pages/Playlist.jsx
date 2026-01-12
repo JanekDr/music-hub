@@ -232,7 +232,6 @@ const Playlist = () => {
                             <FaPlay /> Odtwórz wszystko
                         </button>
 
-                        {/* NOWE: Przycisk Follow - tylko dla HUB i jeśli nie jesteś właścicielem */}
                         {platform === 'hub' && !isOwner && (
                             <button
                                 className={`follow-btn ${isFollowing ? 'following' : ''}`}

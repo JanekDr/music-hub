@@ -1,6 +1,6 @@
 import requests
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.conf import settings
 from urllib.parse import urlencode
 from django.shortcuts import redirect
@@ -11,6 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from .models import SpotifyToken
 
 User = get_user_model()
@@ -60,7 +61,7 @@ def spotify_callback(request):
     error = request.GET.get("error")
     state = request.GET.get("state")  # to jest token JWT
     if error:
-        return JsonResponse({"error": error}, status=400)
+        return Response({"error": error}, status=400)
 
     try:
         UntypedToken(
@@ -70,9 +71,9 @@ def spotify_callback(request):
         validated_token = jwt_auth.get_validated_token(state)
         user = jwt_auth.get_user(validated_token)
     except (InvalidToken, TokenError):
-        return JsonResponse({"error": "Invalid token"}, status=401)
+        return Response({"error": "Invalid token"}, status=401)
     except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=404)
+        return Response({"error": "User not found"}, status=404)
 
     token_url = "https://accounts.spotify.com/api/token"
     payload = {
@@ -133,10 +134,10 @@ def refresh_spotify_token(user):
 def get_user_playlists(request):
     spotify_token = get_valid_spotify_token(request.user)
     if not spotify_token:
-        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+        return Response({"error": "Spotify account not connected"}, status=400)
     headers = {"Authorization": f"Bearer {spotify_token}"}
     response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers)
-    return JsonResponse(response.json())
+    return Response(response.json())
 
 
 @api_view(["GET"])
@@ -144,7 +145,7 @@ def get_user_playlists(request):
 def get_user_playlist_details(request, playlist_id: str):
     spotify_token = get_valid_spotify_token(request.user)
     if not spotify_token:
-        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+        return Response({"error": "Spotify account not connected"}, status=400)
 
     headers = {"Authorization": f"Bearer {spotify_token}"}
     response = requests.get(
@@ -152,10 +153,9 @@ def get_user_playlist_details(request, playlist_id: str):
     )
 
     if response.status_code != 200:
-        print(response.text)
-        return JsonResponse({"error": "Playlist not found"}, status=404)
+        return Response({"error": "Playlist not found"}, status=404)
 
-    return JsonResponse(response.json())
+    return Response(response.json())
 
 
 @api_view(["GET"])
@@ -168,7 +168,7 @@ def get_user_spotify_connection_status(request):
     except SpotifyToken.DoesNotExist:
         connected = False
         expires_at = None
-    return JsonResponse(
+    return Response(
         {
             "connected": connected,
             "expires_at": expires_at,
@@ -182,9 +182,9 @@ def spotify_disconnect(request):
     try:
         token_obj = SpotifyToken.objects.get(user=request.user)
         token_obj.delete()
-        return JsonResponse({"message": "Spotify account disconnected"})
+        return Response({"message": "Spotify account disconnected"})
     except SpotifyToken.DoesNotExist:
-        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+        return Response({"error": "Spotify account not connected"}, status=400)
 
 
 @api_view(["GET"])
@@ -192,17 +192,17 @@ def spotify_disconnect(request):
 def search(request):
     query = request.GET.get("q")
     if not query:
-        return JsonResponse({"error": "No search term provided"}, status=400)
+        return Response({"error": "No search term provided"}, status=400)
 
     token = get_valid_spotify_token(request.user)
     if not token:
-        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+        return Response({"error": "Spotify account not connected"}, status=400)
 
     url = "https://api.spotify.com/v1/search"
     headers = {"Authorization": f"Bearer {token}"}
     params = {"q": query, "type": "track", "limit": 10}
     response = requests.get(url, headers=headers, params=params)
-    return JsonResponse(response.json())
+    return Response(response.json())
 
 
 @api_view(["GET"])
@@ -211,6 +211,6 @@ def get_spotify_token(request):
     spotify_token = get_valid_spotify_token(request.user)
 
     if not spotify_token:
-        return JsonResponse({"error": "Spotify account not connected"}, status=400)
+        return Response({"error": "Spotify account not connected"}, status=400)
 
-    return JsonResponse({"access_token": spotify_token}, status=200)
+    return Response({"access_token": spotify_token}, status=200)
