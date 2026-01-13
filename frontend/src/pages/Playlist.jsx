@@ -51,16 +51,7 @@ const Playlist = () => {
     const handlePlayAll = async () => {
         if (!tracks.length) return;
         try {
-            const tracksPayload = tracks.map(track => ({
-                track_id: track.id.toString(),
-                name: track.name,
-                author: track.artist,
-                url: platform === 'spotify' ? track.uri : (track.url || track.uri),
-                platform: platform,
-                track_duration: track.track_duration,
-                image_url: track.image_url
-            }));
-            await authAPI.replaceQueue(tracksPayload);
+            await authAPI.replaceQueue(tracks);
             const queueResponse = await authAPI.getQueue();
             dispatch(setQueue(queueResponse.data));
             dispatch(setCurrentTrackIndex(0))
@@ -98,13 +89,14 @@ const Playlist = () => {
                         platformIcon: <FaSpotify />
                     };
                     fetchedTracks = data.tracks.items.map(item => ({
-                        id: item.track.id,
+                        track_id: item.track.id,
                         name: item.track.name,
                         author: item.track.artists.map(a => a.name).join(", "),
                         album: item.track.album.name,
                         track_duration: item.track.duration_ms,
                         image_url: item.track.album.images?.[2]?.url,
-                        uri: item.track.uri
+                        url: item.track.uri,
+                        platform: "spotify"
                     }));
 
                 } else if (platform === 'soundcloud') {
