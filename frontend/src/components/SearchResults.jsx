@@ -3,31 +3,10 @@ import { FaPlus, FaList } from 'react-icons/fa';
 import {useDispatch} from "react-redux";
 import {authAPI} from "../services/api.js";
 import {setQueue} from "../store/playerSlice.js";
+import {mapTrackToApiPayload} from "../services/mapTrackToApiPayload.js";
 
 const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
   const dispatch = useDispatch();
-
-  const mapTrackForApi = (track) => {
-    if (platform === 'spotify') {
-      return {
-        track_id: track.id,
-        url: track.uri,
-        name: track.name,
-        author: track.artists.map(a => a.name).join(', '),
-        track_duration: track.duration_ms,
-        image_url: track.album.images[0].url
-      };
-    }
-    // SoundCloud
-    return {
-      track_id: track.id,
-      url: track.uri,
-      name: track.title,
-      author: track.user?.username || '',
-      track_duration: track.duration,
-      image_url: track.artwork_url || track.user.avatar_url || ''
-    };
-  };
 
   const renderTrackItem = (track) => {
     let img = '';
@@ -78,7 +57,7 @@ const SearchResults = ({ tracks, platform, onAddToPlaylist, onPlayTrack }) => {
 
   const handleAddToQueue = async (track) => {
     try {
-      const newTrackData = mapTrackForApi(track);
+      const newTrackData = mapTrackToApiPayload(track)
       const newTrack = await authAPI.addTrack(newTrackData);
       await authAPI.addToQueue({'track_id': newTrack.data.id});
       const queueResponse = await authAPI.getQueue();

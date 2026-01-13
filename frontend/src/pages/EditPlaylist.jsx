@@ -11,7 +11,6 @@ import { FaArrowLeft, FaSave, FaTrash, FaCopy, FaCheck } from 'react-icons/fa';
 import '../styles/createPlaylist.css';
 import { mapTrackToApiPayload } from "../services/mapTrackToApiPayload.js";
 
-// Opcje widoczności
 const visibilityOptions = [
     { value: 'public', label: 'Wszystkich (Publiczna)' },
     { value: 'private', label: 'Nikogo (Prywatna)' },
@@ -22,7 +21,6 @@ const EditPlaylist = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // Style dla Select (bez zmian)
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
@@ -148,9 +146,7 @@ const EditPlaylist = () => {
         setCurrentTracks(prev => prev.filter(t => String(t.track_id) !== String(trackId)));
     };
 
-    // Funkcja kopiowania linku
     const handleCopyLink = () => {
-        // Tworzymy link (zakładając strukturę /playlist/hub/:id)
         const link = `${window.location.origin}/playlist/hub/${id}`;
 
         navigator.clipboard.writeText(link).then(() => {
@@ -240,7 +236,6 @@ const EditPlaylist = () => {
                         isSearchable={false}
                     />
 
-                    {/* NOWY PRZYCISK KOPIOWANIA - widoczny tylko dla "unlisted" */}
                     {visibility.value === 'unlisted' && (
                         <div style={{ marginTop: '12px' }}>
                             <button

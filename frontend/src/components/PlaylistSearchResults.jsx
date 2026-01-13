@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEye, FaHeart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import '../styles/searchResults.css'; // Używamy tych samych styli co utwory
+import '../styles/searchResults.css';
 
 const PlaylistSearchResults = ({ playlists, onFollow }) => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const PlaylistSearchResults = ({ playlists, onFollow }) => {
     <div className="search-result-list">
       {playlists.map((playlist) => (
         <ul key={playlist.slug || playlist.id} className="track-item">
-            {/* Ikona lub obrazek playlisty */}
             <div
                 style={{
                     width: 40, height: 40, background: '#333', borderRadius: 4,
@@ -35,7 +34,7 @@ const PlaylistSearchResults = ({ playlists, onFollow }) => {
           <div className="track-actions">
             <button
               className="icon-btn queue-btn"
-              onClick={() => navigate(`/playlist/hub/${playlist.slug}`)} // Zakładam, że masz routing /playlist/:slug
+              onClick={() => navigate(`/playlist/hub/${playlist.slug}`)}
               title="Pokaż playlistę"
             >
               <FaEye />

@@ -6,6 +6,7 @@ import { authAPI } from '../services/api.js';
 import { soundcloudApi } from '../services/soundcloudApi.js';
 import { spotifyApi } from '../services/spotifyApi.js';
 import '../styles/createPlaylist.css';
+import {mapTrackToApiPayload} from "../services/mapTrackToApiPayload.js";
 
 const visibilityOptions = [
     { value: 'public', label: 'Wszystkich (Publiczna)' },
@@ -113,24 +114,8 @@ const CreatePlaylist = () => {
   };
 
   const handleAddToPlaylist = (track, platform) => {
-    const unified = platform === 'spotify'
-      ? {
-          id: track.id,
-          url: track.uri,
-          name: track.name,
-          artists: track.artists.map(a => a.name).join(', '),
-          image_url: track.album.images[0].url || '',
-          track_duration: track.duration_ms
-        }
-      : {
-          id: track.id,
-          url: track.uri || track.permalink_url,
-          name: track.title,
-          artists: track.user?.username || '',
-          image_url: track.artwork_url || track.user.avatar_url || '',
-          track_duration: track.duration
-        };
-    if (!selectedTracks.find(t => t.id === unified.id)) {
+    const unified = mapTrackToApiPayload(track);
+    if (!selectedTracks.find(t => t.track_id === unified.track_id)) {
       setSelectedTracks(prev => [...prev, unified]);
     }
   };
@@ -148,7 +133,7 @@ const CreatePlaylist = () => {
     const payload = {
       name: playlistName,
       tracks: selectedTracks.map(t => ({
-        track_id: t.id,
+        track_id: t.track_id,
         url: t.url,
         name: t.name,
         author: t.artists,

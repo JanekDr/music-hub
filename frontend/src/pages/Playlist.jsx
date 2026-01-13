@@ -11,6 +11,7 @@ import { setCurrentTrackIndex, setQueue } from "../store/playerSlice";
 // Icons & Styles
 import { FaPlay, FaClock, FaArrowLeft, FaSpotify, FaSoundcloud, FaPlus, FaHeart, FaRegHeart } from "react-icons/fa";
 import "../styles/playlist.css";
+import {mapTrackToApiPayload} from "../services/mapTrackToApiPayload.js";
 
 const Playlist = () => {
     const { platform, id } = useParams();
@@ -36,15 +37,7 @@ const Playlist = () => {
     const handleAddToQueue = async (e, track) => {
         e.stopPropagation();
         try {
-            const trackPayload = {
-                track_id: track.id.toString(),
-                name: track.name,
-                author: track.artist,
-                url: platform === 'spotify' ? track.uri : (track.url || track.uri),
-                platform: platform,
-                track_duration: track.track_duration,
-                image_url: track.image_url,
-            };
+            const trackPayload = mapTrackToApiPayload(track);
             const newTrack = await authAPI.addTrack(trackPayload);
             await authAPI.addToQueue({ 'track_id': newTrack.data.id });
             const queueResponse = await authAPI.getQueue();
@@ -107,7 +100,7 @@ const Playlist = () => {
                     fetchedTracks = data.tracks.items.map(item => ({
                         id: item.track.id,
                         name: item.track.name,
-                        artist: item.track.artists.map(a => a.name).join(", "),
+                        author: item.track.artists.map(a => a.name).join(", "),
                         album: item.track.album.name,
                         track_duration: item.track.duration_ms,
                         image_url: item.track.album.images?.[2]?.url,
@@ -124,15 +117,7 @@ const Playlist = () => {
                         owner: data.user.username,
                         platformIcon: <FaSoundcloud />
                     };
-                    fetchedTracks = data.tracks.map(track => ({
-                        id: track.id,
-                        name: track.title,
-                        artist: track.user.username,
-                        album: "-",
-                        track_duration: track.duration,
-                        image_url: track.artwork_url || track.user.avatar_url,
-                        url: track.permalink_url
-                    }));
+                    fetchedTracks = data.tracks.map(track => mapTrackToApiPayload(track));
 
                 } else if (platform === 'hub') {
                     const [playlistRes, userRes] = await Promise.all([
@@ -151,15 +136,7 @@ const Playlist = () => {
                         platformIcon: <span>HUB</span>,
                         slug: data.slug
                     };
-                    fetchedTracks = data.tracks.map(track => ({
-                        id: track.track_id,
-                        name: track.name,
-                        artist: track.author,
-                        album: track.platform,
-                        track_duration: track.track_duration,
-                        image_url: track.image_url,
-                        url: track.url,
-                    }));
+                    fetchedTracks = data.tracks.map(track => mapTrackToApiPayload(track));
 
                     if (currentUser) {
                         const ownerId = data.owner.id || data.owner;
@@ -278,11 +255,11 @@ const Playlist = () => {
                                 </div>
                                 <div className="track-text-info">
                                     <div className="track-name">{track.name}</div>
-                                    <div className="track-artist">{track.artist}</div>
+                                    <div className="track-artist">{track.author}</div>
                                 </div>
                             </div>
 
-                            <span className="col-album">{track.album}</span>
+                            <span className="col-album">{track?.album || track.platform}</span>
 
                             <div className="col-actions">
                                 <button
