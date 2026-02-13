@@ -219,28 +219,36 @@ def search(request):
 @permission_classes([AllowAny])
 def soundcloud_stream(request, track_id: str):
     sc_token = get_app_sc_token()
+    headers = {
+        "accept": "application/json; charset=utf-8",
+        "Authorization": f"OAuth {sc_token}",
+    }
 
     resp = requests.get(
-        f"https://api.soundcloud.com/tracks/{track_id}/stream",
-        headers={
-            "accept": "application/json; charset=utf-8",
-            "Authorization": f"OAuth {sc_token}",
-        },
-        allow_redirects=False,
-        stream=True,
+        f"https://api.soundcloud.com/tracks/{track_id}/streams",
+        headers=headers
     )
 
-    if resp.status_code in (301, 302, 303, 307, 308):
-        loc = resp.headers.get("Location")
-        if not loc:
-            return HttpResponse(status=502)
-        return HttpResponseRedirect(loc)
+    if resp.status_code == 200:
+        data = resp.json()
+        stream_api_url = data.get('http_mp3_128_url')
 
-    return StreamingHttpResponse(
-        resp.iter_content(chunk_size=8192),
-        status=resp.status_code,
-        content_type=resp.headers.get("Content-Type", "audio/mpeg"),
-    )
+        if stream_api_url:
+            final_resp = requests.get(
+                stream_api_url,
+                headers=headers,
+                allow_redirects=False
+            )
+
+            if final_resp.status_code in [301, 302]:
+                cdn_url = final_resp.headers.get('Location')
+                return HttpResponseRedirect(cdn_url)
+
+            return HttpResponseRedirect(stream_api_url)
+
+        return HttpResponse("Nie znaleziono http_mp3_128_url.", status=404)
+
+    return HttpResponse(f"Błąd SoundCloud: {resp.status_code}", status=resp.status_code)
 
 
 @api_view(["GET"])
