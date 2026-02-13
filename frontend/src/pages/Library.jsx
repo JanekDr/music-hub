@@ -1,75 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { authAPI } from "../services/api.js";
 import { spotifyApi } from "../services/spotifyApi.js";
-import "../styles/library.css";
-import {FaSoundcloud, FaSpotify, FaPlay} from "react-icons/fa";
 import { soundcloudApi } from "../services/soundcloudApi.js";
-import {Link} from "react-router-dom";
-
+import { FaSoundcloud, FaSpotify, FaPlay } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import "../styles/library.css";
 
 const HubLogo = () => (
     <svg width="30" height="30" viewBox="0 0 30 30"><circle cx="14" cy="14" r="14" fill="#1DB954"/><text x="14" y="19" fontSize="13" fontWeight="bold" fill="#fff" textAnchor="middle" fontFamily="Arial">HUB</text></svg>
 );
+
 const VISIBILITY_LABELS = {
   public: 'Public',
   private: 'Private',
   unlisted: 'Only with link'
 };
+
 const Library = () => {
-    const [hubPlaylists, setHubPlaylists] = useState([]);
-    const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
-    const [soundcloudPlaylists, setSoundcloudPlaylists] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchData = async () => {
-            const results = await Promise.allSettled([
-                authAPI.getUserPlaylists(),
-                spotifyApi.getSpotifyPlaylists(),
-                soundcloudApi.getUserPlaylists()
-            ]);
-
-            if (isMounted) {
-                const [hubRes, spotifyRes, soundcloudRes] = results;
-
-                if (hubRes.status === 'fulfilled') {
-                    setHubPlaylists(hubRes.value.data || []);
-                } else {
-                    console.error("Hub API Error:", hubRes.reason);
-                    setHubPlaylists([]);
-                }
-
-                if (spotifyRes.status === 'fulfilled') {
-                    setSpotifyPlaylists(spotifyRes.value.data.items || []);
-                } else {
-                    console.error("Spotify API Error:", spotifyRes.reason);
-                    setSpotifyPlaylists([]);
-                }
-
-                if (soundcloudRes.status === 'fulfilled') {
-                    setSoundcloudPlaylists(soundcloudRes.value.data || []);
-                } else {
-                    console.error("SoundCloud API Error:", soundcloudRes.reason);
-                    setSoundcloudPlaylists([]);
-                }
-                setLoading(false);
+    const results = useQueries({
+        queries: [
+            {
+                queryKey: ['playlists', 'hub'],
+                queryFn: () => authAPI.getUserPlaylists().then(res => res.data || []),
+                staleTime: 1000 * 60 * 5 // Dane są "świeże" przez 5 minut
+            },
+            {
+                queryKey: ['playlists', 'spotify'],
+                queryFn: () => spotifyApi.getSpotifyPlaylists().then(res => res.data.items || []),
+                staleTime: 1000 * 60 * 10
+            },
+            {
+                queryKey: ['playlists', 'soundcloud'],
+                queryFn: () => soundcloudApi.getUserPlaylists().then(res => res.data || []),
+                staleTime: 1000 * 60 * 5
             }
-        };
+        ]
+    });
 
-        fetchData();
+    const isLoading = results.some(query => query.isLoading);
 
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    const hubPlaylists = results[0].data || [];
+    const spotifyPlaylists = results[1].data || [];
+    const soundcloudPlaylists = results[2].data || [];
 
     return (
         <div className="library-root">
             <h2 className="library-title">Twoje playlisty</h2>
-            {loading ? (
-                <div className="library-loading">Wczytywanie...</div>
+            {isLoading ? (
+                <div className="library-loading">Loading ...</div>
             ) : (
                 <div>
                     {/* multiplatform */}
@@ -94,17 +72,9 @@ const Library = () => {
 
 const SectionWithLogo = ({ logo, label, children }) => (
     <div style={{ marginBottom: "38px" }}>
-        <div style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 12
-        }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
             {logo}
-            <span style={{
-                fontSize: "1.18rem",
-                fontWeight: 600,
-                marginLeft: 12
-            }}>{label}</span>
+            <span style={{ fontSize: "1.18rem", fontWeight: 600, marginLeft: 12 }}>{label}</span>
         </div>
         {children}
     </div>
@@ -113,8 +83,7 @@ const SectionWithLogo = ({ logo, label, children }) => (
 const PlaylistCards = ({ playlists, platform }) => (
   <div className="library-list">
     {playlists.length ? playlists.map(pl => {
-      const id =
-          platform === "hub" ? pl.slug : pl.id
+      const id = platform === "hub" ? pl.slug : pl.id;
 
       const title =
         platform === "spotify" ? pl.name :
@@ -131,43 +100,26 @@ const PlaylistCards = ({ playlists, platform }) => (
         platform === "hub" ? (pl.owner?.username || "-") :
         platform === "soundcloud" ? (pl.user?.username || "-") :
         null;
+
       return (
         <div className="library-card" key={id}>
           <div className="library-card-title">
-              <Link
-                  to={`/playlist/${platform}/${id}`}
-              >
-                  {title}
-              </Link>
+              <Link to={`/playlist/${platform}/${id}`}>{title}</Link>
             <FaPlay color="#1DB954" size={28} style={{cursor: 'pointer'}} />
           </div>
 
-          {platform === "hub" && (
-            <div className="library-card-owner">
-              Owner: {ownerName}
-            </div>
+          {(platform === "hub" || platform === "soundcloud") && (
+            <div className="library-card-owner">Owner: {ownerName}</div>
           )}
 
-          {platform === "soundcloud" && (
-            <div className="library-card-owner">
-              Owner: {ownerName}
-            </div>
-          )}
-
-          <div className="library-card-tracks">
-            {tracksCount} utworów
-          </div>
+          <div className="library-card-tracks">{tracksCount} utworów</div>
 
           <div className="library-track-chips">
             {platform === "hub" && pl.tracks?.slice?.(0, 3).map(track =>
-              <span className="library-track-chip" key={track.id}>
-                {track.name} - {track.author}
-              </span>
+              <span className="library-track-chip" key={track.id}>{track.name} - {track.author}</span>
             )}
             {platform === "soundcloud" && pl.tracks?.slice?.(0, 3).map(track =>
-              <span className="library-track-chip" key={track.id}>
-                {track.title} - {track.user?.username || ""}
-              </span>
+              <span className="library-track-chip" key={track.id}>{track.title} - {track.user?.username || ""}</span>
             )}
           </div>
 
@@ -179,9 +131,7 @@ const PlaylistCards = ({ playlists, platform }) => (
         </div>
       );
     }) : (
-      <div className="library-list-empty">
-        No playlists to display.
-      </div>
+      <div className="library-list-empty">No playlists to display.</div>
     )}
   </div>
 );
