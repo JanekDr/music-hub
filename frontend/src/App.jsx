@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Dashboard from './pages/Dashboard.jsx';
-import SpotifyLoginButton from "./components/SpotifyLoginButton.jsx";
 import './styles/reset.css';
 import './styles/layout.css';
 import Navbar from "./components/Navbar.jsx";
@@ -40,7 +39,7 @@ function AppLayout() {
   const { isAuthenticated } = useAuth();
   return (
     <div className="App">
-      <Navbar />
+        {isAuthenticated&&<Navbar />}
       <Routes>
         <Route path="/login" element={
               <PublicRoute>
