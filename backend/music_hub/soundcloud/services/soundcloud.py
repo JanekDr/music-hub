@@ -2,30 +2,34 @@ import httpx
 import logging
 from django.conf import settings
 
-
 logger = logging.getLogger(__name__)
 
 
 class SoundCloudService:
     BASE_URL = "https://api.soundcloud.com"
 
-    def __init__(self, client_id=None):
-        self.client_id = client_id or getattr(settings, 'SOUNDCLOUD_CLIENT_ID', None)
+    def __init__(self, access_token):
+        self.access_token = access_token
 
     async def search_async(self, query, limit=5):
-        if not self.client_id:
-            logger.error("SoundCloud Client ID is missing!")
-            return None
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"OAuth {self.access_token}",
+        }
 
         params = {
             "q": query,
             "limit": limit,
-            "client_id": self.client_id
+            "access": "playable"
         }
 
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.get(f"{self.BASE_URL}/tracks", params=params)
+                response = await client.get(
+                    f"{self.BASE_URL}/tracks",
+                    headers=headers,
+                    params=params
+                )
                 response.raise_for_status()
                 tracks = response.json()
 
