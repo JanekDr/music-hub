@@ -59,14 +59,14 @@ def spotify_login(request):
 def spotify_callback(request):
     code = request.GET.get("code")
     error = request.GET.get("error")
-    state = request.GET.get("state")  # to jest token JWT
+    state = request.GET.get("state")
     if error:
         return Response({"error": error}, status=400)
 
     try:
         UntypedToken(
             state
-        )  # ??????????? po co walidacja uzytkownika skoro i tak interceptor doda jwt w requescie
+        )
         jwt_auth = JWTAuthentication()
         validated_token = jwt_auth.get_validated_token(state)
         user = jwt_auth.get_user(validated_token)
