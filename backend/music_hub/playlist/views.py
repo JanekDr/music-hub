@@ -1,3 +1,4 @@
+from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
@@ -9,6 +10,14 @@ from rest_framework.response import Response
 from .models import Playlist, QueueTrack, Track, Queue
 from .serializers import PlaylistSerializer, QueueSerializer, TrackSerializer
 from .permissions import IsOwnerOrCollaboratorOrReadOnly, IsOwnerOrStaffOnly
+
+from django.http import JsonResponse
+from .services.recommendations import RecommendationService
+import logging
+from spotify.views import get_valid_spotify_token
+from soundcloud.views import get_valid_soundcloud_token
+
+logger = logging.getLogger(__name__)
 
 
 class PlaylistViewSet(viewsets.ModelViewSet):
@@ -235,3 +244,27 @@ def add_track(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def suggest_songs(request, playlist_slug):
+    """
+    Endpoint: GET /api/playlist/<id>/suggest/
+    """
+    spotify_token = get_valid_spotify_token(request.user)
+    soundcloud_token = get_valid_soundcloud_token(request.user)
+
+    if not spotify_token:
+        return JsonResponse({'error': 'Missing Spotify Token in headers'}, status=401)
+
+    try:
+        service = RecommendationService(spotify_token=spotify_token, soundcloud_token=soundcloud_token)
+
+        data = async_to_sync(service.get_intelligent_proposals)(playlist_slug)
+
+        return Response(data)
+
+    except Exception as e:
+        logger.error(f"Error in suggest_songs view: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

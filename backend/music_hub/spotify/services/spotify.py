@@ -11,7 +11,7 @@ class SpotifyService:
     def __init__(self, access_token):
         self.headers = {"Authorization": f"Bearer {access_token}"}
 
-    async def search_async(self, query, limit=1):
+    async def search_async(self, query, limit=5):
         params = {
             "q": query,
             "type": "track",
