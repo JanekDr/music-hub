@@ -39,9 +39,9 @@ class SoundCloudService:
                 track = tracks[0]
 
                 return {
-                    "id": str(track["id"]),
+                    "track_id": str(track["id"]),
                     "name": track["title"],
-                    "artist": track["user"]["username"],
+                    "author": track["user"]["username"],
                     "image_url": track.get("artwork_url") or track["user"].get("avatar_url"),
                     "url": track["permalink_url"],
                     "platform": "soundcloud",

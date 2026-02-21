@@ -30,12 +30,13 @@ class SpotifyService:
 
                 track = tracks[0]
                 return {
-                    "id": track["id"],
+                    "track_id": track["id"],
                     "name": track["name"],
-                    "artist": track["artists"][0]["name"],
+                    "author": track["artists"][0]["name"],
                     "image_url": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
-                    "uri": track["uri"],
-                    "external_url": track["external_urls"]["spotify"]
+                    "url": track["uri"],
+                    "platform": 'spotify',
+                    "track_duration": track["duration_ms"],
                 }
             except Exception as e:
                 logger.error(f"Spotify async search error for '{query}': {e}")
