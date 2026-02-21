@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
+import AiSuggestions from "../components/AiSuggestions";
 
 // Services & Store
 import { authAPI } from "../services/api";
@@ -267,6 +268,15 @@ const Playlist = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+            <div className="playlist-actions-row">
+                {/* Wywołujemy komponent i przekazujemy mu slug oraz funkcję callbackową */}
+                {platform === 'hub' && (
+                    <AiSuggestions
+                        playlistSlug={playlist.slug}
+                        onTrackAdd={(track) => handleAddToQueue(null, track)}
+                    />
+                )}
             </div>
         </div>
     );

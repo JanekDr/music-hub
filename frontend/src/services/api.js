@@ -21,6 +21,7 @@ export const authAPI = {
   editPlaylist: (playlistId, data) => api.put(`/playlist/${playlistId}/`, data),
   deletePlaylist: (playlistId) => api.delete(`/playlist/${playlistId}/`),
   followPlaylist: (playlistSlug) => api.post(`/playlist/${playlistSlug}/follow_toggle/`),
+  getSuggestions: (playlistSlug) => api.get(`/playlist/hub/${playlistSlug}/suggest/`),
 
   // queue
   getQueue: () => api.get("/queue/"),
