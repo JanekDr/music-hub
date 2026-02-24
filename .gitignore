@@ -1,0 +1,30 @@
+# IDE i pliki konfiguracyjne edytora
+.idea/
+.vscode/
+*.iml
+
+# Środowisko wirtualne Pythona (TO usuwa 10,000 plików)
+venv/
+ENV/
+env/
+
+# Cache Pythona
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Baza danych i dane wrażliwe (NIGDY nie wrzucaj na GitHub)
+backend/music_hub/db.sqlite3
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Frontend (Biblioteki i gotowe buildy)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Logi
+*.log
+npm-debug.log*
+.env
