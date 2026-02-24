@@ -86,7 +86,7 @@ class PlaylistViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def add_track(self, request, slug=None):
         playlist = self.get_object()
-
+        print(request.data)
         track_id = request.data.get('track_id')
         if not track_id:
             return Response(

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaMagic, FaSpotify, FaSoundcloud, FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaMagic, FaSpotify, FaSoundcloud, FaPlus, FaChevronDown, FaChevronUp, FaCheck } from "react-icons/fa";
 import { authAPI } from "../services/api";
 import "../styles/AiSuggestions.css";
 
@@ -53,7 +53,6 @@ const AiSuggestions = ({ playlistSlug, onTrackAdd }) => {
                         </div>
                     ) : (
                         <div className="dual-column-layout">
-                            {/* KOLUMNA SPOTIFY */}
                             <div className="suggestion-column">
                                 <div className="column-title"><FaSpotify color="#1DB954" /> Spotify</div>
                                 {suggestions.proposals.filter(r => r.spotify).map((rec, idx) => (
@@ -65,7 +64,6 @@ const AiSuggestions = ({ playlistSlug, onTrackAdd }) => {
                                 ))}
                             </div>
 
-                            {/* KOLUMNA SOUNDCLOUD */}
                             <div className="suggestion-column">
                                 <div className="column-title"><FaSoundcloud color="#FF5500" /> SoundCloud</div>
                                 {suggestions.proposals.filter(r => r.soundcloud).map((rec, idx) => (
@@ -84,17 +82,30 @@ const AiSuggestions = ({ playlistSlug, onTrackAdd }) => {
     );
 };
 
-const SuggestionCard = ({ track, onAdd }) => (
-    <div className="mini-track-card-glass">
-        <img src={track.image_url} alt="" />
-        <div className="info">
-            <span className="name">{track.name}</span>
-            <span className="author">{track.author}</span>
+const SuggestionCard = ({ track, onAdd }) => {
+    const [added, setAdded] = useState(false);
+
+    const handleAddClick = async () => {
+        await onAdd(track);
+        setAdded(true);
+    };
+
+    return (
+        <div className="mini-track-card-glass">
+            <img src={track.image_url} alt="" />
+            <div className="info">
+                <span className="name">{track.name}</span>
+                <span className="author">{track.author}</span>
+            </div>
+            <button
+                onClick={handleAddClick}
+                className={`add-btn-circle ${added ? 'success' : ''}`}
+                disabled={added}
+            >
+                {added ? <FaCheck /> : <FaPlus size={12} />}
+            </button>
         </div>
-        <button onClick={() => onAdd(track)} className="add-btn-circle" title="Dodaj do playlisty">
-            <FaPlus size={12} />
-        </button>
-    </div>
-);
+    );
+};
 
 export default AiSuggestions;

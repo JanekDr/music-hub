@@ -72,24 +72,28 @@ const Playlist = () => {
     };
 
     const handleAddTrackToPlaylist = async (track) => {
-        try {
-            const trackPayload = mapTrackToApiPayload(track);
-            console.log(id)
-            console.log(trackPayload)
-            const response = await authAPI.addTrackToPlaylist(id, {
+    try {
+        const trackPayload = mapTrackToApiPayload(track);
+        const response = await authAPI.addTrackToPlaylist(id, trackPayload);
+
+        if (response.data.status === "success") {
+            // Dodajemy utwór do stanu, ale uzupełniamy go o pola,
+            // których wymaga Twój interfejs (id, duration itp.)
+            const newTrackForUI = {
                 ...trackPayload,
-            });
+                // Tworzymy tymczasowe ID, żeby klucz w .map() nie był undefined
+                id: track.id || `temp-${Date.now()}`,
+                // Upewniamy się, że platforma jest ustawiona (do wyświetlania zamiast albumu)
+                platform: track.platform || (track.uri ? 'spotify' : 'soundcloud')
+            };
 
-            if (response.status === 200 || response.status === 201) {
-
-                setTracks(prevTracks => [...prevTracks, trackPayload]);
-
-            }
-        } catch (err) {
-            console.error("Błąd podczas dodawania utworu do playlisty:", err);
-            alert("Nie udało się dodać utworu.");
+            setTracks(prevTracks => [...prevTracks, newTrackForUI]);
         }
-    };
+    } catch (err) {
+        console.error("Błąd podczas dodawania utworu:", err);
+        alert("Nie udało się dodać utworu.");
+    }
+};
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -293,7 +297,7 @@ const Playlist = () => {
                 {platform === 'hub' && (
                     <AiSuggestions
                         playlistSlug={playlist.slug}
-                        onTrackAdd={(track) => handleAddTrackToPlaylist(null, track)}
+                        onTrackAdd={(track) => handleAddTrackToPlaylist(track)}
                     />
                 )}
             </div>
