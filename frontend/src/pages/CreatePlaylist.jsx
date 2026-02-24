@@ -113,7 +113,7 @@ const CreatePlaylist = () => {
     ]).finally(() => setLoading(false));
   };
 
-  const handleAddToPlaylist = (track, platform) => {
+  const handleAddToPlaylist = (track) => {
     const unified = mapTrackToApiPayload(track);
     if (!selectedTracks.find(t => t.track_id === unified.track_id)) {
       setSelectedTracks(prev => [...prev, unified]);
@@ -121,7 +121,7 @@ const CreatePlaylist = () => {
   };
 
   const handleRemoveTrack = (id) => {
-    setSelectedTracks(selectedTracks.filter(t => t.id !== id));
+    setSelectedTracks(selectedTracks.filter(t => t.track_id !== id));
   };
 
   const handleCreatePlaylist = async () => {
@@ -136,7 +136,7 @@ const CreatePlaylist = () => {
         track_id: t.track_id,
         url: t.url,
         name: t.name,
-        author: t.artists,
+        author: t.author,
         track_duration: t.track_duration,
         image_url: t.image_url
       })),
@@ -145,6 +145,7 @@ const CreatePlaylist = () => {
       visibility: visibility.value,
       is_public: visibility.value === 'public',
     };
+    console.log(payload);
 
     try {
       const response = await authAPI.createPlaylist(payload);
@@ -230,11 +231,11 @@ const CreatePlaylist = () => {
                 <img src={track.image_url} alt={track.name || "cover"} />
                 <div>
                   <b>{track.name} </b>
-                  <span>{track.artists}</span>
+                  <span>{track.author}</span>
                 </div>
                 <button
                   className="track-remove"
-                  onClick={() => handleRemoveTrack(track.id)}
+                  onClick={() => handleRemoveTrack(track.track_id)}
                 >
                   Usuń
                 </button>

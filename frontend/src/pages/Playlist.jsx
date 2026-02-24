@@ -71,6 +71,26 @@ const Playlist = () => {
         }
     };
 
+    const handleAddTrackToPlaylist = async (track) => {
+        try {
+            const trackPayload = mapTrackToApiPayload(track);
+            console.log(id)
+            console.log(trackPayload)
+            const response = await authAPI.addTrackToPlaylist(id, {
+                ...trackPayload,
+            });
+
+            if (response.status === 200 || response.status === 201) {
+
+                setTracks(prevTracks => [...prevTracks, trackPayload]);
+
+            }
+        } catch (err) {
+            console.error("Błąd podczas dodawania utworu do playlisty:", err);
+            alert("Nie udało się dodać utworu.");
+        }
+    };
+
     useEffect(() => {
         const fetchDetails = async () => {
             setLoading(true);
@@ -270,11 +290,10 @@ const Playlist = () => {
                 </div>
             </div>
             <div className="playlist-actions-row">
-                {/* Wywołujemy komponent i przekazujemy mu slug oraz funkcję callbackową */}
                 {platform === 'hub' && (
                     <AiSuggestions
                         playlistSlug={playlist.slug}
-                        onTrackAdd={(track) => handleAddToQueue(null, track)}
+                        onTrackAdd={(track) => handleAddTrackToPlaylist(null, track)}
                     />
                 )}
             </div>
