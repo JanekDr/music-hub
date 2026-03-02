@@ -1,0 +1,43 @@
+/* Style dashboardu */
+.dashboard {
+  max-width: 900px;
+  justify-content: center;
+  align-items: center;
+  margin: 5rem auto;
+  padding: 0 20px;
+  color: #eee;
+}
+
+.dashboard-text {
+  text-align: center;
+}
+
+.dashboard-content {
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: 2rem;
+  background-color: #181818;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+  font-size: 1.1rem;
+}
+
+.user-info p {
+  margin-bottom: 1rem;
+}
+
+.user-info p strong {
+  color: #1DB954;
+}
+
+.user-info {
+  margin-top: 1rem;
+
+}
+.player-connection-status {
+  margin-left: auto;
+  margin-right: auto;
+}
